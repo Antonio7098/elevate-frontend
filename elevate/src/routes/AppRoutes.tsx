@@ -1,5 +1,6 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { lazy, Suspense, useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 // Lazy load pages for better performance
 const LoginPage = lazy(() => import('../pages/LoginPage'));
@@ -13,13 +14,41 @@ const Loading = () => (
   </div>
 );
 
-// Simple protected route wrapper
+// Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  // In a real app, you would check for authentication here
-  const isAuthenticated = false; // Replace with actual auth check
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if we have a token in localStorage
+    const token = localStorage.getItem('authToken');
+    
+    // In a real app, you would validate the token with your backend
+    // For now, we'll just check if it exists and has a valid format
+    const isValidToken = token && token.split('.').length === 3;
+    
+    if (!isValidToken && isAuthenticated) {
+      // If the token is invalid but the app thinks we're authenticated,
+      // we need to log the user out
+      const { logout } = useAuth();
+      logout();
+    }
+    
+    setIsLoading(false);
+  }, [isAuthenticated]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
   
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // Redirect them to the /login page, but save the current location they were trying to go to
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
   return <>{children}</>;
