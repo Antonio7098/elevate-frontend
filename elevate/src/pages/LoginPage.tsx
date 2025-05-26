@@ -183,12 +183,13 @@ const LoginPage = () => {
             Sign in to your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
+            Don't have an account?{' '}
             <Link 
               to="/register" 
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              state={{ from: location.state?.from }}
+              className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
             >
-              create a new account
+              Sign up now
             </Link>
           </p>
         </div>

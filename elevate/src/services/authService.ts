@@ -1,14 +1,20 @@
 import apiClient from './apiClient';
 
+export interface RegisterCredentials {
+  email: string;      // User's email address
+  password: string;   // User's password (will be hashed server-side)
+  name?: string;     // Optional name field (not used in current backend but kept for future use)
+}
+
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
 export interface User {
-  id: string;
-  email: string;
-  name: string;
+  id: number;     // Backend returns number for ID
+  email: string;  // User's email
+  name?: string;  // Optional name (not in current backend response but kept for future use)
 }
 
 export interface AuthResponse {
@@ -21,6 +27,61 @@ export interface AuthResponse {
  * @param credentials User's login credentials
  * @returns Promise that resolves with authentication data
  * @throws {Error} If login fails
+ */
+/**
+ * Registers a new user account
+ */
+export const register = async (credentials: RegisterCredentials): Promise<AuthResponse> => {
+  console.log('📝 [authService] Registering new user:', credentials.email);
+  
+  try {
+    // Prepare the payload with only the fields the backend expects
+    const payload = {
+      email: credentials.email,
+      password: credentials.password
+    };
+    
+    const response = await apiClient.post<AuthResponse>('/auth/register', payload);
+    
+    if (!response.data?.token) {
+      throw new Error('No token received from server');
+    }
+    
+    console.log('✅ [authService] Registration successful');
+    // Ensure the response matches our AuthResponse interface
+    return {
+      token: response.data.token,
+      user: {
+        id: response.data.user.id,
+        email: response.data.user.email,
+        name: credentials.email.split('@')[0] // Fallback to first part of email as name
+      }
+    };
+    
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 
+                      error.message || 
+                      'Registration failed. Please try again.';
+    
+    console.error('❌ [authService] Registration failed:', errorMessage, {
+      status: error.response?.status,
+      data: error.response?.data,
+      url: error.config?.url
+    });
+    
+    const registrationError = new Error(errorMessage);
+    registrationError.name = 'RegistrationError';
+    
+    if (error.response?.status) {
+      (registrationError as any).status = error.response.status;
+    }
+    
+    throw registrationError;
+  }
+};
+
+/**
+ * Logs in an existing user
  */
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   console.log('🔐 [authService] Attempting login with email:', credentials.email);

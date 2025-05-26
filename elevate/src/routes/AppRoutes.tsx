@@ -5,6 +5,7 @@ const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const FoldersPage = lazy(() => import('../pages/FoldersPage'));
+const AuthenticatedLayout = lazy(() => import('../components/layout/AuthenticatedLayout'));
 import { ProtectedRoute } from './ProtectedRoute';
 
 // Simple loading component
@@ -18,7 +19,9 @@ const Loading = () => (
 const ProtectedLayout = () => {
   return (
     <ProtectedRoute>
-      <Outlet />
+      <AuthenticatedLayout>
+        <Outlet />
+      </AuthenticatedLayout>
     </ProtectedRoute>
   );
 };
