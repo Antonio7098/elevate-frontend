@@ -1,6 +1,6 @@
 export interface QuestionSet {
   id: string;
-  title: string;
+  name: string;
   description?: string;
   folderId: string;
   createdAt: string;
@@ -9,12 +9,12 @@ export interface QuestionSet {
 }
 
 export interface CreateQuestionSetData {
-  title: string;
+  name: string;
   description?: string;
   folderId: string;
 }
 
 export interface UpdateQuestionSetData {
-  title?: string;
+  name?: string;
   description?: string;
 }

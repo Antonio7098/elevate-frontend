@@ -11,6 +11,16 @@ export const getFolders = async (): Promise<Folder[]> => {
   }
 };
 
+export const getFolder = async (folderId: string): Promise<Folder> => {
+  try {
+    const response = await apiClient.get<Folder>(`/folders/${folderId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch folder with ID ${folderId}:`, error);
+    throw error;
+  }
+};
+
 export const createFolder = async (folderData: CreateFolderData): Promise<Folder> => {
   try {
     const response = await apiClient.post<Folder>('/folders', folderData);
