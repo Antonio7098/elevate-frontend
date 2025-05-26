@@ -7,23 +7,43 @@ export interface ChatMessage {
 }
 
 export interface ChatContext {
-  folderId?: number;
-  questionSetId?: number;
+  folderId?: string;
+  questionSetId?: string;
+}
+
+export interface AIChatResponse {
+  response: string;
+  context?: {
+    folderId?: string;
+    questionSetId?: string;
+  };
 }
 
 export const sendMessageToAI = async (
   message: string, 
   context?: ChatContext
-): Promise<string> => {
+): Promise<AIChatResponse> => {
   try {
-    const response = await apiClient.post('/ai/chat', {
+    const response = await apiClient.post<AIChatResponse>('/ai/chat', {
       message,
-      ...context
+      context: context || {}
     });
     
-    return response.data.response || 'I apologize, but I encountered an error processing your request.';
+    return response.data || { 
+      response: 'I apologize, but I encountered an error processing your request.' 
+    };
   } catch (error) {
     console.error('Error sending message to AI:', error);
     throw new Error('Failed to get response from AI. Please try again.');
+  }
+};
+
+export const getChatHistory = async (): Promise<ChatMessage[]> => {
+  try {
+    const response = await apiClient.get<ChatMessage[]>('/ai/chat/history');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching chat history:', error);
+    throw new Error('Failed to load chat history');
   }
 };

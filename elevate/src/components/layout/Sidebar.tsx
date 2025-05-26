@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import React, { useCallback } from 'react';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
   FiHome, 
   FiFolder, 
@@ -10,6 +10,7 @@ import {
   FiUser,
   FiLogOut 
 } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 
 interface NavigationItem {
   name: string;
@@ -18,8 +19,20 @@ interface NavigationItem {
 }
 
 const Sidebar: React.FC = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  
   // Define a common class for icons if you want consistency
-  const iconClassName: string = "h-6 w-6"; 
+  const iconClassName: string = "h-6 w-6";
+  
+  const handleLogout = useCallback(async () => {
+    try {
+      await logout();
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
+  }, [logout, navigate]); 
 
   const navigationItems: NavigationItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: <FiHome className={iconClassName} /> },
@@ -130,7 +143,7 @@ const Sidebar: React.FC = () => {
               type="button"
               className="group/bottom-item w-full group-hover:w-auto flex items-center rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-red-400 transition-colors"
               title="Logout"
-              // onClick={handleLogout} // You'll add your logout function here
+              onClick={handleLogout}
             >
               <FiLogOut className="h-5 w-5 flex-shrink-0 mx-auto group-hover:mx-0" /> {/* Correct direct usage */}
               <span className="ml-3 hidden group-hover:block transition-opacity duration-300">

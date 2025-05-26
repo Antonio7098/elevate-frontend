@@ -1,7 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { FiSend, FiFolder, FiBook } from 'react-icons/fi';
-import type { ChatMessage as ChatMessageType, ChatContext } from '../services/chatService';
-import { sendMessageToAI } from '../services/chatService';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { FiSend, FiFolder, FiBook, FiLoader } from 'react-icons/fi';
+import { sendMessageToAI, type ChatMessage as ChatMessageType, type ChatContext } from '../services/chatService';
+import { getFolders } from '../services/folderService';
+import { getQuestionSetsByFolder } from '../services/questionSetService';
+import type { Folder } from '../types/folder';
+import type { QuestionSet } from '../types/questionSet';
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -29,7 +32,64 @@ const ChatPage: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [context, setContext] = useState<ChatContext>({});
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [questionSets, setQuestionSets] = useState<QuestionSet[]>([]);
+  const [isLoadingFolders, setIsLoadingFolders] = useState(true);
+  const [isLoadingQuestionSets, setIsLoadingQuestionSets] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Fetch folders on component mount
+  useEffect(() => {
+    const fetchFolders = async () => {
+      try {
+        const fetchedFolders = await getFolders();
+        setFolders(fetchedFolders);
+      } catch (error) {
+        console.error('Failed to fetch folders:', error);
+        // Optionally show error to user
+      } finally {
+        setIsLoadingFolders(false);
+      }
+    };
+
+    fetchFolders();
+  }, []);
+
+  // Fetch question sets when folder is selected
+  const fetchQuestionSets = useCallback(async (folderId: string) => {
+    if (!folderId) {
+      setQuestionSets([]);
+      setContext(prev => ({ ...prev, questionSetId: undefined }));
+      return;
+    }
+
+    setIsLoadingQuestionSets(true);
+    try {
+      const fetchedQuestionSets = await getQuestionSetsByFolder(folderId);
+      setQuestionSets(fetchedQuestionSets);
+    } catch (error) {
+      console.error('Failed to fetch question sets:', error);
+      // Optionally show error to user
+    } finally {
+      setIsLoadingQuestionSets(false);
+    }
+  }, []);
+
+  // Handle folder selection change
+  const handleFolderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const folderId = e.target.value || '';
+    setContext(prev => ({
+      ...prev,
+      folderId: folderId || undefined,
+      questionSetId: undefined // Reset question set when folder changes
+    }));
+    
+    if (folderId) {
+      fetchQuestionSets(folderId);
+    } else {
+      setQuestionSets([]);
+    }
+  };
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -54,12 +114,20 @@ const ChatPage: React.FC = () => {
     try {
       // Get AI response
       const aiResponse = await sendMessageToAI(input, context);
-      
-      const aiMessage: ChatMessageType = {
-        sender: 'ai',
-        text: aiResponse,
-        timestamp: new Date(),
-      };
+    
+    const aiMessage: ChatMessageType = {
+      sender: 'ai',
+      text: aiResponse.response,
+      timestamp: new Date(),
+    };
+    
+    // Update context if server returned a new one
+    if (aiResponse.context) {
+      setContext(prev => ({
+        ...prev,
+        ...aiResponse.context
+      }));
+    }
       
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
@@ -83,35 +151,62 @@ const ChatPage: React.FC = () => {
         <div className="flex space-x-4">
           <div className="flex items-center space-x-2 text-slate-400">
             <span className="flex-shrink-0 text-slate-400">
-              <FiFolder size={18} />
+              {isLoadingFolders ? (
+                <span className="animate-spin">
+                  <FiLoader size={18} />
+                </span>
+              ) : (
+                <FiFolder size={18} />
+              )}
             </span>
             <select 
-              className="bg-slate-800 text-sm rounded px-3 py-1 text-slate-200"
+              className="bg-slate-800 text-sm rounded px-3 py-1 text-slate-200 min-w-[150px]"
               value={context.folderId || ''}
-              onChange={(e) => setContext(prev => ({ 
-                ...prev, 
-                folderId: e.target.value ? parseInt(e.target.value) : undefined 
-              }))}
+              onChange={handleFolderChange}
+              disabled={isLoadingFolders}
             >
               <option value="">All Folders</option>
-              {/* Add dynamic folder options here */}
+              {isLoadingFolders ? (
+                <option disabled>Loading folders...</option>
+              ) : (
+                folders.map(folder => (
+                  <option key={folder.id} value={folder.id}>
+                    {folder.name}
+                  </option>
+                ))
+              )}
             </select>
           </div>
           
           <div className="flex items-center space-x-2 text-slate-400">
             <span className="flex-shrink-0 text-slate-400">
-              <FiBook size={18} />
+              {isLoadingQuestionSets ? (
+                <span className="animate-spin">
+                  <FiLoader size={18} />
+                </span>
+              ) : (
+                <FiBook size={18} />
+              )}
             </span>
             <select 
-              className="bg-slate-800 text-sm rounded px-3 py-1 text-slate-200"
+              className="bg-slate-800 text-sm rounded px-3 py-1 text-slate-200 min-w-[150px]"
               value={context.questionSetId || ''}
-              onChange={(e) => setContext(prev => ({ 
-                ...prev, 
-                questionSetId: e.target.value ? parseInt(e.target.value) : undefined 
+              onChange={(e) => setContext(prev => ({
+                ...prev,
+                questionSetId: e.target.value || undefined
               }))}
+              disabled={isLoadingQuestionSets || !context.folderId}
             >
               <option value="">All Question Sets</option>
-              {/* Add dynamic question set options here */}
+              {isLoadingQuestionSets ? (
+                <option disabled>Loading question sets...</option>
+              ) : (
+                questionSets.map(qs => (
+                  <option key={qs.id} value={qs.id}>
+                    {qs.title}
+                  </option>
+                ))
+              )}
             </select>
           </div>
         </div>

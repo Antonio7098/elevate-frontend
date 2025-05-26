@@ -143,10 +143,26 @@ const LoginPage = () => {
         loginAttempted
       });
       
-      // Update auth context
-      login(token);
-      console.log('✅ [LoginPage] ✅ Login function called, setting loginAttempted to true');
-      setLoginAttempted(true);
+      try {
+        // Update auth context with onSuccess callback for navigation
+        login(token, () => {
+          console.log('✅ [LoginPage] ✅ Login success callback triggered, navigating to:', from);
+          navigate(from, { replace: true });
+        });
+        console.log('✅ [LoginPage] ✅ Login function called, setting loginAttempted to true');
+        setLoginAttempted(true);
+        
+        // Force navigation if callback doesn't trigger
+        setTimeout(() => {
+          if (window.location.pathname === '/login') {
+            console.log('⏰ [LoginPage] ⏰ Timeout reached, forcing navigation to:', from);
+            navigate(from, { replace: true });
+          }
+        }, 1000);
+      } catch (loginError) {
+        console.error('❌ [LoginPage] Error during login context update:', loginError);
+        setSubmitError('Error updating authentication state. Please try again.');
+      }
       
       console.log('🔄 [LoginPage] 🔄 After login call, state:', {
         isAuthenticated,
