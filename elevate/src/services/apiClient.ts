@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api', // Your Core API base URL
+  baseURL: 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -10,56 +10,65 @@ const apiClient = axios.create({
 // Request interceptor for adding auth token
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from your auth context or localStorage
+    console.log('🔑 [apiClient] Adding auth token to request:', config.url);
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('✅ [apiClient] Token added to headers');
+    } else {
+      console.warn('⚠️ [apiClient] No auth token found');
     }
     return config;
   },
   (error) => {
+    console.error('❌ [apiClient] Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
 // Response interceptor for handling common errors
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`✅ [apiClient] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`);
+    return response;
+  },
   (error) => {
     if (error.response) {
+      console.error(`❌ [apiClient] ${error.response.status} ${error.config?.method?.toUpperCase() || 'REQUEST'} ${error.config?.url || 'unknown'}`);
+      
       // Handle specific status codes
       switch (error.response.status) {
         case 401:
-          // Handle unauthorized access (e.g., redirect to login)
+          console.warn('⚠️ [apiClient] 401 Unauthorized - Invalid or missing token');
+          // Only handle 401 if we're not already on the login page
           if (window.location.pathname !== '/login') {
+            console.log('🔐 [apiClient] Redirecting to login...');
             localStorage.removeItem('authToken');
+            // Use window.location to force a full page reload and reset app state
             window.location.href = '/login';
           }
           break;
         case 403:
-          // Handle forbidden access
-          console.error('Forbidden: You do not have permission to access this resource');
+          console.error('🔒 [apiClient] 403 Forbidden - Insufficient permissions');
           break;
         case 404:
-          // Handle not found
-          console.error('Resource not found');
+          console.error('🔍 [apiClient] 404 Not Found - Resource does not exist');
           break;
         case 500:
-          // Handle server error
-          console.error('Server error occurred');
+          console.error('💥 [apiClient] 500 Server Error - Please try again later');
           break;
         default:
-          console.error('An error occurred:', error.message);
+          console.error(`⚠️ [apiClient] ${error.response.status} Error:`, error.message);
       }
     } else if (error.request) {
-      // The request was made but no response was received
-      console.error('No response received from server');
+      console.error('❌ [apiClient] No response received:', error.request);
     } else {
-      // Something happened in setting up the request
-      console.error('Error setting up request:', error.message);
+      console.error('❌ [apiClient] Request setup error:', error.message);
     }
     return Promise.reject(error);
   }
 );
 
+// Export the configured axios instance
+export { apiClient };
 export default apiClient;

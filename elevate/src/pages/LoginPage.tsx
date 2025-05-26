@@ -1,10 +1,19 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { login as apiLogin } from '../services/authService';
+import type { LoginCredentials } from '../services/authService';
 
 const LoginPage = () => {
-  const { login } = useAuth();
+  console.log('🔑 [LoginPage] Component rendered');
+  const { login, isAuthenticated, isInitialized } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const from = location.state?.from?.pathname || '/dashboard';
+  
+  console.log('📍 [LoginPage] Location state:', location.state);
+  console.log('🔄 [LoginPage] Target redirect path (from):', from);
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -12,6 +21,7 @@ const LoginPage = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [loginAttempted, setLoginAttempted] = useState(false);
 
   // Check for success message from registration
   const successMessage = location.state?.message;
@@ -50,51 +60,117 @@ const LoginPage = () => {
     }
   };
 
-  // Get the redirect path from the router state or default to '/dashboard'
-  const from = location.state?.from?.pathname || '/dashboard';
+  // Handle navigation after successful login
+  useEffect(() => {
+    console.log('🔄 [LoginPage] 🔄 useEffect checking auth state:', { 
+      isAuthenticated, 
+      isInitialized, 
+      loginAttempted,
+      from,
+      currentPath: window.location.pathname
+    });
+    
+    if (isInitialized && isAuthenticated) {
+      if (loginAttempted) {
+        console.log('✅ [LoginPage] ✅ Auth successful and initialized, navigating to:', from);
+        console.log('🔄 [LoginPage] 🔄 Navigation details:', {
+          currentPath: window.location.pathname,
+          targetPath: from,
+          isReplacing: true,
+          reason: 'After successful login attempt'
+        });
+        navigate(from, { replace: true });
+      } else {
+        // If already authenticated but not from a login attempt
+        const targetPath = from === '/login' || from === '/register' ? '/dashboard' : from;
+        console.log('🔄 [LoginPage] 🔄 Already authenticated, redirecting to:', targetPath);
+        console.log('📌 [LoginPage] 📌 Navigation details:', {
+          fromPath: window.location.pathname,
+          toPath: targetPath,
+          isReplacing: true,
+          reason: 'Already authenticated on page load'
+        });
+        navigate(targetPath, { replace: true });
+      }
+    }
+  }, [isAuthenticated, isInitialized, loginAttempted, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔄 [LoginPage] 🚀 Form submission started');
     setSubmitError('');
+    setLoginAttempted(false);
     
+    console.log('🔍 [LoginPage] 🔍 Validating form...');
     if (!validateForm()) {
+      console.log('❌ [LoginPage] ❌ Form validation failed');
+      console.log('📋 [LoginPage] Current form errors:', errors);
       return;
     }
     
+    console.log('✅ [LoginPage] ✅ Form validation passed');
     setIsSubmitting(true);
     
     try {
-      // Simulate API call with a delay
-      console.log('Login attempt with:', formData);
+      console.log('🔑 [LoginPage] 🔑 Attempting to authenticate with backend...');
       
-      // Simulate API call delay
-      const token = await new Promise<string>((resolve, reject) => {
-        setTimeout(() => {
-          // For demo purposes, accept any non-empty email and password
-          if (formData.email && formData.password) {
-            // Create a dummy token with proper JWT format (header.payload.signature)
-            const dummyToken = `dummy.${btoa(JSON.stringify({
-              email: formData.email,
-              exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour from now
-            }))}.signature`;
-            
-            resolve(dummyToken);
-          } else {
-            reject(new Error('Invalid credentials'));
-          }
-        }, 1000);
+      // Call the real login endpoint
+      const credentials: LoginCredentials = {
+        email: formData.email,
+        password: formData.password
+      };
+      
+      console.log('🔐 [LoginPage] Sending login request...');
+      const authResponse = await apiLogin(credentials);
+      const { token, user } = authResponse;
+      
+      console.log('✅ [LoginPage] ✅ Backend authentication successful');
+      
+      // Clear any existing data first
+      console.log('🧹 [LoginPage] 🧹 Clearing any existing auth data...');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      
+      // Save the new token and user data
+      console.log('💾 [LoginPage] 💾 Saving auth data...');
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('userData', JSON.stringify(user));
+      
+      console.log('🔑 [LoginPage] 🔑 Calling login from AuthContext...');
+      console.log('⏳ [LoginPage] ⏳ Before login call, auth state:', {
+        isAuthenticated,
+        isInitialized,
+        loginAttempted
       });
       
-      // Call login with the token
-      login(token, from);
+      // Update auth context
+      login(token);
+      console.log('✅ [LoginPage] ✅ Login function called, setting loginAttempted to true');
+      setLoginAttempted(true);
+      
+      console.log('🔄 [LoginPage] 🔄 After login call, state:', {
+        isAuthenticated,
+        isInitialized,
+        loginAttempted: true
+      });
       
     } catch (error: any) {
-      console.error('Login error:', error);
-      setSubmitError(
-        error.message || 
-        'Login failed. Please check your credentials and try again.'
-      );
+      console.error('❌ [LoginPage] ❌ Login error:', error);
+      
+      // Extract error message from response if available
+      const errorMessage = error.response?.data?.message || 
+                         error.message || 
+                         'Login failed. Please check your credentials and try again.';
+      
+      setSubmitError(errorMessage);
+      
+      // Clear any invalid auth data
+      console.log('🧹 [LoginPage] 🧹 Removing invalid auth data...');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      
     } finally {
+      console.log('🏁 [LoginPage] 🏁 Form submission completed');
       setIsSubmitting(false);
     }
   };

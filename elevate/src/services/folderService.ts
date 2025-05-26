@@ -1,0 +1,31 @@
+import { apiClient } from './apiClient';
+import type { Folder, CreateFolderData } from '../types/folder';
+
+export const getFolders = async (): Promise<Folder[]> => {
+  try {
+    const response = await apiClient.get<Folder[]>('/folders');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch folders:', error);
+    throw error;
+  }
+};
+
+export const createFolder = async (folderData: CreateFolderData): Promise<Folder> => {
+  try {
+    const response = await apiClient.post<Folder>('/folders', folderData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to create folder:', error);
+    throw error;
+  }
+};
+
+export const deleteFolder = async (folderId: string): Promise<void> => {
+  try {
+    await apiClient.delete(`/folders/${folderId}`);
+  } catch (error) {
+    console.error('Failed to delete folder:', error);
+    throw error;
+  }
+};
