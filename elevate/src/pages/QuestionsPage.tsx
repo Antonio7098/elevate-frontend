@@ -2,10 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   FiPlus, 
-  FiFileText, 
   FiTrash2, 
   FiEdit2, 
-  FiChevronRight,
   FiLoader,
   FiX,
   FiAlertCircle,
@@ -51,7 +49,10 @@ const QuestionsPage = () => {
 
   // Load question set details
   const loadQuestionSet = useCallback(async () => {
-    if (!questionSetId) return;
+    if (!questionSetId) {
+      navigate('/folders');
+      return;
+    }
     
     try {
       const data = await getQuestionSet(questionSetId, questionSetId);
@@ -68,7 +69,7 @@ const QuestionsPage = () => {
       });
       // Don't set an error here, just show a placeholder
     }
-  }, [questionSetId]);
+  }, [questionSetId, navigate]);
 
   // Load questions
   const loadQuestions = useCallback(async () => {
@@ -175,7 +176,7 @@ const QuestionsPage = () => {
             onClick={() => navigate(-1)}
             className="inline-flex items-center text-sm text-slate-400 hover:text-white mb-4 transition-colors"
           >
-            <FiArrowLeft className="mr-1.5 h-4 w-4" />
+            <span className="mr-1.5"><FiArrowLeft size={16} /></span>
             Back to Question Sets
           </button>
           <h1 className="text-3xl font-bold text-white">
@@ -191,7 +192,7 @@ const QuestionsPage = () => {
           onClick={() => setIsCreateModalOpen(true)}
           className="inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
         >
-          <FiPlus className="-ml-1 mr-2 h-4 w-4" />
+          <FiPlus size={16} className="-ml-1 mr-2" />
           Add Question
         </button>
       </div>
@@ -199,7 +200,7 @@ const QuestionsPage = () => {
       {/* Error message */}
       {error && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6 text-red-300 flex items-start">
-          <FiAlertCircle className="h-5 w-5 mr-3 mt-0.5 flex-shrink-0" />
+          <span className="mr-3 mt-0.5 flex-shrink-0"><FiAlertCircle size={20} /></span>
           <span>{error}</span>
         </div>
       )}
@@ -224,7 +225,7 @@ const QuestionsPage = () => {
             onClick={() => setIsCreateModalOpen(true)}
             className="mt-6 inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
           >
-            <FiPlus className="-ml-1 mr-2 h-4 w-4" />
+            <FiPlus size={16} className="-ml-1 mr-2" />
             Create Question
           </button>
         </div>
@@ -238,7 +239,7 @@ const QuestionsPage = () => {
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3">
                   <div className="p-2.5 bg-indigo-500/10 rounded-lg text-indigo-400">
-                    <FiHelpCircle className="w-5 h-5" />
+                    <span className="text-indigo-400"><FiHelpCircle size={16} /></span>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-indigo-300 group-hover:text-indigo-400 transition-colors">
@@ -246,7 +247,7 @@ const QuestionsPage = () => {
                     </h3>
                     <div className="mt-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
                       <div className="flex items-center mb-1">
-                        <FiCheck className="w-4 h-4 text-green-500 mr-2" />
+                        <span className="text-green-500 mr-2"><FiCheck size={16} /></span>
                         <span className="text-sm font-medium text-slate-300">Answer:</span>
                       </div>
                       <p className="text-sm text-slate-400">
@@ -268,7 +269,7 @@ const QuestionsPage = () => {
                     className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors"
                     title="Edit question"
                   >
-                    <FiEdit2 className="w-4 h-4" />
+                    <FiEdit2 size={16} />
                   </button>
                   <button
                     onClick={(e) => {
@@ -278,7 +279,7 @@ const QuestionsPage = () => {
                     className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
                     title="Delete question"
                   >
-                    <FiTrash2 className="w-4 h-4" />
+                    <FiTrash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -304,7 +305,7 @@ const QuestionsPage = () => {
                 className="text-slate-400 hover:text-white p-1 -m-1.5 rounded-lg hover:bg-slate-700/50 transition-colors"
                 aria-label="Close"
               >
-                <FiX className="w-5 h-5" />
+                <FiX size={20} className="text-slate-400" />
               </button>
             </div>
             <form onSubmit={handleCreateQuestion} className="space-y-5">
@@ -354,7 +355,7 @@ const QuestionsPage = () => {
                 >
                   {isSubmitting ? (
                     <>
-                      <FiLoader className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                      <FiLoader size={20} className="animate-spin mr-2 text-white" />
                       Creating...
                     </>
                   ) : (
@@ -384,7 +385,7 @@ const QuestionsPage = () => {
                 className="text-slate-400 hover:text-white p-1 -m-1.5 rounded-lg hover:bg-slate-700/50 transition-colors"
                 aria-label="Close"
               >
-                <FiX className="w-5 h-5" />
+                <FiX size={20} className="text-slate-400" />
               </button>
             </div>
             <form onSubmit={handleUpdateQuestion} className="space-y-5">
@@ -432,7 +433,7 @@ const QuestionsPage = () => {
                 >
                   {isSubmitting ? (
                     <>
-                      <FiLoader className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                      <FiLoader size={20} className="animate-spin mr-2 text-white" />
                       Updating...
                     </>
                   ) : (

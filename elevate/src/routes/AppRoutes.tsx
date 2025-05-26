@@ -7,6 +7,7 @@ const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const FoldersPage = lazy(() => import('../pages/FoldersPage'));
 const QuestionSetsPage = lazy(() => import('../pages/QuestionSetsPage'));
 const QuestionsPage = lazy(() => import('../pages/QuestionsPage'));
+const CreateAiQuestionSetPage = lazy(() => import('../pages/CreateAiQuestionSetPage'));
 const ChatPage = lazy(() => import('../pages/ChatPage'));
 const StatsPage = lazy(() => import('../pages/StatsPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
@@ -46,6 +47,8 @@ const AppRoutes = () => {
           <Route path="/folders" element={<FoldersPage />} />
           <Route path="/folders/:folderId" element={<QuestionSetsPage />} />
           <Route path="/question-sets/:questionSetId" element={<QuestionsPage />} />
+          <Route path="/create-set" element={<CreateAiQuestionSetPage />} />
+          <Route path="/folders/:folderId/create-set" element={<CreateAiQuestionSetPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/settings" element={<SettingsPage />} />

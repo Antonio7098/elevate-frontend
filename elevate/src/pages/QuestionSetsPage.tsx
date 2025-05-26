@@ -9,7 +9,8 @@ import {
   FiLoader,
   FiX,
   FiAlertCircle,
-  FiArrowLeft
+  FiArrowLeft,
+  FiCpu
 } from 'react-icons/fi';
 // Auth context not needed for this component
 import { getQuestionSets, createQuestionSet, deleteQuestionSet } from '../services/questionSetService';
@@ -163,13 +164,22 @@ const QuestionSetsPage = () => {
             {questionSets.length} {questionSets.length === 1 ? 'question set' : 'question sets'}
           </p>
         </div>
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg flex items-center transition-colors w-full sm:w-auto justify-center"
-        >
-          <FiPlus className="w-4 h-4 mr-2" />
-          New Question Set
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => navigate(`/folders/${folderId}/create-set`)}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg flex items-center transition-colors w-full sm:w-auto justify-center"
+          >
+            <FiCpu className="w-4 h-4 mr-2" />
+            AI-Powered Set
+          </button>
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg flex items-center transition-colors w-full sm:w-auto justify-center"
+          >
+            <FiPlus className="w-4 h-4 mr-2" />
+            New Question Set
+          </button>
+        </div>
       </div>
 
       {error && (
