@@ -1,4 +1,5 @@
-import { NavLink, Link } from 'react-router-dom'; // Added Link for profile
+import React from 'react';
+import { NavLink, Link } from 'react-router-dom';
 import { 
   FiHome, 
   FiFolder, 
@@ -10,18 +11,24 @@ import {
   FiLogOut 
 } from 'react-icons/fi';
 
-const Sidebar = () => {
-  // Define a common class for icons if you want consistency
-  const iconClassName = "h-6 w-6"; 
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ReactNode;
+}
 
-  const navigationItems = [
+const Sidebar: React.FC = () => {
+  // Define a common class for icons if you want consistency
+  const iconClassName: string = "h-6 w-6"; 
+
+  const navigationItems: NavigationItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: <FiHome className={iconClassName} /> },
     { name: 'Folders', href: '/folders', icon: <FiFolder className={iconClassName} /> },
     { name: 'AI Chat', href: '/chat', icon: <FiMessageSquare className={iconClassName} /> },
     { name: 'Stats', href: '/stats', icon: <FiBarChart2 className={iconClassName} /> },
   ];
 
-  const bottomNavItems = [
+  const bottomNavItems: NavigationItem[] = [
     { name: 'Settings', href: '/settings', icon: <FiSettings className={iconClassName} /> },
   ];
   
@@ -105,8 +112,8 @@ const Sidebar = () => {
           {/* User Profile */}
           <div className="flex flex-col group-hover:flex-row group-hover:items-center group-hover:space-x-2 w-full group-hover:w-auto">
             {/* User Profile Clickable Area */}
-            <Link // Changed to Link
-              to="/profile" // Assuming /profile route
+            <Link
+              to="/profile"
               className="group/bottom-item flex items-center px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer w-full group-hover:w-auto"
               title="View Profile"
             >
