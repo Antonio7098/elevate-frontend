@@ -110,21 +110,91 @@ function mapFocusToDifficulty(focus: 'understand' | 'use' | 'explore'): 'easy' |
 
 /**
  * Extracts potential topics from the source text
- * This is a simple implementation - in a real app, this might use NLP
+ * Enhanced implementation to identify key concepts and terms
  */
 function extractTopics(sourceText: string): string[] {
-  // Simple implementation - extract common nouns and phrases
-  // In a real app, this would use more sophisticated NLP
-  const words = sourceText.split(' ');
-  const potentialTopics = new Set<string>();
+  // Normalize the text for processing
+  const normalizedText = sourceText.toLowerCase();
   
-  // Extract words that start with capital letters (potential proper nouns)
-  words.forEach(word => {
-    const cleaned = word.replace(/[^a-zA-Z]/g, '');
-    if (cleaned.length > 3 && cleaned[0] === cleaned[0].toUpperCase()) {
-      potentialTopics.add(cleaned.toLowerCase());
+  // Step 1: Extract potential key phrases (2-3 word combinations that appear multiple times)
+  const sentences = normalizedText.split(/[.!?]\s+/);
+  const phrases: Record<string, number> = {};
+  
+  // Process each sentence to find phrases
+  sentences.forEach(sentence => {
+    const words = sentence.trim().split(/\s+/).filter(word => word.length > 3);
+    
+    // Extract 2-word phrases
+    for (let i = 0; i < words.length - 1; i++) {
+      const phrase = `${words[i]} ${words[i + 1]}`;
+      phrases[phrase] = (phrases[phrase] || 0) + 1;
+    }
+    
+    // Extract 3-word phrases
+    for (let i = 0; i < words.length - 2; i++) {
+      const phrase = `${words[i]} ${words[i + 1]} ${words[i + 2]}`;
+      phrases[phrase] = (phrases[phrase] || 0) + 1;
     }
   });
   
-  return Array.from(potentialTopics).slice(0, 5); // Limit to 5 topics
+  // Step 2: Extract capitalized terms (likely proper nouns or important concepts)
+  const capitalizedTerms = new Set<string>();
+  const regex = /\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})*\b/g;
+  const matches = sourceText.match(regex) || [];
+  
+  matches.forEach(match => {
+    capitalizedTerms.add(match.toLowerCase());
+  });
+  
+  // Step 3: Find frequent words (excluding common stop words)
+  const stopWords = new Set([
+    'the', 'and', 'or', 'but', 'because', 'as', 'what', 'when',
+    'where', 'how', 'that', 'this', 'these', 'those', 'then',
+    'just', 'more', 'also', 'however', 'therefore', 'hence', 'thus',
+    'while', 'each', 'every', 'all', 'both', 'either', 'neither',
+    'few', 'many', 'some', 'any', 'not', 'nor', 'about', 'above',
+    'with', 'without', 'within', 'between', 'among', 'through', 'during',
+    'before', 'after', 'since', 'until', 'from', 'for', 'of', 'to', 'in', 'on', 'at'
+  ]);
+  
+  const wordFrequency: Record<string, number> = {};
+  const allWords = normalizedText.split(/\s+/);
+  
+  allWords.forEach(word => {
+    const cleaned = word.replace(/[^a-z]/g, '');
+    if (cleaned.length > 4 && !stopWords.has(cleaned)) {
+      wordFrequency[cleaned] = (wordFrequency[cleaned] || 0) + 1;
+    }
+  });
+  
+  // Step 4: Combine and rank all potential topics
+  const allTopics: Array<{term: string, score: number}> = [];
+  
+  // Add phrases that appear more than once
+  Object.entries(phrases)
+    .filter(([_, count]) => count > 1)
+    .forEach(([phrase, count]) => {
+      allTopics.push({ term: phrase, score: count * 2 }); // Weight phrases higher
+    });
+  
+  // Add capitalized terms
+  Array.from(capitalizedTerms).forEach(term => {
+    allTopics.push({ term, score: 3 }); // Weight capitalized terms high
+  });
+  
+  // Add frequent words
+  Object.entries(wordFrequency)
+    .filter(([_, count]) => count > 2) // Only words that appear more than twice
+    .forEach(([word, count]) => {
+      allTopics.push({ term: word, score: count });
+    });
+  
+  // Sort by score and take top unique topics
+  const sortedTopics = allTopics
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.term);
+  
+  // Remove duplicates and limit to 5 topics
+  const uniqueTopics = Array.from(new Set(sortedTopics));
+  return uniqueTopics.slice(0, 5);
 }

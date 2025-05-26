@@ -9,6 +9,8 @@ export interface ChatMessage {
 export interface ChatContext {
   folderId?: string;
   questionSetId?: string;
+  includeUserInfo?: boolean;
+  includeContentAnalysis?: boolean;
 }
 
 export interface AIChatResponse {
@@ -16,6 +18,40 @@ export interface AIChatResponse {
   context?: {
     folderId?: string;
     questionSetId?: string;
+    folder?: {
+      name: string;
+      description?: string;
+      createdAt: string;
+      questionSets?: Array<{
+        id: string;
+        name: string;
+        questionCount: number;
+      }>;
+    };
+    questionSet?: {
+      id: string;
+      name: string;
+      description?: string;
+      createdAt: string;
+      totalQuestions: number;
+      questions?: Array<{
+        id: string;
+        text: string;
+        answer: string;
+        type?: string;
+        masteryScore?: number;
+      }>;
+    };
+    contentAnalysis?: {
+      topics: string[];
+      questionTypes: string[];
+      difficultyLevel?: string;
+    };
+    userInfo?: {
+      name: string;
+      learningPreferences?: string[];
+      masteryLevel?: string;
+    };
   };
 }
 
@@ -24,10 +60,22 @@ export const sendMessageToAI = async (
   context?: ChatContext
 ): Promise<AIChatResponse> => {
   try {
-    const response = await apiClient.post<AIChatResponse>('/ai/chat', {
+    // Structure the request payload according to what the backend expects
+    const payload = {
       message,
-      context: context || {}
-    });
+      // Include folder ID directly in the request payload, not nested in context
+      ...(context?.folderId && { folderId: context.folderId }),
+      // Include question set ID directly in the request payload, not nested in context
+      ...(context?.questionSetId && { questionSetId: context.questionSetId }),
+      // Include other context properties
+      includeUserInfo: context?.includeUserInfo ?? true,
+      includeContentAnalysis: context?.includeContentAnalysis ?? true
+    };
+    
+    // Log the payload being sent to help with debugging
+    console.log('Sending chat request with payload:', JSON.stringify(payload, null, 2));
+    
+    const response = await apiClient.post<AIChatResponse>('/ai/chat', payload);
     
     return response.data || { 
       response: 'I apologize, but I encountered an error processing your request.' 
