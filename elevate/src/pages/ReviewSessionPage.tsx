@@ -12,6 +12,7 @@ import type { EvaluationResult } from '../services/evaluationService';
 interface ReviewQuestion extends Question {
   questionType?: 'SHORT_ANSWER' | 'TRUE_FALSE' | 'MULTIPLE_CHOICE';
   options?: string[]; // For multiple choice questions
+  marksAvailable?: number; // Marks available for the question
 }
 
 // Helper function to map numeric learning stage to UUE focus string
@@ -69,13 +70,6 @@ const determineQuestionType = (question: Question): ReviewQuestion => {
   
   // Default to short answer
   return { ...question, questionType: 'SHORT_ANSWER' };
-};
-
-// Helper function to get color based on difficulty
-const getDifficultyColor = (difficulty: number): string => {
-  if (difficulty < 0.3) return 'bg-green-500';
-  if (difficulty < 0.7) return 'bg-yellow-500';
-  return 'bg-red-500';
 };
 
 const ReviewSessionPage = () => {
@@ -215,8 +209,6 @@ const ReviewSessionPage = () => {
       console.log('  User Answer:', userAnswer);
       console.log('  Evaluation Result:', JSON.stringify(result, null, 2));
       console.log('  Question Learning Stage:', currentQuestion.learningStage);
-      console.log('  Question Difficulty:', currentQuestion.difficultyScore);
-      console.log('  Question Concept Tags:', currentQuestion.conceptTags);
       console.log('  Previous User Answers:', currentQuestion.userAnswers);
       
       // Update session stats
@@ -326,16 +318,19 @@ const ReviewSessionPage = () => {
 
   if (sessionComplete) {
     const summaryData = sessionOutcomes.map(outcome => {
-      const question = questions.find(q => String(q.id) === outcome.questionId); // Ensure ID comparison is robust
+      const question = questions.find(q => String(q.id) === outcome.questionId);
       return {
         questionText: question ? question.text : 'Question text not found.',
         scoreAchieved: outcome.scoreAchieved,
+        marksAvailable: question?.marksAvailable || 1, // Correctly get marksAvailable for *this* question
         questionId: outcome.questionId, // For React key
       };
     });
 
-    const totalScore = summaryData.reduce((acc, item) => acc + item.scoreAchieved, 0);
-    const averageScore = summaryData.length > 0 ? totalScore / summaryData.length : 0;
+    const totalScoreAchieved = summaryData.reduce((acc, item) => acc + item.scoreAchieved, 0);
+    const totalMarksAvailable = summaryData.reduce((acc, item) => acc + item.marksAvailable, 0);
+    
+    const averageScorePercentage = totalMarksAvailable > 0 ? (totalScoreAchieved / totalMarksAvailable) * 100 : 0;
 
     return (
       <div className="p-4 md:p-8 max-w-3xl mx-auto bg-gray-50 min-h-screen">
@@ -352,14 +347,14 @@ const ReviewSessionPage = () => {
                   {item.questionText}
                 </p>
                 <p className="text-indigo-600 font-semibold text-lg">
-                  Score: {item.scoreAchieved} / 100
+                  Score: {item.scoreAchieved} / {item.marksAvailable} {/* Use item.marksAvailable here */}
                 </p>
               </div>
             ))}
           </div>
 
           <div className="border-t border-gray-200 pt-6 text-center">
-            <p className="text-xl font-bold text-gray-800">Overall Average Score: <span className="text-green-600">{Math.round(averageScore)}%</span></p>
+            <p className="text-xl font-bold text-gray-800">Overall Average Score: <span className="text-green-600">{Math.round(averageScorePercentage)}%</span></p> {/* Use averageScorePercentage */}
           </div>
         </div>
 
@@ -412,17 +407,6 @@ const ReviewSessionPage = () => {
           <div>
             Question {currentQuestionIndex + 1} of {questions.length}
           </div>
-          {currentQuestion?.difficultyScore !== undefined && (
-            <div className="flex items-center">
-              <span className="mr-2">Difficulty:</span>
-              <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full ${getDifficultyColor(currentQuestion.difficultyScore)}`}
-                  style={{ width: `${currentQuestion.difficultyScore * 100}%` }}
-                ></div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Question display */}
@@ -439,17 +423,6 @@ const ReviewSessionPage = () => {
               ))}
             </div>
           )}
-          
-          {/* Difficulty indicator */}
-          <div className="flex items-center mb-4">
-            <span className="text-sm text-gray-600 mr-2">Difficulty:</span>
-            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                className={`h-full ${getDifficultyColor(currentQuestion.difficultyScore || 0)}`}
-                style={{ width: `${(currentQuestion.difficultyScore || 0) * 100}%` }}
-              ></div>
-            </div>
-          </div>
           
           {/* Evaluation results */}
           {evaluationStatus !== 'idle' && (

@@ -72,7 +72,8 @@ export const evaluateAnswerWithAI = async (
         questionText: question.text,
         expectedAnswer: question.answer,
         questionType: question.questionType || determineQuestionType(question),
-        options: question.options || []
+        options: question.options || [],
+        marksAvailable: question.marksAvailable || 1 // Pass marksAvailable to AI
       },
       // Include additional context that might help the AI
       context: {
@@ -94,30 +95,39 @@ export const evaluateAnswerWithAI = async (
     console.log('📥 [AI Evaluation] Response data:', JSON.stringify(response.data, null, 2));
 
     if (response.data.success && response.data.evaluation) {
-      const aiEvalData = response.data.evaluation; // Specific type for AI service's evaluation object
+      const aiEvalData = response.data.evaluation; // This is the object from the AI service
       console.log('📥 [AI Evaluation] Extracted AI eval data:', JSON.stringify(aiEvalData, null, 2));
-      
-      return { // Directly return EvaluationResult from AI data
-        isCorrect: aiEvalData.isCorrect ?? false,
-        scoreAchieved: typeof aiEvalData.score === 'number' ? Math.round(aiEvalData.score * 100) : null,
-        feedback: aiEvalData.feedbackText || 'AI evaluation successful, but no specific feedback provided.',
-        explanation: aiEvalData.suggestedCorrectAnswer,
-        conceptsIdentified: (aiEvalData as any).conceptsIdentified || [], // Handle if not always present
-        pendingEvaluation: false, // AI evaluation is complete
+      const currentMarksAvailable = question.marksAvailable || 1;
+
+      // Construct the final EvaluationResult based on AI response
+      // Ensure all necessary fields from aiEvalData are mapped
+      const result: EvaluationResult = {
+        // Cast aiEvalData to any to access properties that might not be in its declared type (EvaluationResult)
+        // if the AI service returns a slightly different structure (e.g. feedbackText vs feedback).
+        // The logs confirm feedbackText, suggestedCorrectAnswer, score, isCorrect exist on the runtime object.
+        isCorrect: (aiEvalData as any).isCorrect ?? false,
+        scoreAchieved: (aiEvalData as any).score ?? 0,
+        feedback: (aiEvalData as any).feedbackText || 'AI evaluation completed successfully.',
+        explanation: (aiEvalData as any).suggestedCorrectAnswer,
         newLearningStage: calculateNewLearningStage(
           question.learningStage || 0,
-          typeof aiEvalData.score === 'number' ? aiEvalData.score : 0
+          (aiEvalData as any).score ?? 0,
+          currentMarksAvailable
         ),
+        conceptsIdentified: (aiEvalData as any).conceptsIdentified, // Pass through if available from AI
+        pendingEvaluation: false // AI evaluation is complete
       };
+      console.log('✅ [AI Evaluation] Constructed result from AI data:', JSON.stringify(result, null, 2));
+      return result;
     } else {
       // AI service call was made, but it indicated failure or unexpected format
       console.warn('⚠️ [AI Evaluation] AI service call did not return a successful evaluation or data was malformed:', response.data);
       const data = response.data as any; // Keep inspecting 'data' for fallback
       return { // Return a fallback EvaluationResult
         isCorrect: data.isCorrect ?? null,
-        scoreAchieved: data.scoreAchieved ?? null, // This might be from an older contract or undefined
-        feedback: data.feedback ?? 'AI evaluation was not successful or returned an unexpected format.',
-        explanation: data.explanation,
+        scoreAchieved: data.score ?? null, // This might be from an older contract or undefined
+        feedback: data.feedbackText ?? 'AI evaluation was not successful or returned an unexpected format.',
+        explanation: data.suggestedCorrectAnswer,
         conceptsIdentified: data.conceptsIdentified || [],
         pendingEvaluation: true, 
         newLearningStage: question.learningStage || 0, 
@@ -218,26 +228,29 @@ export const determineMarkingMethod = (question: Question): 'exact-match' | 'ai-
 // Evaluate an answer locally without AI
 export const evaluateExactMatch = (question: Question, userAnswer: string): EvaluationResult => {
   const isCorrect = userAnswer.trim().toLowerCase() === question.answer.trim().toLowerCase();
+  const currentMarksAvailable = question.marksAvailable || 1; // Default to 1 if not specified
   
   return {
     isCorrect,
-    scoreAchieved: isCorrect ? 100 : 0,
+    scoreAchieved: isCorrect ? currentMarksAvailable : 0, // Score is full marks available (usually 1) or 0
     feedback: isCorrect 
       ? 'Correct!' 
       : `Incorrect. The correct answer is: ${question.answer}`,
-    newLearningStage: calculateNewLearningStage(question.learningStage || 0, isCorrect ? 1.0 : 0.0)
+    newLearningStage: calculateNewLearningStage(question.learningStage || 0, isCorrect ? currentMarksAvailable : 0, currentMarksAvailable)
   };
 };
 
-// Calculate the new learning stage based on current stage and score
-export const calculateNewLearningStage = (currentStage: number, scoreAchieved: number): number => {
-  // If the answer is mostly correct (score > 0.7), move up one stage (max 5)
-  if (scoreAchieved > 0.7) {
+// Calculate the new learning stage based on current stage, score achieved, and marks available
+export const calculateNewLearningStage = (currentStage: number, scoreAchieved: number, marksAvailable: number): number => {
+  const normalizedScore = marksAvailable > 0 ? scoreAchieved / marksAvailable : 0;
+
+  // If the answer is mostly correct (normalized score > 0.7), move up one stage (max 5)
+  if (normalizedScore > 0.7) {
     return Math.min(currentStage + 1, 5);
   }
   
-  // If the answer is somewhat correct (score > 0.3), stay at the same stage
-  if (scoreAchieved > 0.3) {
+  // If the answer is somewhat correct (normalized score > 0.3), stay at the same stage
+  if (normalizedScore > 0.3) {
     return currentStage;
   }
   
@@ -250,7 +263,8 @@ export const fallbackEvaluation = (question: Question, userAnswer: string): Eval
   // For multiple choice and true/false, we can still evaluate
   if (
     question.questionType === 'multiple-choice' || 
-    question.questionType === 'true-false'
+    question.questionType === 'true-false' ||
+    question.questionType === 'SHORT_ANSWER' // Assuming short answer can also be exact matched if AI fails
   ) {
     return evaluateExactMatch(question, userAnswer);
   }
@@ -285,13 +299,18 @@ const FORCE_AI_EVALUATION = import.meta.env.VITE_FORCE_AI_EVALUATION === 'true';
 
 // Main evaluation function that decides between AI and exact match
 export const evaluateUserAnswer = async (question: Question, userAnswer: string): Promise<EvaluationResult> => {
-  console.log('💬 [Evaluation] Starting evaluation for question:', question.id);
+  console.log('💬 [Evaluation] Starting evaluation for question:', question.id, 'Marks Available:', question.marksAvailable);
   
-  // Check cache first
-  const cached = getCachedEvaluation(question.id, userAnswer);
-  if (cached) {
-    console.log('💾 [Evaluation] Using cached evaluation result');
-    return cached;
+  // If forcing AI evaluation, skip cache lookup
+  if (FORCE_AI_EVALUATION) {
+    console.log('🚨 [Evaluation] FORCING AI EVALUATION for testing - skipping cache lookup');
+  } else {
+    // Check cache first if not forcing AI evaluation
+    const cached = getCachedEvaluation(question.id, userAnswer);
+    if (cached) {
+      console.log('💾 [Evaluation] Using cached evaluation result');
+      return cached;
+    }
   }
   
   // Log question type information
@@ -301,15 +320,18 @@ export const evaluateUserAnswer = async (question: Question, userAnswer: string)
   // Determine evaluation method
   let method = determineMarkingMethod(question);
   
-  // Force AI evaluation if the flag is set
+  // Force AI evaluation if the flag is set (this ensures 'method' is set correctly if cache was skipped)
   if (FORCE_AI_EVALUATION) {
-    console.log('🚨 [Evaluation] FORCING AI EVALUATION for testing');
+    // The console log might be redundant if already logged above when skipping cache,
+    // but ensures the method is explicitly set.
+    // console.log('🚨 [Evaluation] FORCING AI EVALUATION for testing'); 
     method = 'ai-evaluation';
   }
   
   console.log('🔧 [Evaluation] Selected evaluation method:', method);
   
   let evaluation: EvaluationResult;
+  const currentMarksAvailable = question.marksAvailable || 1; // Get marks available for the question
   
   if (method === 'exact-match') {
     console.log('🔍 [Evaluation] Using exact match evaluation');
@@ -317,6 +339,17 @@ export const evaluateUserAnswer = async (question: Question, userAnswer: string)
   } else {
     console.log('🤖 [Evaluation] Using AI-powered evaluation');
     evaluation = await evaluateAnswerWithAI(question, userAnswer);
+  }
+
+  // Ensure newLearningStage is calculated if not already by specific paths
+  // This is a bit redundant if all paths (exactMatch, AI) already call calculateNewLearningStage
+  // but acts as a safeguard or if a path doesn't set it.
+  if (evaluation.newLearningStage === undefined && evaluation.scoreAchieved !== null) {
+    evaluation.newLearningStage = calculateNewLearningStage(
+      question.learningStage || 0, 
+      evaluation.scoreAchieved, 
+      currentMarksAvailable
+    );
   }
   
   // Cache the result

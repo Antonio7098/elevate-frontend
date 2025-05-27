@@ -10,6 +10,7 @@ export interface UserAnswer {
 export interface Question {
   id: string;
   questionSetId: string;
+  questionSetName?: string; // Name of the question set, added for context
   text: string;
   answer: string;
   createdAt: string;
@@ -17,7 +18,7 @@ export interface Question {
   questionType?: string; // Type of question (multiple-choice, true-false, short-answer, etc.)
   options?: string[]; // Options for multiple choice questions
   learningStage?: number; // 0-5 representing spaced repetition stage
-  difficultyScore?: number; // 0-1 representing difficulty
+  marksAvailable?: number; // Total marks this question is out of (e.g., 1-5)
   conceptTags?: string[]; // Array of concept tags associated with this question
   userAnswers?: UserAnswer[]; // History of user answers to this question
 }
