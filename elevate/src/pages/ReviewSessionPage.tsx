@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiArrowRight, FiCheck, FiLoader, FiAlertCircle } from 'react-icons/fi';
 import { apiClient } from '../services/apiClient';
+import { evaluateUserAnswer } from '../services/evaluationService';
+import AnswerEvaluation from '../components/evaluation/AnswerEvaluation';
 import type { Question } from '../types/question';
 import type { QuestionSet } from '../types/questionSet';
+import type { EvaluationResult } from '../services/evaluationService';
 
 // Define question types for the review session
 interface ReviewQuestion extends Question {
@@ -86,6 +89,10 @@ const ReviewSessionPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [sessionTitle, setSessionTitle] = useState('Review Session');
   
+  // State for answer evaluation
+  const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
+  const [evaluationStatus, setEvaluationStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  
   // Session statistics
   const [sessionStats, setSessionStats] = useState<SessionStats>({
     totalQuestions: 0,
@@ -145,32 +152,118 @@ const ReviewSessionPage = () => {
   }, [setId]);
 
   // Handle submitting an answer
-  const handleSubmitAnswer = () => {
+  const handleSubmitAnswer = async () => {
+    if (!userAnswer.trim()) {
+      // Don't submit empty answers
+      return;
+    }
+    
     const currentQuestion = questions[currentQuestionIndex];
+    console.log('🚀 [ReviewSession] Starting answer evaluation process');
+    console.log('📋 [ReviewSession] Current question:', currentQuestion);
+    console.log('✏️ [ReviewSession] User answer:', userAnswer);
     
-    // Log the current question and user answer for now
-    console.log('Question:', currentQuestion);
-    console.log('User Answer:', userAnswer);
-    console.log('Question Learning Stage:', currentQuestion.learningStage);
-    console.log('Question Difficulty:', currentQuestion.difficultyScore);
-    console.log('Question Concept Tags:', currentQuestion.conceptTags);
-    console.log('Previous User Answers:', currentQuestion.userAnswers);
+    // Reset previous evaluation
+    setEvaluation(null);
+    setEvaluationStatus('loading');
+    console.log('⏳ [ReviewSession] Evaluation status set to loading')
     
-    // Update session stats
-    setSessionStats(prev => ({
-      ...prev,
-      questionsAnswered: prev.questionsAnswered + 1
-    }));
-    
-    // Clear the user answer
-    setUserAnswer('');
-    
-    // Move to the next question
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-    } else {
-      // End of session
-      setSessionComplete(true);
+    try {
+      // Add question set name to the question object if available
+      const enhancedQuestion = {
+        ...currentQuestion,
+        questionSetName: sessionTitle.replace('Quiz: ', '')
+      };
+      
+      console.log('🔄 [ReviewSession] Calling evaluateUserAnswer function');
+      console.log('📝 [ReviewSession] Enhanced question with set name:', enhancedQuestion.questionSetName);
+      
+      // Evaluate the answer using AI
+      const result = await evaluateUserAnswer(enhancedQuestion, userAnswer);
+      
+      console.log('✅ [ReviewSession] Evaluation completed successfully');
+      console.log('📊 [ReviewSession] Evaluation result:', result);
+      
+      // Store the evaluation result
+      setEvaluation(result);
+      setEvaluationStatus('success');
+      console.log('🎯 [ReviewSession] Evaluation status set to success');
+      
+      // Log detailed evaluation for debugging
+      console.log('📝 [ReviewSession] Detailed evaluation info:');
+      console.log('  Question:', currentQuestion.text);
+      console.log('  Correct Answer:', currentQuestion.answer);
+      console.log('  User Answer:', userAnswer);
+      console.log('  Evaluation Result:', JSON.stringify(result, null, 2));
+      console.log('  Question Learning Stage:', currentQuestion.learningStage);
+      console.log('  Question Difficulty:', currentQuestion.difficultyScore);
+      console.log('  Question Concept Tags:', currentQuestion.conceptTags);
+      console.log('  Previous User Answers:', currentQuestion.userAnswers);
+      
+      // Update session stats
+      setSessionStats(prev => ({
+        ...prev,
+        questionsAnswered: prev.questionsAnswered + 1,
+        correctAnswers: prev.correctAnswers + (result.isCorrect ? 1 : 0)
+      }));
+      
+      // Update the question with the new learning stage if provided
+      if (result.newLearningStage !== undefined) {
+        const updatedQuestions = [...questions];
+        updatedQuestions[currentQuestionIndex] = {
+          ...currentQuestion,
+          learningStage: result.newLearningStage,
+          // Add this answer to the history
+          userAnswers: [...(currentQuestion.userAnswers || []), {
+            userAnswer: userAnswer,
+            timestamp: new Date().toISOString(),
+            evaluationScore: result.scoreAchieved || 0,
+            id: `answer-${Date.now()}`,
+            questionId: currentQuestion.id,
+            correct: result.isCorrect || false
+          }]
+        };
+        setQuestions(updatedQuestions);
+      }
+      
+      // Wait a moment to show the evaluation before moving to the next question
+      setTimeout(() => {
+        if (currentQuestionIndex < questions.length - 1) {
+          setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+          setUserAnswer(''); // Clear the answer field for the next question
+        } else {
+          // End of session
+          setSessionComplete(true);
+        }
+        setEvaluationStatus('idle');
+      }, 3000); // Show evaluation for 3 seconds
+      
+    } catch (error: any) {
+      console.error('❌ [ReviewSession] Error evaluating answer:', error);
+      
+      // Detailed error logging
+      if (error.response) {
+        console.error(`❌ [ReviewSession] Server responded with status: ${error.response.status}`);
+        console.error('❌ [ReviewSession] Response data:', error.response.data);
+      } else if (error.request) {
+        console.error('❌ [ReviewSession] No response received from server');
+      } else {
+        console.error('❌ [ReviewSession] Error details:', error.message || 'Unknown error');
+      }
+      
+      setEvaluationStatus('error');
+      
+      // Still move to the next question after a delay even if evaluation fails
+      setTimeout(() => {
+        if (currentQuestionIndex < questions.length - 1) {
+          setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+          setUserAnswer(''); // Clear the answer field for the next question
+        } else {
+          // End of session
+          setSessionComplete(true);
+        }
+        setEvaluationStatus('idle');
+      }, 2000);
     }
   };
 
@@ -264,17 +357,38 @@ const ReviewSessionPage = () => {
             {/* Question display */}
             <div className="mb-6">
               <h2 className="text-xl font-medium text-white mb-2">{currentQuestion?.text}</h2>
-            
-            {/* Display concept tags if available */}
-            {currentQuestion?.conceptTags && currentQuestion.conceptTags.length > 0 && (
-              <div className="mb-4 flex flex-wrap gap-2">
-                {currentQuestion.conceptTags.map((tag, index) => (
-                  <span key={index} className="px-2 py-1 text-xs bg-indigo-500/20 text-indigo-300 rounded-full">
-                    {tag}
-                  </span>
-                ))}
+              
+              {/* Display concept tags if available */}
+              {currentQuestion?.conceptTags && currentQuestion.conceptTags.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {currentQuestion.conceptTags.map((tag, index) => (
+                    <span key={index} className="px-2 py-1 text-xs bg-indigo-500/20 text-indigo-300 rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              {/* Difficulty indicator */}
+              <div className="flex items-center mb-4">
+                <span className="text-sm text-gray-600 mr-2">Difficulty:</span>
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full ${getDifficultyColor(currentQuestion.difficultyScore || 0)}`}
+                    style={{ width: `${(currentQuestion.difficultyScore || 0) * 100}%` }}
+                  ></div>
+                </div>
               </div>
-            )}
+              
+              {/* Evaluation results */}
+              {evaluationStatus !== 'idle' && (
+                <div className="mt-4">
+                  <AnswerEvaluation 
+                    evaluation={evaluation} 
+                    status={evaluationStatus} 
+                  />
+                </div>
+              )}
               
               {/* Different input types based on question type */}
               {currentQuestion?.questionType === 'TRUE_FALSE' ? (

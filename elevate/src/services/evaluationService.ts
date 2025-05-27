@@ -1,0 +1,321 @@
+import type { Question } from '../types/question';
+import { checkAiServiceHealth } from './healthCheckService';
+import axios from 'axios';
+
+// Create a dedicated client for the AI service
+const aiServiceClient = axios.create({
+  baseURL: 'http://localhost:8000',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer test123' // Using the same API key as defined in the AI service .env
+  },
+  timeout: 10000, // 10 second timeout for evaluation requests
+  withCredentials: true // Enable sending cookies in cross-origin requests
+});
+
+export interface EvaluationResult {
+  isCorrect: boolean | null;
+  scoreAchieved: number | null;
+  feedback: string;
+  explanation?: string;
+  conceptsIdentified?: string[];
+  pendingEvaluation?: boolean;
+  newLearningStage?: number;
+}
+
+// Interface for the AI service response format
+interface AIServiceResponse {
+  success: boolean;
+  evaluation?: EvaluationResult;
+  metadata?: {
+    processingTime: string;
+    model: string;
+    questionId: string;
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+// Evaluate an answer using AI
+export const evaluateAnswerWithAI = async (
+  question: Question, 
+  userAnswer: string
+): Promise<EvaluationResult> => {
+  try {
+    console.log('🔍 [AI Evaluation] Starting AI evaluation for question:', question.id);
+    console.log('📝 [AI Evaluation] Question text:', question.text);
+    console.log('🧠 [AI Evaluation] Question type:', question.questionType || determineQuestionType(question));
+    console.log('📊 [AI Evaluation] Learning stage:', question.learningStage || 0);
+    
+    // Check if the AI service is available before proceeding
+    const isAiServiceAvailable = await checkAiServiceHealth();
+    if (!isAiServiceAvailable) {
+      console.warn('⚠️ [AI Evaluation] AI service is not available, falling back to local evaluation');
+      return fallbackEvaluation(question, userAnswer);
+    }
+    
+    console.log('✅ [AI Evaluation] AI service is available, proceeding with evaluation');
+    
+    // Structure the payload to match the backend API expectations
+    const payload = {
+      questionId: question.id,
+      userAnswer: userAnswer,
+      // Structure the question context as expected by the backend
+      questionContext: {
+        questionId: question.id,
+        questionText: question.text,
+        expectedAnswer: question.answer,
+        questionType: question.questionType || determineQuestionType(question),
+        options: question.options || []
+      },
+      // Include additional context that might help the AI
+      context: {
+        questionSetName: question.questionSetName || 'Unknown Set',
+        conceptTags: question.conceptTags || [],
+        learningStage: question.learningStage || 0,
+        previousAnswers: question.userAnswers || []
+      }
+    };
+    
+    console.log('📤 [AI Evaluation] Sending payload to AI API:', JSON.stringify(payload, null, 2));
+    console.time('⏱️ [AI Evaluation] Response time');
+    
+    // Log the endpoint we're using
+    console.log('🔗 [AI Evaluation] API endpoint:', '/evaluate-answer');
+    
+    // Health check is now done at the beginning of the function
+    
+    // Use the dedicated AI service client with the correct endpoint
+    const response = await aiServiceClient.post<AIServiceResponse>('/evaluate-answer', payload);
+    
+    // If the response doesn't match our expected format, transform it
+    let result: EvaluationResult;
+    
+    // Check if the response has a nested evaluation property (from AI service format)
+    if (response.data.success && response.data.evaluation) {
+      // The AI service returns data in a nested format {success: true, evaluation: {...}}
+      result = response.data.evaluation;
+    } else {
+      // Direct format or unexpected format, try to adapt
+      const data = response.data as any; // Temporarily cast to any to handle different response formats
+      result = {
+        isCorrect: data.isCorrect ?? null,
+        scoreAchieved: data.scoreAchieved ?? null,
+        feedback: data.feedback ?? 'No feedback available',
+        explanation: data.explanation,
+        conceptsIdentified: data.conceptsIdentified,
+        pendingEvaluation: data.pendingEvaluation,
+        newLearningStage: calculateNewLearningStage(question.learningStage || 0, data.scoreAchieved || 0)
+      };
+    }
+    
+    console.timeEnd('⏱️ [AI Evaluation] Response time');
+    console.log('✅ [AI Evaluation] AI evaluation successful!');
+    console.log('📥 [AI Evaluation] Response data:', JSON.stringify(response.data, null, 2));
+    console.log('📥 [AI Evaluation] Processed result:', JSON.stringify(result, null, 2));
+    
+    return result;
+  } catch (error: any) {
+    console.error('❌ [AI Evaluation] Error evaluating answer with AI:', error);
+    
+    // More detailed error logging
+    if (error.response) {
+      console.error(`⚠️ [AI Evaluation] Server responded with status: ${error.response.status}`);
+      console.error('⚠️ [AI Evaluation] Response data:', error.response.data);
+      console.error('⚠️ [AI Evaluation] Response headers:', error.response.headers);
+    } else if (error.request) {
+      console.error('⚠️ [AI Evaluation] No response received from server');
+      console.error('⚠️ [AI Evaluation] Request details:', error.request);
+    } else {
+      console.error('⚠️ [AI Evaluation] Error details:', error.message || 'Unknown error');
+    }
+    
+    console.log('⚠️ [AI Evaluation] Falling back to local evaluation');
+    return fallbackEvaluation(question, userAnswer);
+  }
+};
+
+// Determine the type of question based on its properties
+export const determineQuestionType = (question: Question): string => {
+  console.log('🔎 [QuestionType] Analyzing question type for:', question.id);
+  console.log('📝 [QuestionType] Question text:', question.text);
+  console.log('✅ [QuestionType] Answer:', question.answer);
+  
+  // If the question already has a type, use it
+  if (question.questionType) {
+    console.log('💼 [QuestionType] Using explicit question type:', question.questionType);
+    return question.questionType;
+  }
+  
+  // Check if it's a multiple choice question
+  if (question.options && question.options.length > 0) {
+    console.log('🗸 [QuestionType] Detected multiple-choice question (has options)');
+    return 'multiple-choice';
+  }
+  
+  // Check if it's a true/false question
+  if (question.answer === 'true' || question.answer === 'false') {
+    console.log('⭕ [QuestionType] Detected true-false question');
+    return 'true-false';
+  }
+  
+  // Check if it's a multiple choice question by looking at the answer format (A, B, C, D)
+  if (/^[A-D]$/.test(question.answer)) {
+    console.log('🗸 [QuestionType] Detected multiple-choice question (answer is A-D)');
+    return 'multiple-choice';
+  }
+  
+  // Check answer length to determine if it's short or long answer
+  if (typeof question.answer === 'string') {
+    const isLongAnswer = question.answer.length > 100;
+    console.log(`📝 [QuestionType] Detected ${isLongAnswer ? 'long' : 'short'}-answer question (answer length: ${question.answer.length})`);
+    return isLongAnswer ? 'long-answer' : 'short-answer';
+  }
+  
+  // Default to short answer
+  console.log('📝 [QuestionType] Defaulting to short-answer question');
+  return 'short-answer';
+};
+
+// Determine which marking method to use
+export const determineMarkingMethod = (question: Question): 'exact-match' | 'ai-evaluation' => {
+  console.log('🔍 [MarkingMethod] Determining marking method for question:', question.id);
+  
+  // Get the question type (either from the question or determine it)
+  const questionType = question.questionType || determineQuestionType(question);
+  console.log('📃 [MarkingMethod] Question type for marking decision:', questionType);
+  
+  // For multiple choice and true/false questions, use exact match
+  if (
+    questionType === 'multiple-choice' || 
+    questionType === 'true-false' ||
+    questionType === 'MULTIPLE_CHOICE' ||
+    questionType === 'TRUE_FALSE'
+  ) {
+    console.log('🎯 [MarkingMethod] Using exact-match for multiple choice or true/false');
+    return 'exact-match';
+  }
+  
+  // For short answers (less than 10 words), use exact match
+  if (question.answer && question.answer.split(/\s+/).length < 10) {
+    console.log('🎯 [MarkingMethod] Using exact-match for short answer (less than 10 words)');
+    return 'exact-match';
+  }
+  
+  // For mid-to-long open-ended questions, use AI evaluation
+  console.log('🤖 [MarkingMethod] Using ai-evaluation for mid-to-long open-ended question');
+  return 'ai-evaluation';
+};
+
+// Evaluate an answer locally without AI
+export const evaluateExactMatch = (question: Question, userAnswer: string): EvaluationResult => {
+  const isCorrect = userAnswer.trim().toLowerCase() === question.answer.trim().toLowerCase();
+  
+  return {
+    isCorrect,
+    scoreAchieved: isCorrect ? 1.0 : 0.0,
+    feedback: isCorrect 
+      ? 'Correct!' 
+      : `Incorrect. The correct answer is: ${question.answer}`,
+    newLearningStage: calculateNewLearningStage(question.learningStage || 0, isCorrect ? 1.0 : 0.0)
+  };
+};
+
+// Calculate the new learning stage based on current stage and score
+export const calculateNewLearningStage = (currentStage: number, scoreAchieved: number): number => {
+  // If the answer is mostly correct (score > 0.7), move up one stage (max 5)
+  if (scoreAchieved > 0.7) {
+    return Math.min(currentStage + 1, 5);
+  }
+  
+  // If the answer is somewhat correct (score > 0.3), stay at the same stage
+  if (scoreAchieved > 0.3) {
+    return currentStage;
+  }
+  
+  // If the answer is mostly incorrect, move back to stage 0 or 1
+  return currentStage > 2 ? 1 : 0;
+};
+
+// Fallback evaluation when AI is unavailable
+export const fallbackEvaluation = (question: Question, userAnswer: string): EvaluationResult => {
+  // For multiple choice and true/false, we can still evaluate
+  if (
+    question.questionType === 'multiple-choice' || 
+    question.questionType === 'true-false'
+  ) {
+    return evaluateExactMatch(question, userAnswer);
+  }
+  
+  // For open-ended questions, we can't provide accurate evaluation without AI
+  return {
+    isCorrect: null,
+    scoreAchieved: null,
+    feedback: 'Your answer has been recorded but could not be evaluated automatically.',
+    pendingEvaluation: true,
+    newLearningStage: question.learningStage // Keep the same learning stage
+  };
+};
+
+// Evaluation cache to avoid repeated API calls for the same answer
+const evaluationCache = new Map<string, EvaluationResult>();
+
+export const getCachedEvaluation = (questionId: string, userAnswer: string): EvaluationResult | undefined => {
+  const key = `${questionId}:${userAnswer}`;
+  return evaluationCache.get(key);
+};
+
+export const cacheEvaluation = (questionId: string, userAnswer: string, evaluation: EvaluationResult): void => {
+  const key = `${questionId}:${userAnswer}`;
+  evaluationCache.set(key, evaluation);
+};
+
+// Flag to force AI evaluation for testing
+// This is controlled via environment variables
+// Using Vite's import.meta.env instead of process.env
+const FORCE_AI_EVALUATION = import.meta.env.VITE_FORCE_AI_EVALUATION === 'true';
+
+// Main evaluation function that decides between AI and exact match
+export const evaluateUserAnswer = async (question: Question, userAnswer: string): Promise<EvaluationResult> => {
+  console.log('💬 [Evaluation] Starting evaluation for question:', question.id);
+  
+  // Check cache first
+  const cached = getCachedEvaluation(question.id, userAnswer);
+  if (cached) {
+    console.log('💾 [Evaluation] Using cached evaluation result');
+    return cached;
+  }
+  
+  // Log question type information
+  const questionType = question.questionType || determineQuestionType(question);
+  console.log('📁 [Evaluation] Question type:', questionType);
+  
+  // Determine evaluation method
+  let method = determineMarkingMethod(question);
+  
+  // Force AI evaluation if the flag is set
+  if (FORCE_AI_EVALUATION) {
+    console.log('🚨 [Evaluation] FORCING AI EVALUATION for testing');
+    method = 'ai-evaluation';
+  }
+  
+  console.log('🔧 [Evaluation] Selected evaluation method:', method);
+  
+  let evaluation: EvaluationResult;
+  
+  if (method === 'exact-match') {
+    console.log('🔍 [Evaluation] Using exact match evaluation');
+    evaluation = evaluateExactMatch(question, userAnswer);
+  } else {
+    console.log('🤖 [Evaluation] Using AI-powered evaluation');
+    evaluation = await evaluateAnswerWithAI(question, userAnswer);
+  }
+  
+  // Cache the result
+  cacheEvaluation(question.id, userAnswer, evaluation);
+  console.log('💾 [Evaluation] Cached evaluation result');
+  
+  return evaluation;
+};
