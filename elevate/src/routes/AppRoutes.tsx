@@ -12,6 +12,7 @@ const ChatPage = lazy(() => import('../pages/ChatPage'));
 const StatsPage = lazy(() => import('../pages/StatsPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage'));
+const ReviewSessionPage = lazy(() => import('../pages/ReviewSessionPage'));
 const AuthenticatedLayout = lazy(() => import('../components/layout/AuthenticatedLayout'));
 import { ProtectedRoute } from './ProtectedRoute';
 
@@ -53,6 +54,8 @@ const AppRoutes = () => {
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/review" element={<ReviewSessionPage />} />
+          <Route path="/quiz/set/:setId" element={<ReviewSessionPage />} />
           <Route index element={<Navigate to="/dashboard" replace />} />
         </Route>
         

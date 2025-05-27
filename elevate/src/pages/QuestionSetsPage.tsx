@@ -260,13 +260,22 @@ const QuestionSetsPage = () => {
                   </button>
                 </div>
               </div>
-              <button
-                onClick={() => navigate(`/question-sets/${questionSet.id}`)}
-                className="mt-4 w-full flex items-center justify-between text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
-              >
-                View questions
-                <FiChevronRight className="w-4 h-4" />
-              </button>
+              <div className="mt-4 flex space-x-2">
+                <button
+                  onClick={() => navigate(`/question-sets/${questionSet.id}`)}
+                  className="flex-1 flex items-center justify-between text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  View questions
+                  <span><FiChevronRight size={16} /></span>
+                </button>
+                <button
+                  onClick={() => navigate(`/quiz/set/${questionSet.id}`)}
+                  className="flex-1 flex items-center justify-between text-sm font-medium text-green-400 hover:text-green-300 transition-colors"
+                >
+                  Start Quiz
+                  <span><FiChevronRight size={16} /></span>
+                </button>
+              </div>
             </div>
           ))}
         </div>

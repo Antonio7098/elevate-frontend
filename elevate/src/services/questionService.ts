@@ -2,20 +2,33 @@ import { apiClient } from './apiClient';
 import type { Question, CreateQuestionData, UpdateQuestionData } from '../types/question';
 
 // Get all questions for a question set
-export const getQuestions = async (questionSetId: string): Promise<Question[]> => {
+export const getQuestions = async (questionSetId: string, folderId?: string): Promise<Question[]> => {
   try {
-    // Try the nested route approach
+    // If we have a folder ID, try the nested folder route first
+    if (folderId) {
+      try {
+        console.log(`Trying to fetch questions using nested folder route: /folders/${folderId}/questionsets/${questionSetId}/questions`);
+        const response = await apiClient.get<Question[]>(`/folders/${folderId}/questionsets/${questionSetId}/questions`);
+        return response.data;
+      } catch (folderError) {
+        console.log(`Folder-nested route failed, trying alternative endpoints`);
+        // Continue to try other approaches if this fails
+      }
+    }
+    
+    // Try the direct question set route
     try {
+      console.log(`Trying to fetch questions using direct route: /questionsets/${questionSetId}/questions`);
       const response = await apiClient.get<Question[]>(`/questionsets/${questionSetId}/questions`);
       return response.data;
-    } catch (nestedError) {
-      // If that fails, try the direct approach with a filter
-      console.log(`Trying alternative endpoint for questions in set ${questionSetId}`);
+    } catch (directError) {
+      // If that fails, try the query parameter approach
+      console.log(`Direct route failed, trying query parameter approach`);
       const response = await apiClient.get<Question[]>(`/questions?questionSetId=${questionSetId}`);
       return response.data;
     }
   } catch (error) {
-    console.error(`Failed to fetch questions for question set ${questionSetId}:`, error);
+    console.error(`All attempts to fetch questions for question set ${questionSetId} failed:`, error);
     // Return empty array instead of throwing to prevent UI disruption
     return [];
   }

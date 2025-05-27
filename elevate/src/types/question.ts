@@ -1,3 +1,12 @@
+export interface UserAnswer {
+  id: string;
+  questionId: string;
+  userAnswer: string;
+  correct: boolean;
+  evaluationScore?: number;
+  timestamp: string;
+}
+
 export interface Question {
   id: string;
   questionSetId: string;
@@ -5,6 +14,10 @@ export interface Question {
   answer: string;
   createdAt: string;
   updatedAt: string;
+  learningStage?: number; // 0-5 representing spaced repetition stage
+  difficultyScore?: number; // 0-1 representing difficulty
+  conceptTags?: string[]; // Array of concept tags associated with this question
+  userAnswers?: UserAnswer[]; // History of user answers to this question
 }
 
 export interface CreateQuestionData {
