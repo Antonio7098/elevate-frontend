@@ -13,6 +13,8 @@ const aiServiceClient = axios.create({
   withCredentials: true // Enable sending cookies in cross-origin requests
 });
 
+const AI_EVALUATION_ENDPOINT = '/evaluate-answer';
+
 export interface EvaluationResult {
   isCorrect: boolean | null;
   scoreAchieved: number | null;
@@ -58,6 +60,8 @@ export const evaluateAnswerWithAI = async (
     
     console.log('✅ [AI Evaluation] AI service is available, proceeding with evaluation');
     
+    console.time('⏱️ [AI Evaluation] Response time'); // Start timer
+    
     // Structure the payload to match the backend API expectations
     const payload = {
       questionId: question.id,
@@ -80,43 +84,45 @@ export const evaluateAnswerWithAI = async (
     };
     
     console.log('📤 [AI Evaluation] Sending payload to AI API:', JSON.stringify(payload, null, 2));
-    console.time('⏱️ [AI Evaluation] Response time');
-    
-    // Log the endpoint we're using
-    console.log('🔗 [AI Evaluation] API endpoint:', '/evaluate-answer');
-    
-    // Health check is now done at the beginning of the function
+    console.log('🔗 [AI Evaluation] API endpoint:', AI_EVALUATION_ENDPOINT); // Use constant here
     
     // Use the dedicated AI service client with the correct endpoint
-    const response = await aiServiceClient.post<AIServiceResponse>('/evaluate-answer', payload);
+    const response = await aiServiceClient.post<AIServiceResponse>(AI_EVALUATION_ENDPOINT, payload);
+    console.timeEnd('⏱️ [AI Evaluation] Response time'); // End timer, responseTime will be logged by timeEnd
     
-    // If the response doesn't match our expected format, transform it
-    let result: EvaluationResult;
-    
-    // Check if the response has a nested evaluation property (from AI service format)
-    if (response.data.success && response.data.evaluation) {
-      // The AI service returns data in a nested format {success: true, evaluation: {...}}
-      result = response.data.evaluation;
-    } else {
-      // Direct format or unexpected format, try to adapt
-      const data = response.data as any; // Temporarily cast to any to handle different response formats
-      result = {
-        isCorrect: data.isCorrect ?? null,
-        scoreAchieved: data.scoreAchieved ?? null,
-        feedback: data.feedback ?? 'No feedback available',
-        explanation: data.explanation,
-        conceptsIdentified: data.conceptsIdentified,
-        pendingEvaluation: data.pendingEvaluation,
-        newLearningStage: calculateNewLearningStage(question.learningStage || 0, data.scoreAchieved || 0)
-      };
-    }
-    
-    console.timeEnd('⏱️ [AI Evaluation] Response time');
     console.log('✅ [AI Evaluation] AI evaluation successful!');
     console.log('📥 [AI Evaluation] Response data:', JSON.stringify(response.data, null, 2));
-    console.log('📥 [AI Evaluation] Processed result:', JSON.stringify(result, null, 2));
-    
-    return result;
+
+    if (response.data.success && response.data.evaluation) {
+      const aiEvalData = response.data.evaluation; // Specific type for AI service's evaluation object
+      console.log('📥 [AI Evaluation] Extracted AI eval data:', JSON.stringify(aiEvalData, null, 2));
+      
+      return { // Directly return EvaluationResult from AI data
+        isCorrect: aiEvalData.isCorrect ?? false,
+        scoreAchieved: typeof aiEvalData.score === 'number' ? Math.round(aiEvalData.score * 100) : null,
+        feedback: aiEvalData.feedbackText || 'AI evaluation successful, but no specific feedback provided.',
+        explanation: aiEvalData.suggestedCorrectAnswer,
+        conceptsIdentified: (aiEvalData as any).conceptsIdentified || [], // Handle if not always present
+        pendingEvaluation: false, // AI evaluation is complete
+        newLearningStage: calculateNewLearningStage(
+          question.learningStage || 0,
+          typeof aiEvalData.score === 'number' ? aiEvalData.score : 0
+        ),
+      };
+    } else {
+      // AI service call was made, but it indicated failure or unexpected format
+      console.warn('⚠️ [AI Evaluation] AI service call did not return a successful evaluation or data was malformed:', response.data);
+      const data = response.data as any; // Keep inspecting 'data' for fallback
+      return { // Return a fallback EvaluationResult
+        isCorrect: data.isCorrect ?? null,
+        scoreAchieved: data.scoreAchieved ?? null, // This might be from an older contract or undefined
+        feedback: data.feedback ?? 'AI evaluation was not successful or returned an unexpected format.',
+        explanation: data.explanation,
+        conceptsIdentified: data.conceptsIdentified || [],
+        pendingEvaluation: true, 
+        newLearningStage: question.learningStage || 0, 
+      };
+    }
   } catch (error: any) {
     console.error('❌ [AI Evaluation] Error evaluating answer with AI:', error);
     
@@ -215,7 +221,7 @@ export const evaluateExactMatch = (question: Question, userAnswer: string): Eval
   
   return {
     isCorrect,
-    scoreAchieved: isCorrect ? 1.0 : 0.0,
+    scoreAchieved: isCorrect ? 100 : 0,
     feedback: isCorrect 
       ? 'Correct!' 
       : `Incorrect. The correct answer is: ${question.answer}`,
@@ -317,5 +323,6 @@ export const evaluateUserAnswer = async (question: Question, userAnswer: string)
   cacheEvaluation(question.id, userAnswer, evaluation);
   console.log('💾 [Evaluation] Cached evaluation result');
   
+  console.log(`📬 [Evaluation] Final result for ReviewSessionPage for QID ${question.id}:`, JSON.parse(JSON.stringify(evaluation)));
   return evaluation;
 };

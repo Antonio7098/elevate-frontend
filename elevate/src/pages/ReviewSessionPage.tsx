@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiArrowRight, FiCheck, FiLoader, FiAlertCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiLoader, FiAlertCircle } from 'react-icons/fi';
 import { apiClient } from '../services/apiClient';
 import { evaluateUserAnswer } from '../services/evaluationService';
 import AnswerEvaluation from '../components/evaluation/AnswerEvaluation';
@@ -14,13 +14,15 @@ interface ReviewQuestion extends Question {
   options?: string[]; // For multiple choice questions
 }
 
-// Interface for tracking session progress and analytics
-interface SessionStats {
-  totalQuestions: number;
-  questionsAnswered: number;
-  correctAnswers: number;
-  averageDifficulty: number;
-}
+// Helper function to map numeric learning stage to UUE focus string
+const mapNumericStageToUueFocus = (stage: number | undefined): 'Understand' | 'Use' | 'Explore' => {
+  if (stage === undefined) return 'Understand'; // Default if stage is not provided
+  // Assuming stages 0-1 map to Understand, 2-3 to Use, 4+ to Explore
+  // This mapping might need adjustment based on actual stage definitions
+  if (stage <= 1) return 'Understand';
+  if (stage <= 3) return 'Use';
+  return 'Explore';
+};
 
 // Helper function to determine question type based on content
 const determineQuestionType = (question: Question): ReviewQuestion => {
@@ -79,6 +81,7 @@ const getDifficultyColor = (difficulty: number): string => {
 const ReviewSessionPage = () => {
   const navigate = useNavigate();
   const { setId } = useParams<{ setId?: string }>();
+  const startTimeRef = useRef<number | null>(null);
   
   // State for the review session
   const [questions, setQuestions] = useState<ReviewQuestion[]>([]);
@@ -92,14 +95,19 @@ const ReviewSessionPage = () => {
   // State for answer evaluation
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
   const [evaluationStatus, setEvaluationStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [isMarked, setIsMarked] = useState<boolean>(false); // Track if current question is marked
   
-  // Session statistics
-  const [sessionStats, setSessionStats] = useState<SessionStats>({
-    totalQuestions: 0,
-    questionsAnswered: 0,
-    correctAnswers: 0,
-    averageDifficulty: 0
-  });
+  // State for storing outcomes of each question in the session
+  const [sessionOutcomes, setSessionOutcomes] = useState<QuestionOutcome[]>([]);
+  
+  // Define types for component props and state
+  interface QuestionOutcome {
+    questionId: string;
+    userAnswer: string;
+    scoreAchieved: number;
+    uueFocus: string; // Understand, Use, Extend
+    evaluationFeedback?: string; // Optional: if you want to store feedback per question
+  }
 
   // Load questions when component mounts
   useEffect(() => {
@@ -131,12 +139,9 @@ const ReviewSessionPage = () => {
         setQuestions(processedQuestions);
         
         // Initialize session stats
-        setSessionStats({
-          totalQuestions: processedQuestions.length,
-          questionsAnswered: 0,
-          correctAnswers: 0,
-          averageDifficulty: processedQuestions.reduce((sum, q) => sum + (q.difficultyScore || 0.5), 0) / processedQuestions.length
-        });
+        // Removed sessionStats initialization
+        
+        startTimeRef.current = Date.now(); // Start timer when questions are loaded
         
         setIsLoading(false);
         
@@ -151,8 +156,8 @@ const ReviewSessionPage = () => {
     fetchQuestionSet();
   }, [setId]);
 
-  // Handle submitting an answer
-  const handleSubmitAnswer = async () => {
+  // Handle marking an answer
+  const handleMarkAnswer = async () => {
     if (!userAnswer.trim()) {
       // Don't submit empty answers
       return;
@@ -187,7 +192,21 @@ const ReviewSessionPage = () => {
       // Store the evaluation result
       setEvaluation(result);
       setEvaluationStatus('success');
+      setIsMarked(true); // Mark the question as evaluated
       console.log('🎯 [ReviewSession] Evaluation status set to success');
+
+      // Log the raw evaluation result
+      console.log('💡 [ReviewSession] Raw evaluation result:', JSON.parse(JSON.stringify(result)));
+
+      const newOutcome: QuestionOutcome = {
+        questionId: String(currentQuestion.id), // Ensure questionId is a string
+        userAnswer: userAnswer,
+        // Use scoreAchieved directly, defaulting to 0 if null. Max score from service is 100.
+        scoreAchieved: result.scoreAchieved === null ? 0 : Math.round(result.scoreAchieved),
+        uueFocus: mapNumericStageToUueFocus(result.newLearningStage),
+        //evaluationFeedback: result.feedback,
+      };
+      setSessionOutcomes(prevOutcomes => [...prevOutcomes, newOutcome]);
       
       // Log detailed evaluation for debugging
       console.log('📝 [ReviewSession] Detailed evaluation info:');
@@ -201,43 +220,7 @@ const ReviewSessionPage = () => {
       console.log('  Previous User Answers:', currentQuestion.userAnswers);
       
       // Update session stats
-      setSessionStats(prev => ({
-        ...prev,
-        questionsAnswered: prev.questionsAnswered + 1,
-        correctAnswers: prev.correctAnswers + (result.isCorrect ? 1 : 0)
-      }));
-      
-      // Update the question with the new learning stage if provided
-      if (result.newLearningStage !== undefined) {
-        const updatedQuestions = [...questions];
-        updatedQuestions[currentQuestionIndex] = {
-          ...currentQuestion,
-          learningStage: result.newLearningStage,
-          // Add this answer to the history
-          userAnswers: [...(currentQuestion.userAnswers || []), {
-            userAnswer: userAnswer,
-            timestamp: new Date().toISOString(),
-            evaluationScore: result.scoreAchieved || 0,
-            id: `answer-${Date.now()}`,
-            questionId: currentQuestion.id,
-            correct: result.isCorrect || false
-          }]
-        };
-        setQuestions(updatedQuestions);
-      }
-      
-      // Wait a moment to show the evaluation before moving to the next question
-      setTimeout(() => {
-        if (currentQuestionIndex < questions.length - 1) {
-          setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-          setUserAnswer(''); // Clear the answer field for the next question
-        } else {
-          // End of session
-          setSessionComplete(true);
-        }
-        setEvaluationStatus('idle');
-      }, 3000); // Show evaluation for 3 seconds
-      
+      // Removed sessionStats update
     } catch (error: any) {
       console.error('❌ [ReviewSession] Error evaluating answer:', error);
       
@@ -252,23 +235,161 @@ const ReviewSessionPage = () => {
       }
       
       setEvaluationStatus('error');
-      
-      // Still move to the next question after a delay even if evaluation fails
-      setTimeout(() => {
-        if (currentQuestionIndex < questions.length - 1) {
-          setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-          setUserAnswer(''); // Clear the answer field for the next question
-        } else {
-          // End of session
-          setSessionComplete(true);
+      setEvaluation({
+        isCorrect: false,
+        scoreAchieved: 0,
+        feedback: 'Error evaluating answer. Please try again.'
+      });
+    }
+  };
+  
+  // Handle moving to the next question
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+      setUserAnswer(''); // Clear the answer field for the next question
+      setEvaluation(null); // Clear the evaluation
+      setEvaluationStatus('idle'); // Reset evaluation status
+      setIsMarked(false); // Reset marked status
+    } else {
+      // End of session - submit outcomes
+      handleCompleteSession();
+    }
+  };
+
+  // Handle submitting all session outcomes to the backend
+  const handleCompleteSession = async () => {
+    if (!setId) {
+      console.error("❌ [ReviewSession] Set ID is missing, cannot complete session.");
+      setError("Session ID is missing. Cannot save results.");
+      return;
+    }
+
+    // If there are no outcomes to submit (e.g., user went through questions without marking any, or no questions loaded)
+    // but the session is being 'completed', we can just mark it as complete in the UI.
+    if (sessionOutcomes.length === 0) {
+      console.log("🏁 [ReviewSession] No outcomes to submit. Completing session visually.");
+      setSessionComplete(true);
+      return;
+    }
+
+    console.log('🚀 [ReviewSession] Completing session and submitting outcomes...');
+    console.log('📊 [ReviewSession] Final session outcomes:', sessionOutcomes);
+    // TODO: Consider adding a visual loading state for submission (e.g., a new state variable `isSubmitting`) 
+
+    const timeSpentInSeconds = startTimeRef.current ? Math.round((Date.now() - startTimeRef.current) / 1000) : 0;
+
+    try {
+      const payload = { 
+        questionSetId: setId,
+        outcomes: sessionOutcomes,
+        timeSpent: timeSpentInSeconds, 
+      };
+      console.log('🔍 [ReviewSession] Submitting payload:', JSON.stringify(payload, null, 2)); // Log the entire payload
+      await apiClient.post(`/reviews`, payload);
+      console.log('✅ [ReviewSession] Session outcomes submitted successfully.');
+      setSessionComplete(true); // Mark session as complete in UI after successful submission
+    } catch (err: any) {
+      console.error('❌ [ReviewSession] Error submitting session outcomes:', err);
+      let errorMessage = 'Failed to save session results. Please try again.';
+      if (err.response && err.response.data) {
+        if (err.response.data.errors && Array.isArray(err.response.data.errors)) {
+          // Handle express-validator style errors
+          errorMessage = err.response.data.errors.map((e: { msg: string }) => e.msg).join(', ');
+        } else if (err.response.data.message) {
+          // Handle custom message format
+          errorMessage = err.response.data.message;
         }
-        setEvaluationStatus('idle');
-      }, 2000);
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage); // Display error to the user
+      // Still mark as complete visually, but with an error message shown.
+      // Alternatively, don't setSessionComplete(true) to allow a retry if that UX is preferred.
+      setSessionComplete(true); 
+    } finally {
+      // TODO: Set `isSubmitting` to false if it was used
     }
   };
 
   // Get the current question
   const currentQuestion = questions[currentQuestionIndex];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-16">
+        <span className="mr-2 inline-block animate-spin"><FiLoader size={24} /></span>
+        <span>Loading questions...</span>
+      </div>
+    );
+  }
+
+  if (sessionComplete) {
+    const summaryData = sessionOutcomes.map(outcome => {
+      const question = questions.find(q => String(q.id) === outcome.questionId); // Ensure ID comparison is robust
+      return {
+        questionText: question ? question.text : 'Question text not found.',
+        scoreAchieved: outcome.scoreAchieved,
+        questionId: outcome.questionId, // For React key
+      };
+    });
+
+    const totalScore = summaryData.reduce((acc, item) => acc + item.scoreAchieved, 0);
+    const averageScore = summaryData.length > 0 ? totalScore / summaryData.length : 0;
+
+    return (
+      <div className="p-4 md:p-8 max-w-3xl mx-auto bg-gray-50 min-h-screen">
+        <h2 className="text-3xl font-bold mb-6 text-center text-green-700">🎉 Session Complete! 🎉</h2>
+        <p className="mb-8 text-center text-lg text-gray-700">Well done! Your review session has been successfully submitted. Here's your performance summary:</p>
+
+        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+          <h3 className="text-2xl font-semibold mb-6 text-gray-800 text-center">Session Summary</h3>
+          <div className="space-y-4 mb-6">
+            {summaryData.map((item, index) => (
+              <div key={item.questionId || index} className="p-4 border border-gray-200 rounded-lg bg-gray-50 hover:shadow-md transition-shadow">
+                <p className="text-sm text-gray-500 mb-1">Question {index + 1}</p>
+                <p className="text-gray-800 mb-2 font-medium truncate" title={item.questionText}>
+                  {item.questionText}
+                </p>
+                <p className="text-indigo-600 font-semibold text-lg">
+                  Score: {item.scoreAchieved} / 100
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-gray-200 pt-6 text-center">
+            <p className="text-xl font-bold text-gray-800">Overall Average Score: <span className="text-green-600">{Math.round(averageScore)}%</span></p>
+          </div>
+        </div>
+
+        <div className="text-center mt-8">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none transition-colors"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!questions || questions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <span className="text-red-500 mb-4"><FiAlertCircle size={32} /></span>
+        <h2 className="text-xl font-bold text-white mb-2">Error</h2>
+        <p className="text-slate-400 mb-6">{error}</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none transition-colors"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -286,189 +407,146 @@ const ReviewSessionPage = () => {
 
       {/* Session content */}
       <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
-        {isLoading ? (
-          <div className="flex justify-center items-center py-16">
-            <span className="mr-2 inline-block animate-spin"><FiLoader size={24} /></span>
-            <span>Loading questions...</span>
-          </div>
-        ) : error ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <span className="text-red-500 mb-4"><FiAlertCircle size={32} /></span>
-            <h2 className="text-xl font-bold text-white mb-2">Error</h2>
-            <p className="text-slate-400 mb-6">{error}</p>
-            <button
-              onClick={() => navigate(-1)}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none transition-colors"
-            >
-              Go Back
-            </button>
-          </div>
-        ) : sessionComplete ? (
-          <div className="text-center py-16">
-            <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
-              <span className="text-green-500"><FiCheck size={32} /></span>
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Review Session Complete!</h2>
-            <p className="text-slate-400 mb-6">You've answered all the questions in this session.</p>
-            
-            {/* Session statistics */}
-            <div className="mb-8 max-w-md mx-auto">
-              <div className="bg-slate-800 rounded-lg p-4 mb-4">
-                <h3 className="text-lg font-medium text-white mb-3">Session Summary</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Questions Answered:</span>
-                    <span className="text-white font-medium">{sessionStats.questionsAnswered} of {sessionStats.totalQuestions}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Average Difficulty:</span>
-                    <span className="text-white font-medium">{(sessionStats.averageDifficulty * 100).toFixed(0)}%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none transition-colors"
-            >
-              Return to Dashboard
-            </button>
-          </div>
-        ) : (
+        {/* Progress indicator */}
+        <div className="flex justify-between mb-6 text-sm text-slate-400">
           <div>
-            {/* Progress indicator */}
-            <div className="flex justify-between mb-6 text-sm text-slate-400">
-              <div>
-                Question {currentQuestionIndex + 1} of {questions.length}
+            Question {currentQuestionIndex + 1} of {questions.length}
+          </div>
+          {currentQuestion?.difficultyScore !== undefined && (
+            <div className="flex items-center">
+              <span className="mr-2">Difficulty:</span>
+              <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full ${getDifficultyColor(currentQuestion.difficultyScore)}`}
+                  style={{ width: `${currentQuestion.difficultyScore * 100}%` }}
+                ></div>
               </div>
-              {currentQuestion?.difficultyScore !== undefined && (
-                <div className="flex items-center">
-                  <span className="mr-2">Difficulty:</span>
-                  <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full ${getDifficultyColor(currentQuestion.difficultyScore)}`}
-                      style={{ width: `${currentQuestion.difficultyScore * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              )}
             </div>
+          )}
+        </div>
 
-            {/* Question display */}
-            <div className="mb-6">
-              <h2 className="text-xl font-medium text-white mb-2">{currentQuestion?.text}</h2>
-              
-              {/* Display concept tags if available */}
-              {currentQuestion?.conceptTags && currentQuestion.conceptTags.length > 0 && (
-                <div className="mb-4 flex flex-wrap gap-2">
-                  {currentQuestion.conceptTags.map((tag, index) => (
-                    <span key={index} className="px-2 py-1 text-xs bg-indigo-500/20 text-indigo-300 rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              
-              {/* Difficulty indicator */}
-              <div className="flex items-center mb-4">
-                <span className="text-sm text-gray-600 mr-2">Difficulty:</span>
-                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full ${getDifficultyColor(currentQuestion.difficultyScore || 0)}`}
-                    style={{ width: `${(currentQuestion.difficultyScore || 0) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-              
-              {/* Evaluation results */}
-              {evaluationStatus !== 'idle' && (
-                <div className="mt-4">
-                  <AnswerEvaluation 
-                    evaluation={evaluation} 
-                    status={evaluationStatus} 
-                  />
-                </div>
-              )}
-              
-              {/* Different input types based on question type */}
-              {currentQuestion?.questionType === 'TRUE_FALSE' ? (
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="true-option"
-                      name="true-false"
-                      value="True"
-                      checked={userAnswer === 'True'}
-                      onChange={() => setUserAnswer('True')}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-600 bg-slate-800"
-                    />
-                    <label htmlFor="true-option" className="ml-2 block text-white">True</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="false-option"
-                      name="true-false"
-                      value="False"
-                      checked={userAnswer === 'False'}
-                      onChange={() => setUserAnswer('False')}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-600 bg-slate-800"
-                    />
-                    <label htmlFor="false-option" className="ml-2 block text-white">False</label>
-                  </div>
-                </div>
-              ) : currentQuestion?.questionType === 'MULTIPLE_CHOICE' && currentQuestion.options ? (
-                <div className="mt-4 space-y-2">
-                  {currentQuestion.options.map((option, index) => (
-                    <div key={index} className="flex items-center">
-                      <input
-                        type="radio"
-                        id={`option-${index}`}
-                        name="multiple-choice"
-                        value={option}
-                        checked={userAnswer === option}
-                        onChange={() => setUserAnswer(option)}
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-600 bg-slate-800"
-                      />
-                      <label htmlFor={`option-${index}`} className="ml-2 block text-white">{option}</label>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <textarea
-                  className="w-full p-3 mt-4 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-y"
-                  rows={4}
-                  placeholder="Type your answer here..."
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                />
-              )}
+        {/* Question display */}
+        <div className="mb-6">
+          <h2 className="text-xl font-medium text-white mb-2">{currentQuestion?.text}</h2>
+          
+          {/* Display concept tags if available */}
+          {currentQuestion?.conceptTags && currentQuestion.conceptTags.length > 0 && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {currentQuestion.conceptTags.map((tag, index) => (
+                <span key={index} className="px-2 py-1 text-xs bg-indigo-500/20 text-indigo-300 rounded-full">
+                  {tag}
+                </span>
+              ))}
             </div>
-
-            {/* Action buttons */}
-            <div className="flex justify-end">
-              <button
-                onClick={handleSubmitAnswer}
-                disabled={!userAnswer.trim()}
-                className={`inline-flex items-center px-5 py-2.5 text-sm font-medium rounded-lg ${
-                  userAnswer.trim() 
-                    ? 'text-white bg-indigo-600 hover:bg-indigo-700' 
-                    : 'text-slate-400 bg-slate-700 cursor-not-allowed'
-                } focus:outline-none transition-colors`}
-              >
-                {currentQuestionIndex < questions.length - 1 ? (
-                  <>
-                    Next Question
-                    <span className="ml-1.5"><FiArrowRight size={16} /></span>
-                  </>
-                ) : (
-                  'Complete Session'
-                )}
-              </button>
+          )}
+          
+          {/* Difficulty indicator */}
+          <div className="flex items-center mb-4">
+            <span className="text-sm text-gray-600 mr-2">Difficulty:</span>
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className={`h-full ${getDifficultyColor(currentQuestion.difficultyScore || 0)}`}
+                style={{ width: `${(currentQuestion.difficultyScore || 0) * 100}%` }}
+              ></div>
             </div>
           </div>
-        )}
+          
+          {/* Evaluation results */}
+          {evaluationStatus !== 'idle' && (
+            <div className="mt-4">
+              <AnswerEvaluation 
+                evaluation={evaluation} 
+                status={evaluationStatus} 
+              />
+            </div>
+          )}
+          
+          {/* Different input types based on question type */}
+          {currentQuestion?.questionType === 'TRUE_FALSE' ? (
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center">
+                <input
+                  type="radio"
+                  id="true-option"
+                  name="true-false"
+                  value="True"
+                  checked={userAnswer === 'True'}
+                  onChange={() => setUserAnswer('True')}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-600 bg-slate-800"
+                />
+                <label htmlFor="true-option" className="ml-2 block text-white">True</label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="radio"
+                  id="false-option"
+                  name="true-false"
+                  value="False"
+                  checked={userAnswer === 'False'}
+                  onChange={() => setUserAnswer('False')}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-600 bg-slate-800"
+                />
+                <label htmlFor="false-option" className="ml-2 block text-white">False</label>
+              </div>
+            </div>
+          ) : currentQuestion?.questionType === 'MULTIPLE_CHOICE' && currentQuestion.options ? (
+            <div className="mt-4 space-y-2">
+              {currentQuestion.options.map((option, index) => (
+                <div key={index} className="flex items-center">
+                  <input
+                    type="radio"
+                    id={`option-${index}`}
+                    name="multiple-choice"
+                    value={option}
+                    checked={userAnswer === option}
+                    onChange={() => setUserAnswer(option)}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-600 bg-slate-800"
+                  />
+                  <label htmlFor={`option-${index}`} className="ml-2 block text-white">{option}</label>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <textarea
+              className="w-full p-3 mt-4 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-y"
+              rows={4}
+              placeholder="Type your answer here..."
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+            />
+          )}
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex justify-end space-x-4">
+          {!isMarked ? (
+            <button
+              onClick={handleMarkAnswer}
+              disabled={!userAnswer.trim()}
+              className={`inline-flex items-center px-5 py-2.5 text-sm font-medium rounded-lg ${
+                userAnswer.trim() 
+                  ? 'text-white bg-indigo-600 hover:bg-indigo-700' 
+                  : 'text-slate-400 bg-slate-700 cursor-not-allowed'
+              } focus:outline-none transition-colors`}
+            >
+              Mark Answer
+            </button>
+          ) : (
+            <button
+              onClick={handleNextQuestion}
+              className="inline-flex items-center px-5 py-2.5 text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none transition-colors"
+            >
+              {currentQuestionIndex < questions.length - 1 ? (
+                <>
+                  Next Question
+                  <span className="ml-1.5"><FiArrowRight size={16} /></span>
+                </>
+              ) : (
+                'Complete Session'
+              )}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
