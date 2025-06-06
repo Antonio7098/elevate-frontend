@@ -2,9 +2,10 @@ import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import type { ReactNode } from 'react';
 
+import styles from './ProtectedRoute.module.css';
 const Loading = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+  <div className={styles.loadingRoot}>
+    <div className={styles.spinner}></div>
   </div>
 );
 

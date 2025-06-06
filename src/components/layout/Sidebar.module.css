@@ -1,0 +1,203 @@
+.sidebar {
+  position: fixed;
+  inset: 0 0 0 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 5rem; /* w-20 */
+  background: #0f172a; /* bg-slate-900 */
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.1);
+  transition: width 0.3s;
+}
+.sidebar:hover {
+  width: 16rem; /* hover:w-64 */
+}
+.logoArea {
+  display: flex;
+  height: 4rem; /* h-16 */
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.logoInner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.logoIcon {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 0.5rem;
+  background: #4f46e5; /* bg-indigo-600 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+}
+.logoText {
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.25rem;
+  display: none;
+  transition: opacity 0.3s;
+}
+.sidebar:hover .logoText {
+  display: block;
+}
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow-y: auto;
+  padding: 1rem 0.5rem;
+}
+.navLink {
+  display: flex;
+  align-items: center;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #cbd5e1; /* text-slate-300 */
+  background: none;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+}
+.navLinkActive {
+  background: #1e293b; /* bg-slate-800 */
+  color: #fff;
+}
+.navLink:hover {
+  background: #1e293b;
+  color: #fff;
+}
+.icon {
+  flex-shrink: 0;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+.linkText {
+  margin-left: 0.75rem;
+  display: none;
+  transition: opacity 0.3s;
+}
+.sidebar:hover .linkText {
+  display: block;
+}
+.createBtn {
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  background: none;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  border: none;
+}
+.createBtn:hover {
+  background: #1e293b;
+  color: #fff;
+}
+.bottom {
+  margin-top: auto;
+  padding: 1rem 0.5rem;
+  border-top: 1px solid #1e293b;
+}
+.bottomNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.profileArea {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  gap: 0.25rem;
+}
+.sidebar:hover .profileArea {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  width: auto;
+}
+.profileBtn {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: none;
+  width: 100%;
+}
+.profileBtn:hover {
+  background: #1e293b;
+}
+.profileIcon {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 9999px;
+  background: #334155; /* bg-slate-700 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sidebar:hover .profileIcon {
+  margin-left: 0;
+  margin-right: 0;
+}
+.profileText {
+  margin-left: 0.75rem;
+  display: none;
+  transition: opacity 0.3s;
+}
+.sidebar:hover .profileText {
+  display: block;
+}
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  background: none;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+}
+.logoutBtn:hover {
+  background: #1e293b;
+  color: #f87171; /* hover:text-red-400 */
+}
+.logoutIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sidebar:hover .logoutIcon {
+  margin-left: 0;
+  margin-right: 0;
+}

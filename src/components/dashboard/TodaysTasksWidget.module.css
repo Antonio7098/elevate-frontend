@@ -1,0 +1,65 @@
+.widgetBox {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.06);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  min-width: 260px;
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #222;
+}
+
+.empty {
+  color: #888;
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.cardsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cardStandard {
+  background: #e6fbe6;
+  color: #1b5e20;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  min-width: 180px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+  box-shadow: 0 1px 4px 0 rgba(60,180,60,0.10);
+}
+
+.cardCritical {
+  background: #ffebee;
+  color: #b71c1c;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  min-width: 180px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+  box-shadow: 0 1px 4px 0 rgba(183,28,28,0.10);
+}
+
+.cardStandard:hover, .cardCritical:hover {
+  box-shadow: 0 4px 16px 0 rgba(44,44,44,0.13);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.setName {
+  font-weight: 500;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.dueInfo {
+  font-size: 0.92rem;
+  color: #666;
+}

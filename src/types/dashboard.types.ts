@@ -1,0 +1,27 @@
+// Types for Dashboard API
+
+export interface DueTodaySet {
+  id: string;
+  name: string;
+  nextReviewAt: string; // ISO date string
+  isCritical: boolean; // Derived from logic, e.g., overdue
+}
+
+export interface RecentProgressSet {
+  id: string;
+  name: string;
+  lastReviewedAt: string; // ISO date string
+  masteryScore: number;
+}
+
+export interface OverallStats {
+  totalSetsMastered: number;
+  averageMastery: number;
+  studyStreak: number;
+}
+
+export interface DashboardData {
+  dueToday: DueTodaySet[];
+  recentProgress: RecentProgressSet[];
+  overallStats: OverallStats;
+}
