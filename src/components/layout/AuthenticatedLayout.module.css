@@ -10,7 +10,77 @@
   position: sticky;
   top: 0;
   overflow-y: auto;
+  transition: box-shadow 0.2s; /* Removed left transition for desktop */
+  z-index: 1001;
 }
+
+@media (max-width: 600px) {
+  .sidebar {
+    position: fixed !important;
+    left: -100vw !important;
+    top: 0;
+    width: 220px !important;
+    min-width: 0;
+    max-width: 80vw;
+    height: 100vh;
+    background: #111827;
+    box-shadow: 2px 0 16px 0 rgba(0,0,0,0.18);
+    transition: left 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.2s;
+    z-index: 1001;
+    display: block;
+  }
+  .sidebarOpen {
+    left: 0 !important;
+    transition: left 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.2s;
+
+    box-shadow: 2px 0 16px 0 rgba(0,0,0,0.25);
+  }
+  .sidebarBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.35);
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.2s;
+    display: block;
+  }
+  .menuButton {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1100;
+    background: #fff;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: box-shadow 0.15s, background 0.15s;
+  }
+  .menuButton:active,
+  .menuButton:focus {
+    box-shadow: 0 4px 16px 0 rgba(44,44,44,0.13);
+    outline: 2px solid #1976d2;
+    background: #f0f4ff;
+  }
+  .main {
+    padding: 0.5rem;
+  }
+  .content {
+    max-width: 100%;
+    padding: 0.5rem 0.2rem;
+  }
+}
+
+
 .main {
   flex: 1;
   overflow-y: auto;
@@ -21,5 +91,5 @@
 .content {
   width: 100%;
   max-width: 80rem; /* max-w-5xl */
-  background: #22c55e; /* bg-green-500 */
+  background: #fff;
 }

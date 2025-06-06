@@ -1,18 +1,21 @@
 .widgetBox {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.06);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px 0 rgba(0,0,0,0.10);
+  border: 1px solid #f0f2f7;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   min-width: 260px;
 }
 
+
 .title {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #222;
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin-bottom: 1.1rem;
+  color: #1a237e;
 }
+
 
 .empty {
   color: #888;
@@ -26,20 +29,36 @@
   margin-bottom: 1.25rem;
   flex-wrap: wrap;
 }
+@media (max-width: 600px) {
+  .statsGrid {
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  .statItem {
+    padding: 0.7rem 0.5rem;
+    font-size: 0.98rem;
+  }
+}
+
 
 .statItem {
   flex: 1 1 100px;
   background: #f5f7fb;
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  padding: 1.15rem 1.25rem;
   text-align: center;
+  box-shadow: 0 1px 4px 0 rgba(60,60,180,0.07);
+  border: 1.5px solid #e3eafc;
 }
 
+
 .statLabel {
-  font-size: 0.95rem;
-  color: #666;
+  font-size: 0.97rem;
+  color: #3b3b3b;
   margin-bottom: 0.5rem;
+  font-weight: 500;
 }
+
 
 .statValue {
   font-size: 1.3rem;
@@ -52,13 +71,18 @@
   text-align: right;
 }
 
-.statsLink {
-  color: #2563eb;
-  text-decoration: none;
-  font-weight: 500;
+.viewStatsLink {
+  color: #1976d2;
+  font-weight: 600;
+  text-decoration: underline;
+  border-radius: 6px;
+  padding: 0.2rem 0.4rem;
+  transition: color 0.15s, background 0.15s, outline 0.15s;
   font-size: 0.98rem;
 }
 
-.statsLink:hover {
-  text-decoration: underline;
+.viewStatsLink:hover, .viewStatsLink:focus {
+  color: #0d47a1;
+  background: #e3eafc;
+  outline: 2px solid #1976d2;
 }
