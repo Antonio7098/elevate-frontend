@@ -1,4 +1,4 @@
-# Sprint ##: [Sprint Goal / Main Feature Name]
+sprint# Sprint ##: [Sprint Goal / Main Feature Name]
 
 **Date Range:** [Start Date] - [End Date]
 **Primary Focus:** [e.g., Core API - Stats Endpoints, Frontend - Dashboard UI, Python AI - Question Generation Logic]

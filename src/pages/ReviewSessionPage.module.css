@@ -24,7 +24,7 @@
 .backBtn {
   display: flex;
   align-items: center;
-  color: #94a3b8;
+  color: var(--color-text-muted);
   background: none;
   border: none;
   font-size: 1rem;
@@ -33,7 +33,7 @@
   padding: 0.25rem 0.5rem;
 }
 .backBtn:hover, .backBtn:focus {
-  color: #fff;
+  color: var(--color-text-on-primary);
   outline: 2px solid #6366f1;
   outline-offset: 2px;
 }
@@ -41,17 +41,17 @@
 .title {
   font-size: 2rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-on-primary);
   margin-bottom: 0.25rem;
 }
 .subtitle {
-  color: #cbd5e1;
+  color: var(--color-text-muted);
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
 }
 
 .questionCard {
-  background: #232946;
+  background: var(--color-surface);
   border-radius: 1rem;
   padding: 2rem 1.5rem 1.5rem 1.5rem;
   margin-bottom: 1.5rem;
@@ -64,7 +64,7 @@
 .questionText {
   font-size: 1.15rem;
   font-weight: 500;
-  color: #fff;
+  color: var(--color-text-on-primary);
   margin-bottom: 1rem;
 }
 
@@ -84,7 +84,7 @@
   width: 1.1rem;
   height: 1.1rem;
   accent-color: #6366f1;
-  background: #181e29;
+  background: var(--color-surface);
   border: 1.5px solid #334155;
   border-radius: 50%;
   transition: border 0.2s, box-shadow 0.2s;
@@ -96,7 +96,7 @@
 
 .radioLabel {
   margin-left: 0.6rem;
-  color: #fff;
+  color: var(--color-text-on-primary);
   font-size: 1rem;
 }
 
@@ -104,10 +104,10 @@
   width: 100%;
   padding: 0.75rem;
   margin-top: 1rem;
-  background: #181e29;
+  background: var(--color-surface);
   border: 1.5px solid #334155;
   border-radius: 0.7rem;
-  color: #fff;
+  color: var(--color-text-on-primary);
   font-size: 1rem;
   resize: vertical;
   transition: border 0.2s, box-shadow 0.2s;
@@ -136,23 +136,23 @@
   transition: background 0.2s, color 0.2s;
 }
 .markBtn {
-  color: #fff;
-  background: #6366f1;
+  color: var(--color-text-on-primary);
+  background: var(--color-primary);
 }
 .markBtn:disabled {
-  background: #334155;
-  color: #94a3b8;
+  background: var(--color-border);
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 .markBtn:hover:not(:disabled), .markBtn:focus:not(:disabled) {
-  background: #4f46e5;
+  background: var(--color-primary-hover);
 }
 .nextBtn {
-  color: #fff;
-  background: #6366f1;
+  color: var(--color-text-on-primary);
+  background: var(--color-primary);
 }
 .nextBtn:hover, .nextBtn:focus {
-  background: #4f46e5;
+  background: var(--color-primary-hover);
 }
 
 .loader {
@@ -164,7 +164,7 @@
 .error {
   display: flex;
   align-items: center;
-  color: #f87171;
+  color: var(--color-danger);
   background: #1e293b;
   border: 1.5px solid #f87171;
   border-radius: 0.7rem;

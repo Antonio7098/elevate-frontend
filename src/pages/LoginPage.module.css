@@ -9,7 +9,7 @@
 }
 
 .card {
-  background: #232946;
+  background: var(--color-surface);
   border-radius: 1.25rem;
   box-shadow: 0 2px 24px 0 rgba(20,20,40,0.12);
   padding: 2.5rem 2rem 2.5rem 2rem;
@@ -116,18 +116,18 @@
   font-size: 1rem;
   font-weight: 600;
   color: #fff;
-  background: #6366f1;
+  background: var(--color-primary);
   border: none;
   border-radius: 0.7rem;
   cursor: pointer;
   transition: background 0.2s;
 }
 .button:disabled {
-  background: #a5b4fc;
+  background: var(--color-primary-hover);
   cursor: not-allowed;
 }
 .button:not(:disabled):hover, .button:not(:disabled):focus {
-  background: #4f46e5;
+  background: var(--color-primary-hover);
 }
 
 .spinner {

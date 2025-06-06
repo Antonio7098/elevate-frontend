@@ -1,0 +1,227 @@
+.container {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 2rem;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.pageSubtitle {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+}
+
+.card {
+  background: color-mix(in srgb, var(--color-surface) 90%, var(--color-primary) 10%);
+  border-radius: 1.25rem;
+  border: 1.5px solid var(--color-border);
+  box-shadow: 0 2px 24px 0 color-mix(in srgb, var(--color-primary) 10%, transparent 90%);
+  overflow: hidden;
+}
+
+.profileHeader {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 15%, transparent 85%), color-mix(in srgb, var(--color-accent) 15%, transparent 85%));
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.avatar {
+  height: 6rem;
+  width: 6rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-on-primary);
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.avatarEditBtn {
+  position: absolute;
+  bottom: -0.5rem;
+  right: -0.5rem;
+  background: var(--color-surface-raised, var(--color-surface));
+  border: 1.5px solid var(--color-border);
+  border-radius: 50%;
+  padding: 0.5rem;
+  color: var(--color-text-muted);
+  transition: background 0.2s;
+}
+.avatarEditBtn:hover {
+  background: var(--color-border);
+}
+
+.profileInfo {
+  text-align: center;
+}
+
+.profileName {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.profileEmail {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  margin-top: 0.25rem;
+}
+
+.profileMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  justify-content: center;
+}
+
+.details {
+  padding: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 700px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.infoLabel {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
+}
+
+.infoValue {
+  color: var(--color-text-primary);
+  font-size: 1.05rem;
+}
+
+.securityBtn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.2rem;
+  background: color-mix(in srgb, var(--color-surface) 80%, var(--color-border) 20%);
+  border-radius: 0.7rem;
+  border: none;
+  color: var(--color-text-primary);
+  margin-bottom: 0.7rem;
+  transition: background 0.18s;
+}
+.securityBtn:hover {
+  background: var(--color-border);
+}
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.inputGroup {
+  margin-bottom: 1.5rem;
+}
+
+.inputLabel {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1.2rem;
+  border-radius: 0.6rem;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface-raised, var(--color-surface));
+  color: var(--color-text-primary);
+  font-size: 1.05rem;
+  margin-top: 0.15rem;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1.5px solid var(--color-border);
+  padding-top: 1.2rem;
+  margin-top: 1.2rem;
+}
+
+.cancelBtn {
+  padding: 0.6rem 1.2rem;
+  background: none;
+  color: var(--color-text-muted);
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: color 0.18s;
+}
+.cancelBtn:hover {
+  color: var(--color-primary);
+}
+
+.saveBtn {
+  padding: 0.6rem 1.2rem;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.18s;
+}
+.saveBtn:hover {
+  background: var(--color-accent);
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+  .details {
+    padding: 1rem;
+  }
+  .profileHeader {
+    padding: 1.2rem;
+    gap: 1rem;
+  }
+}

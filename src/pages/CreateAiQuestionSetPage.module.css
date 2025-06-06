@@ -1,0 +1,111 @@
+/* CreateAiQuestionSetPage.module.css - Modular CSS for AI-powered question set creation, themed for Elevate */
+
+.container {
+  max-width: 38rem;
+  margin: 2.5rem auto;
+  background: var(--color-surface);
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 24px 0 rgba(20,20,40,0.10);
+  padding: 2.5rem 1.5rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--color-text-on-primary);
+  margin-bottom: 1.25rem;
+}
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.formLabel {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+.input, .textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.7rem;
+  border: 1.5px solid var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-text-base);
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.cancelBtn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.7rem;
+  border: none;
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+}
+.cancelBtn:hover, .cancelBtn:focus {
+  background: var(--color-background);
+  color: var(--color-text-on-primary);
+}
+.submitBtn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.7rem;
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.submitBtn:disabled {
+  background: var(--color-primary-hover);
+  cursor: not-allowed;
+}
+.submitBtn:hover, .submitBtn:focus {
+  background: var(--color-primary-hover);
+}
+
+.error {
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1.2rem 0.3rem 1.5rem 0.3rem;
+    border-radius: 0.7rem;
+  }
+  .title {
+    font-size: 1.3rem;
+  }
+}

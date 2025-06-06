@@ -1,0 +1,63 @@
+/*
+ * ELEVATE THEME - GLOBAL DESIGN TOKENS
+ * This file defines all CSS Custom Properties (Variables) for the application.
+ * It is the single source of truth for theming.
+*/
+
+:root {
+  /* ======================================== */
+  /* LIGHT THEME (DEFAULT)           */
+  /* ======================================== */
+
+  /* Color Palette */
+  --color-primary: #e619a1; 
+  --color-primary-hover: #4338ca; 
+  --color-secondary: #10b981; 
+  --color-danger: #ef4444; 
+  
+  --color-text-base: #18dd59; 
+  --color-text-muted: #6b7280; 
+  --color-text-on-primary: #ffffff; 
+
+  --color-background: #f9fafb;
+  --color-surface: #e43333; 
+  --color-border: #e5e7eb; 
+  --color-input-bg: #f3f4f6;
+  --color-input-border: #d1d5db; 
+
+  /* Spacing & Radius */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+
+  /* Font */
+  --font-family: 'Inter', system-ui, sans-serif;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-sm: 0.875rem;
+}
+
+[data-theme="dark"] {
+  /* ======================================== */
+  /* DARK THEME OVERRIDES            */
+  /* ======================================== */
+
+  --color-primary: #6366f1; /* Indigo 500 */
+  --color-primary-hover: #4f46e5; /* Indigo 600 */
+  --color-secondary: #34d399; /* Emerald 400 */
+  --color-danger: #f87171; /* Red 400 */
+
+  --color-text-base: #f3f4f6; /* Gray 100 */
+  --color-text-muted: #a1a1aa; /* Zinc 400 */
+  --color-text-on-primary: #ffffff; /* White */
+
+  --color-background: #181e29; /* Slate 900 */
+  --color-surface: #232946; /* Card/Surface */
+  --color-border: #313244; /* Slate 700 */
+  --color-input-bg: #232946; /* Card/Surface */
+  --color-input-border: #334155; /* Slate 600 */
+}

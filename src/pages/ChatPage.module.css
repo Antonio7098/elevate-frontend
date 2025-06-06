@@ -1,0 +1,125 @@
+/* ChatPage.module.css - Modular CSS for chat UI, themed for Elevate */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 2rem 1rem;
+  background: var(--color-background);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--color-text-on-primary);
+}
+
+.contextSelector {
+  display: flex;
+  gap: 1.5rem;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message {
+  max-width: 75%;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  font-size: 1rem;
+  color: var(--color-text-on-primary);
+  background: var(--color-surface);
+  box-shadow: 0 1px 4px 0 rgba(20,20,40,0.06);
+  word-break: break-word;
+  align-self: flex-start;
+}
+.messageUser {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  align-self: flex-end;
+}
+.messageAi {
+  background: var(--color-surface);
+  color: var(--color-text-on-primary);
+  align-self: flex-start;
+}
+.messageTimestamp {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.3rem;
+}
+
+.inputRow {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+.input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.7rem;
+  border: 1.5px solid var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-text-base);
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+.sendBtn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.7rem;
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sendBtn:disabled {
+  background: var(--color-primary-hover);
+  cursor: not-allowed;
+}
+.sendBtn:hover,
+.sendBtn:focus {
+  background: var(--color-primary-hover);
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem 0.2rem;
+  }
+  .title {
+    font-size: 1.3rem;
+  }
+  .message {
+    font-size: 0.97rem;
+    padding: 0.7rem 0.7rem;
+  }
+  .input {
+    font-size: 0.97rem;
+  }
+  .sendBtn {
+    padding: 0.6rem 1rem;
+    font-size: 0.97rem;
+  }
+}

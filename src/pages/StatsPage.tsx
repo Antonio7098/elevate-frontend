@@ -1,11 +1,12 @@
 import React from 'react';
+import styles from './StatsPage.module.css';
 
 const StatsPage: React.FC = () => {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-white mb-6">Statistics</h1>
-      <div className="bg-slate-800 rounded-lg p-6">
-        <p className="text-slate-300">Your statistics and analytics will be displayed here.</p>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Statistics</h1>
+      <div className={styles.card}>
+        <p className={styles.text}>Your statistics and analytics will be displayed here.</p>
       </div>
     </div>
   );

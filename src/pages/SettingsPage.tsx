@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import styles from './SettingsPage.module.css';
 
+import { useTheme } from '../context/ThemeContext';
+
 const SettingsPage: React.FC = () => {
   // Demo state for form fields
   const [email, setEmail] = useState('user@example.com');
   const [displayName, setDisplayName] = useState('Antonio');
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  // Remove local theme state, use context
+  const { theme, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState({
     email: true,
     sms: false,
@@ -65,16 +68,21 @@ const SettingsPage: React.FC = () => {
       {/* Theme Section */}
       <div className={styles.formGroup}>
         <div className={styles.sectionTitle}>Theme</div>
-        <label htmlFor="theme" className={styles.label}>Select Theme</label>
-        <select
-          id="theme"
-          className={styles.select}
-          value={theme}
-          onChange={e => setTheme(e.target.value as 'light' | 'dark')}
-        >
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <span className={styles.label} id="theme-desc">
+            {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+          </span>
+          <button
+            type="button"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            aria-describedby="theme-desc"
+            className={styles.button}
+            style={{ minWidth: 120 }}
+            onClick={toggleTheme}
+          >
+            Switch to {theme === 'dark' ? 'Light' : 'Dark'}
+          </button>
+        </div>
       </div>
 
       {/* Notifications Section */}

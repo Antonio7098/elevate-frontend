@@ -7,7 +7,7 @@
   flex-direction: column;
   height: 100%;
   width: 5rem; /* w-20 */
-  background: #0f172a; /* bg-slate-900 */
+  background: var(--color-surface);
   box-shadow: 0 4px 24px 0 rgba(0,0,0,0.1);
   transition: width 0.3s;
 }
@@ -32,15 +32,15 @@
   height: 2rem;
   width: 2rem;
   border-radius: 0.5rem;
-  background: #4f46e5; /* bg-indigo-600 */
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-text-on-primary);
   font-weight: bold;
 }
 .logoText {
-  color: #fff;
+  color: var(--color-text-on-primary);
   font-weight: bold;
   font-size: 1.25rem;
   display: none;
@@ -64,19 +64,19 @@
   padding: 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #cbd5e1; /* text-slate-300 */
+  color: var(--color-text-muted);
   background: none;
   transition: background 0.2s, color 0.2s;
   cursor: pointer;
   text-decoration: none;
 }
 .navLinkActive {
-  background: #1e293b; /* bg-slate-800 */
-  color: #fff;
+  background: var(--color-surface);
+  color: var(--color-text-on-primary);
 }
 .navLink:hover {
-  background: #1e293b;
-  color: #fff;
+  background: var(--color-surface);
+  color: var(--color-text-on-primary);
 }
 .icon {
   flex-shrink: 0;
@@ -100,20 +100,20 @@
   padding: 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #cbd5e1;
+  color: var(--color-text-muted);
   background: none;
   transition: background 0.2s, color 0.2s;
   cursor: pointer;
   border: none;
 }
 .createBtn:hover {
-  background: #1e293b;
-  color: #fff;
+  background: var(--color-surface);
+  color: var(--color-text-on-primary);
 }
 .bottom {
   margin-top: auto;
   padding: 1rem 0.5rem;
-  border-top: 1px solid #1e293b;
+  border-top: 1px solid var(--color-border);
 }
 .bottomNav {
   display: flex;
@@ -145,17 +145,17 @@
   width: 100%;
 }
 .profileBtn:hover {
-  background: #1e293b;
+  background: var(--color-surface);
 }
 .profileIcon {
   height: 2.5rem;
   width: 2.5rem;
   border-radius: 9999px;
-  background: #334155; /* bg-slate-700 */
+  background: var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-text-on-primary);
   font-weight: 600;
   margin-left: auto;
   margin-right: auto;
@@ -168,6 +168,7 @@
   margin-left: 0.75rem;
   display: none;
   transition: opacity 0.3s;
+  color: var(--color-text-on-primary);
 }
 .sidebar:hover .profileText {
   display: block;
@@ -179,7 +180,7 @@
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #cbd5e1;
+  color: var(--color-text-muted);
   background: none;
   transition: background 0.2s, color 0.2s;
   cursor: pointer;
@@ -187,8 +188,8 @@
   width: 100%;
 }
 .logoutBtn:hover {
-  background: #1e293b;
-  color: #f87171; /* hover:text-red-400 */
+  background: var(--color-surface);
+  color: var(--color-danger);
 }
 .logoutIcon {
   height: 1.25rem;
