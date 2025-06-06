@@ -15,16 +15,17 @@ import { getQuestions, createQuestion, updateQuestion, deleteQuestion } from '..
 import { getQuestionSet } from '../services/questionSetService';
 import type { Question } from '../types/question';
 import type { QuestionSet } from '../types/questionSet';
+import styles from './QuestionsPage.module.css';
 
 // Skeleton loader for questions
 const QuestionSkeleton = () => (
-  <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50 animate-pulse">
-    <div className="flex items-start space-x-3">
-      <div className="p-2.5 bg-slate-700 rounded-lg h-10 w-10"></div>
-      <div className="flex-1">
-        <div className="h-5 bg-slate-700 rounded w-3/4 mb-3"></div>
-        <div className="h-4 bg-slate-700/70 rounded w-1/2 mb-2"></div>
-        <div className="h-4 bg-slate-700/70 rounded w-1/3"></div>
+  <div className={styles.skeleton}>
+    <div className={styles.skeletonRow}>
+      <div className={styles.skeletonIcon}></div>
+      <div className={styles.skeletonContent}>
+        <div className={styles.skeletonBar}></div>
+        <div className={styles.skeletonBarSmall}></div>
+        <div className={styles.skeletonBarTiny}></div>
       </div>
     </div>
   </div>
@@ -168,29 +169,29 @@ const QuestionsPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className={styles.container}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className={styles.header}>
         <div>
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center text-sm text-slate-400 hover:text-white mb-4 transition-colors"
+            className={styles.backBtn}
           >
             <span className="mr-1.5"><FiArrowLeft size={16} /></span>
             Back to Question Sets
           </button>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className={styles.title}>
             {loading ? 'Loading...' : questionSet?.name || 'Questions'}
           </h1>
           {questionSet && (
-            <p className="mt-1 text-slate-400">
+            <p className={styles.subtitle}>
               {questionSet.description}
             </p>
           )}
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+          className={styles.addBtn}
         >
           <FiPlus size={16} className="-ml-1 mr-2" />
           Add Question
@@ -199,7 +200,7 @@ const QuestionsPage = () => {
 
       {/* Error message */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6 text-red-300 flex items-start">
+        <div className={styles.error}>
           <span className="mr-3 mt-0.5 flex-shrink-0"><FiAlertCircle size={20} /></span>
           <span>{error}</span>
         </div>
@@ -207,66 +208,61 @@ const QuestionsPage = () => {
 
       {/* Loading state */}
       {loading ? (
-        <div className="grid grid-cols-1 gap-4">
+        <div className={styles.grid}>
           {[...Array(3)].map((_, index) => (
             <QuestionSkeleton key={index} />
           ))}
         </div>
       ) : questions.length === 0 ? (
-        <div className="text-center py-16 px-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
-          <div className="inline-flex items-center justify-center p-4 bg-slate-800 rounded-full mb-4 text-indigo-400">
+        <div className={styles.empty}>
+          <div className={styles.emptyIcon}>
             <FiHelpCircle className="h-8 w-8 text-indigo-500" />
           </div>
-          <h3 className="text-lg font-medium text-white">No questions yet</h3>
-          <p className="mt-1 text-slate-400 max-w-md mx-auto">
+          <h3 className={styles.emptyTitle}>No questions yet</h3>
+          <p className={styles.emptyDesc}>
             Create your first question to start studying
           </p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="mt-6 inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            className={styles.emptyBtn}
           >
             <FiPlus size={16} className="-ml-1 mr-2" />
             Create Question
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
+        <div className={styles.grid}>
           {questions.map((question) => (
             <div
               key={question.id}
-              className="group relative bg-slate-800/50 hover:bg-slate-800/80 rounded-xl p-5 transition-all border border-slate-700/50 hover:border-slate-600/70 overflow-hidden"
+              className={styles.card}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3">
-                  <div className="p-2.5 bg-indigo-500/10 rounded-lg text-indigo-400">
-                    <span className="text-indigo-400"><FiHelpCircle size={16} /></span>
+              <div className={styles.cardRow}>
+                <div className={styles.cardInfo}>
+                  <h3 className={styles.cardName}>
+                    {question.text}
+                  </h3>
+                  <div className={styles.cardAnswer}>
+                    <div className={styles.cardAnswerLabel}>
+                      <span className={styles.cardAnswerIcon}><FiCheck size={16} /></span>
+                      <span className={styles.cardAnswerText}>Answer:</span>
+                    </div>
+                    <p className={styles.cardAnswerValue}>
+                      {question.answer}
+                    </p>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-indigo-300 group-hover:text-indigo-400 transition-colors">
-                      {question.text}
-                    </h3>
-                    <div className="mt-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                      <div className="flex items-center mb-1">
-                        <span className="text-green-500 mr-2"><FiCheck size={16} /></span>
-                        <span className="text-sm font-medium text-slate-300">Answer:</span>
-                      </div>
-                      <p className="text-sm text-slate-400">
-                        {question.answer}
-                      </p>
-                    </div>
-                    <div className="mt-3 text-xs text-slate-500">
-                      Created {formatDate(question.createdAt)}
-                    </div>
+                  <div className={styles.cardDate}>
+                    Created {formatDate(question.createdAt)}
                   </div>
                 </div>
-                <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className={styles.cardActions}>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setCurrentQuestion(question);
                       setIsEditModalOpen(true);
                     }}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors"
+                    className={styles.actionBtn}
                     title="Edit question"
                   >
                     <FiEdit2 size={16} />
@@ -276,7 +272,7 @@ const QuestionsPage = () => {
                       e.stopPropagation();
                       handleDeleteQuestion(question.id);
                     }}
-                    className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                    className={styles.actionBtn}
                     title="Delete question"
                   >
                     <FiTrash2 size={16} />
@@ -290,72 +286,68 @@ const QuestionsPage = () => {
 
       {/* Create Question Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className={styles.modalBackdrop}>
           <div 
-            className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-slate-700/50 shadow-2xl transform transition-all duration-200 scale-95 group-hover:scale-100"
+            className={styles.modalContent}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-bold text-white">Create New Question</h2>
-                <p className="text-sm text-slate-400 mt-1">Add a question to study</p>
-              </div>
-              <button
-                onClick={() => setIsCreateModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 -m-1.5 rounded-lg hover:bg-slate-700/50 transition-colors"
-                aria-label="Close"
-              >
-                <FiX size={20} className="text-slate-400" />
-              </button>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Create New Question</h2>
+              <p className={styles.modalDesc}>Add a question to study</p>
             </div>
-            <form onSubmit={handleCreateQuestion} className="space-y-5">
+            <button
+              onClick={() => setIsCreateModalOpen(false)}
+              className={styles.closeBtn}
+              aria-label="Close"
+            >
+              <FiX size={20} />
+            </button>
+            <form onSubmit={handleCreateQuestion} className={styles.form}>
               <div>
-                <label htmlFor="question-text" className="block text-sm font-medium text-slate-300 mb-2">
-                  Question <span className="text-red-400">*</span>
+                <label htmlFor="question-text" className={styles.formLabel}>
+                  Question <span className={styles.required}>*</span>
                 </label>
                 <textarea
                   id="question-text"
                   required
                   value={newQuestion.text}
                   onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className={styles.formTextarea}
                   placeholder="e.g., What is the capital of France?"
                   rows={3}
                   autoFocus
                 ></textarea>
               </div>
               <div>
-                <label htmlFor="question-answer" className="block text-sm font-medium text-slate-300 mb-2">
-                  Answer <span className="text-red-400">*</span>
+                <label htmlFor="question-answer" className={styles.formLabel}>
+                  Answer <span className={styles.required}>*</span>
                 </label>
                 <textarea
                   id="question-answer"
                   required
                   value={newQuestion.answer}
                   onChange={(e) => setNewQuestion({ ...newQuestion, answer: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className={styles.formTextarea}
                   placeholder="e.g., Paris"
                   rows={3}
                 ></textarea>
               </div>
-              <div className="flex justify-end space-x-3 mt-6">
+              <div className={styles.formActions}>
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2.5 text-sm font-medium text-slate-300 bg-slate-700 rounded-lg hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors"
+                  className={styles.cancelBtn}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !newQuestion.text.trim() || !newQuestion.answer.trim()}
-                  className={`px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${
-                    isSubmitting || !newQuestion.text.trim() || !newQuestion.answer.trim() ? 'opacity-70 cursor-not-allowed' : ''
-                  }`}
+                  className={styles.submitBtn}
                 >
                   {isSubmitting ? (
                     <>
-                      <FiLoader size={20} className="animate-spin mr-2 text-white" />
+                      <FiLoader size={20} className={styles.loaderIcon} />
                       Creating...
                     </>
                   ) : (
@@ -369,71 +361,67 @@ const QuestionsPage = () => {
       )}
 
       {/* Edit Question Modal */}
-      {isEditModalOpen && currentQuestion && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      {isEditModalOpen && currentQuestion ? (
+        <div className={styles.modalBackdrop}>
           <div 
-            className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-slate-700/50 shadow-2xl transform transition-all duration-200 scale-95 group-hover:scale-100"
+            className={styles.modalContent}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-bold text-white">Edit Question</h2>
-                <p className="text-sm text-slate-400 mt-1">Update question details</p>
-              </div>
-              <button
-                onClick={() => setIsEditModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 -m-1.5 rounded-lg hover:bg-slate-700/50 transition-colors"
-                aria-label="Close"
-              >
-                <FiX size={20} className="text-slate-400" />
-              </button>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Edit Question</h2>
+              <p className={styles.modalDesc}>Update question details</p>
             </div>
-            <form onSubmit={handleUpdateQuestion} className="space-y-5">
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className={styles.closeBtn}
+              aria-label="Close"
+            >
+              <FiX size={20} />
+            </button>
+            <form onSubmit={handleUpdateQuestion} className={styles.form}>
               <div>
-                <label htmlFor="edit-question-text" className="block text-sm font-medium text-slate-300 mb-2">
-                  Question <span className="text-red-400">*</span>
+                <label htmlFor="edit-question-text" className={styles.formLabel}>
+                  Question <span className={styles.required}>*</span>
                 </label>
                 <textarea
                   id="edit-question-text"
                   required
                   value={currentQuestion.text}
                   onChange={(e) => setCurrentQuestion({ ...currentQuestion, text: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className={styles.formTextarea}
                   rows={3}
                   autoFocus
                 ></textarea>
               </div>
               <div>
-                <label htmlFor="edit-question-answer" className="block text-sm font-medium text-slate-300 mb-2">
-                  Answer <span className="text-red-400">*</span>
+                <label htmlFor="edit-question-answer" className={styles.formLabel}>
+                  Answer <span className={styles.required}>*</span>
                 </label>
                 <textarea
                   id="edit-question-answer"
                   required
                   value={currentQuestion.answer}
                   onChange={(e) => setCurrentQuestion({ ...currentQuestion, answer: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className={styles.formTextarea}
                   rows={3}
                 ></textarea>
               </div>
-              <div className="flex justify-end space-x-3 mt-6">
+              <div className={styles.formActions}>
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-2.5 text-sm font-medium text-slate-300 bg-slate-700 rounded-lg hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors"
+                  className={styles.cancelBtn}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !currentQuestion.text.trim() || !currentQuestion.answer.trim()}
-                  className={`px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${
-                    isSubmitting || !currentQuestion.text.trim() || !currentQuestion.answer.trim() ? 'opacity-70 cursor-not-allowed' : ''
-                  }`}
+                  className={styles.submitBtn}
                 >
                   {isSubmitting ? (
                     <>
-                      <FiLoader size={20} className="animate-spin mr-2 text-white" />
+                      <FiLoader size={20} />
                       Updating...
                     </>
                   ) : (
@@ -444,9 +432,9 @@ const QuestionsPage = () => {
             </form>
           </div>
         </div>
-      )}
-    </div>
-  );
+      ) : null}
+</div>
+);
 };
 
 export default QuestionsPage;

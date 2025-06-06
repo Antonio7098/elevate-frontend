@@ -1,0 +1,95 @@
+/* SettingsPage.module.css - Modular CSS for user/account/app settings */
+
+.container {
+  padding: 2.5rem 1.5rem;
+  max-width: 680px;
+  margin: 2rem auto;
+  background: #232946;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 24px 0 rgba(20,20,40,0.10);
+}
+
+.header {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2.2rem;
+  text-align: left;
+}
+
+.sectionTitle {
+  font-size: 1.15rem;
+  color: #a5b4fc;
+  font-weight: 600;
+  margin-bottom: 1.1rem;
+}
+
+.formGroup {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  color: #e0e7ef;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.input, .select {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  background: #181e29;
+  color: #fff;
+  border: 1.5px solid #334155;
+  border-radius: 0.7rem;
+  font-size: 1rem;
+  margin-top: 0.2rem;
+}
+.input:focus, .select:focus {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 2.2rem;
+}
+.button {
+  padding: 0.85rem 2.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #6366f1;
+  border: none;
+  border-radius: 0.7rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.button:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+.button:not(:disabled):hover, .button:not(:disabled):focus {
+  background: #4f46e5;
+}
+
+.danger {
+  background: #f87171;
+}
+.danger:hover, .danger:focus {
+  background: #b91c1c;
+}
+
+@media (max-width: 700px) {
+  .container {
+    padding: 1.2rem 0.5rem;
+    border-radius: 0.7rem;
+  }
+  .header {
+    font-size: 1.3rem;
+  }
+}
+

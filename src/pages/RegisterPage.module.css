@@ -1,0 +1,139 @@
+/* RegisterPage.module.css - Modular CSS for RegisterPage, dashboard style */
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-main, #131826);
+}
+
+.card {
+  background: #232946;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 24px 0 rgba(20,20,40,0.12);
+  padding: 2.5rem 2rem 2.5rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+.subtitle {
+  color: #a5b4fc;
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.inputLabel {
+  color: #e0e7ef;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #181e29;
+  border: 1.5px solid #334155;
+  border-radius: 0.7rem;
+  color: #fff;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.input:focus {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+.inputError {
+  border-color: #f87171 !important;
+}
+.errorMsg {
+  color: #f87171;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+}
+
+.infoMsg {
+  color: #a5b4fc;
+  font-size: 0.97rem;
+  margin-top: 0.25rem;
+}
+
+.linkRow {
+  display: flex;
+  justify-content: center;
+}
+.link {
+  color: #6366f1;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.link:hover, .link:focus {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
+.button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.85rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #6366f1;
+  border: none;
+  border-radius: 0.7rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.button:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+.button:not(:disabled):hover, .button:not(:disabled):focus {
+  background: #4f46e5;
+}
+
+.spinner {
+  margin-right: 0.7rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  vertical-align: middle;
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+    border-radius: 0.7rem;
+  }
+  .title {
+    font-size: 1.3rem;
+  }
+}

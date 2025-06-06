@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import styles from './ReviewSessionPage.module.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiArrowRight, FiLoader, FiAlertCircle } from 'react-icons/fi';
 import { apiClient } from '../services/apiClient';
@@ -309,8 +310,8 @@ const ReviewSessionPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-16">
-        <span className="mr-2 inline-block animate-spin"><FiLoader size={24} /></span>
+      <div className={styles.container} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '30vh'}}>
+        <span className={styles.loader}><FiLoader size={24} /></span>
         <span>Loading questions...</span>
       </div>
     );
@@ -333,35 +334,34 @@ const ReviewSessionPage = () => {
     const averageScorePercentage = totalMarksAvailable > 0 ? (totalScoreAchieved / totalMarksAvailable) * 100 : 0;
 
     return (
-      <div className="p-4 md:p-8 max-w-3xl mx-auto bg-gray-50 min-h-screen">
-        <h2 className="text-3xl font-bold mb-6 text-center text-green-700">🎉 Session Complete! 🎉</h2>
-        <p className="mb-8 text-center text-lg text-gray-700">Well done! Your review session has been successfully submitted. Here's your performance summary:</p>
+      <div className={styles.container}>
+        <h2 className={styles.title} style={{color: '#22c55e', textAlign: 'center', marginBottom: '1.5rem'}}>🎉 Session Complete! 🎉</h2>
+        <p className={styles.subtitle} style={{textAlign: 'center', marginBottom: '2rem', color: '#64748b'}}>Well done! Your review session has been successfully submitted. Here's your performance summary:</p>
 
-        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-          <h3 className="text-2xl font-semibold mb-6 text-gray-800 text-center">Session Summary</h3>
-          <div className="space-y-4 mb-6">
+        <div className={styles.questionCard} style={{background: '#fff', boxShadow: '0 2px 24px 0 rgba(20,20,40,0.12)', marginBottom: '2rem'}}>
+          <h3 className={styles.title} style={{color: '#334155', textAlign: 'center', fontSize: '1.5rem'}}>Session Summary</h3>
+          <div style={{marginBottom: '1.5rem'}}>
             {summaryData.map((item, index) => (
-              <div key={item.questionId || index} className="p-4 border border-gray-200 rounded-lg bg-gray-50 hover:shadow-md transition-shadow">
-                <p className="text-sm text-gray-500 mb-1">Question {index + 1}</p>
-                <p className="text-gray-800 mb-2 font-medium truncate" title={item.questionText}>
+              <div key={item.questionId || index} style={{padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '0.7rem', background: '#f8fafc', marginBottom: '1rem'}}>
+                <p style={{fontSize: '0.95rem', color: '#64748b', marginBottom: '0.25rem'}}>Question {index + 1}</p>
+                <p style={{color: '#334155', marginBottom: '0.5rem', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}} title={item.questionText}>
                   {item.questionText}
                 </p>
-                <p className="text-indigo-600 font-semibold text-lg">
-                  Score: {item.scoreAchieved} / {item.marksAvailable} {/* Use item.marksAvailable here */}
+                <p style={{color: '#6366f1', fontWeight: 600, fontSize: '1.1rem'}}>
+                  Score: {item.scoreAchieved} / {item.marksAvailable}
                 </p>
               </div>
             ))}
           </div>
-
-          <div className="border-t border-gray-200 pt-6 text-center">
-            <p className="text-xl font-bold text-gray-800">Overall Average Score: <span className="text-green-600">{Math.round(averageScorePercentage)}%</span></p> {/* Use averageScorePercentage */}
+          <div style={{borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem', textAlign: 'center'}}>
+            <p style={{fontSize: '1.15rem', fontWeight: 700, color: '#334155'}}>Overall Average Score: <span style={{color: '#22c55e'}}>{Math.round(averageScorePercentage)}%</span></p>
           </div>
         </div>
 
-        <div className="text-center mt-8">
+        <div style={{textAlign: 'center', marginTop: '2rem'}}>
           <button
             onClick={() => navigate('/dashboard')}
-            className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none transition-colors"
+            className={styles.markBtn}
           >
             Back to Dashboard
           </button>
@@ -372,13 +372,13 @@ const ReviewSessionPage = () => {
 
   if (!questions || questions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <span className="text-red-500 mb-4"><FiAlertCircle size={32} /></span>
-        <h2 className="text-xl font-bold text-white mb-2">Error</h2>
-        <p className="text-slate-400 mb-6">{error}</p>
+      <div className={styles.container} style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '30vh', textAlign: 'center'}}>
+        <span className={styles.error}><FiAlertCircle size={32} /> Error</span>
+        <h2 className={styles.title} style={{color: '#fff', marginBottom: '0.5rem'}}>Error</h2>
+        <p className={styles.subtitle} style={{color: '#94a3b8', marginBottom: '1.5rem'}}>{error}</p>
         <button
           onClick={() => navigate(-1)}
-          className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none transition-colors"
+          className={styles.markBtn}
         >
           Go Back
         </button>
@@ -387,23 +387,23 @@ const ReviewSessionPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className={styles.container}>
       {/* Header */}
-      <div className="mb-8">
+      <div className={styles.header}>
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center text-sm text-slate-400 hover:text-white mb-4 transition-colors"
+          className={styles.backBtn}
         >
-          <span className="mr-1.5"><FiArrowLeft size={16} /></span>
+          <span style={{marginRight: '0.5rem'}}><FiArrowLeft size={16} /></span>
           Back
         </button>
-        <h1 className="text-3xl font-bold text-white">{sessionTitle}</h1>
+        <h1 className={styles.title}>{sessionTitle}</h1>
       </div>
 
       {/* Session content */}
-      <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
+      <div className={styles.questionCard}>
         {/* Progress indicator */}
-        <div className="flex justify-between mb-6 text-sm text-slate-400">
+        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', color: '#94a3b8', fontSize: '0.95rem'}}>
           <div>
             Question {currentQuestionIndex + 1} of {questions.length}
           </div>
@@ -411,13 +411,12 @@ const ReviewSessionPage = () => {
 
         {/* Question display */}
         <div className="mb-6">
-          <h2 className="text-xl font-medium text-white mb-2">{currentQuestion?.text}</h2>
-          
+          <h2 className={styles.questionText}>{currentQuestion?.text}</h2>
           {/* Display concept tags if available */}
           {currentQuestion?.conceptTags && currentQuestion.conceptTags.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-2">
+            <div style={{marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem'}}>
               {currentQuestion.conceptTags.map((tag, index) => (
-                <span key={index} className="px-2 py-1 text-xs bg-indigo-500/20 text-indigo-300 rounded-full">
+                <span key={index} style={{padding: '0.25rem 0.5rem', fontSize: '0.82rem', background: 'rgba(99,102,241,0.20)', color: '#a5b4fc', borderRadius: '999px'}}>
                   {tag}
                 </span>
               ))}
@@ -436,8 +435,8 @@ const ReviewSessionPage = () => {
           
           {/* Different input types based on question type */}
           {currentQuestion?.questionType === 'TRUE_FALSE' ? (
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center">
+            <div className={styles.optionsGroup}>
+              <div className={styles.optionRow}>
                 <input
                   type="radio"
                   id="true-option"
@@ -445,11 +444,11 @@ const ReviewSessionPage = () => {
                   value="True"
                   checked={userAnswer === 'True'}
                   onChange={() => setUserAnswer('True')}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-600 bg-slate-800"
+                  className={styles.radio}
                 />
-                <label htmlFor="true-option" className="ml-2 block text-white">True</label>
+                <label htmlFor="true-option" className={styles.radioLabel}>True</label>
               </div>
-              <div className="flex items-center">
+              <div className={styles.optionRow}>
                 <input
                   type="radio"
                   id="false-option"
@@ -457,15 +456,15 @@ const ReviewSessionPage = () => {
                   value="False"
                   checked={userAnswer === 'False'}
                   onChange={() => setUserAnswer('False')}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-600 bg-slate-800"
+                  className={styles.radio}
                 />
-                <label htmlFor="false-option" className="ml-2 block text-white">False</label>
+                <label htmlFor="false-option" className={styles.radioLabel}>False</label>
               </div>
             </div>
           ) : currentQuestion?.questionType === 'MULTIPLE_CHOICE' && currentQuestion.options ? (
-            <div className="mt-4 space-y-2">
+            <div className={styles.optionsGroup}>
               {currentQuestion.options.map((option, index) => (
-                <div key={index} className="flex items-center">
+                <div key={index} className={styles.optionRow}>
                   <input
                     type="radio"
                     id={`option-${index}`}
@@ -473,15 +472,15 @@ const ReviewSessionPage = () => {
                     value={option}
                     checked={userAnswer === option}
                     onChange={() => setUserAnswer(option)}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-600 bg-slate-800"
+                    className={styles.radio}
                   />
-                  <label htmlFor={`option-${index}`} className="ml-2 block text-white">{option}</label>
+                  <label htmlFor={`option-${index}`} className={styles.radioLabel}>{option}</label>
                 </div>
               ))}
             </div>
           ) : (
             <textarea
-              className="w-full p-3 mt-4 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-y"
+              className={styles.textarea}
               rows={4}
               placeholder="Type your answer here..."
               value={userAnswer}
@@ -491,28 +490,24 @@ const ReviewSessionPage = () => {
         </div>
 
         {/* Action buttons */}
-        <div className="flex justify-end space-x-4">
+        <div className={styles.actions}>
           {!isMarked ? (
             <button
               onClick={handleMarkAnswer}
               disabled={!userAnswer.trim()}
-              className={`inline-flex items-center px-5 py-2.5 text-sm font-medium rounded-lg ${
-                userAnswer.trim() 
-                  ? 'text-white bg-indigo-600 hover:bg-indigo-700' 
-                  : 'text-slate-400 bg-slate-700 cursor-not-allowed'
-              } focus:outline-none transition-colors`}
+              className={styles.markBtn}
             >
               Mark Answer
             </button>
           ) : (
             <button
               onClick={handleNextQuestion}
-              className="inline-flex items-center px-5 py-2.5 text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none transition-colors"
+              className={styles.nextBtn}
             >
               {currentQuestionIndex < questions.length - 1 ? (
                 <>
                   Next Question
-                  <span className="ml-1.5"><FiArrowRight size={16} /></span>
+                  <span style={{marginLeft: '0.5rem'}}><FiArrowRight size={16} /></span>
                 </>
               ) : (
                 'Complete Session'

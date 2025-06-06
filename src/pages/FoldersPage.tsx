@@ -14,11 +14,13 @@ import { useAuth } from '../context/AuthContext';
 import { getFolders, createFolder, deleteFolder } from '../services/folderService';
 import type { Folder, CreateFolderData } from '../types/folder';
 
+import styles from './FoldersPage.module.css';
+
 // Skeleton loader for folders
 const FolderSkeleton = () => (
-  <div className="p-4 bg-slate-800 rounded-lg animate-pulse">
-    <div className="h-6 bg-slate-700 rounded w-3/4 mb-2"></div>
-    <div className="h-4 bg-slate-700 rounded w-1/2"></div>
+  <div className={styles.skeleton}>
+    <div className={styles.skeletonBar}></div>
+    <div className={styles.skeletonBarSmall}></div>
   </div>
 );
 
@@ -109,8 +111,8 @@ const FoldersPage = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className={styles.container}>
+        <div className={styles.grid}>
           {[1, 2, 3].map((i) => (
             <FolderSkeleton key={i} />
           ))}
@@ -120,83 +122,82 @@ const FoldersPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+    <div className={styles.container}>
+      <div className={styles.header}>
         <div>
-          <h1 className="text-2xl font-bold text-white">My Folders</h1>
-          <p className="text-slate-400 mt-1">
+          <h1 className={styles.title}>My Folders</h1>
+          <p className={styles.subtitle}>
             {folders.length} {folders.length === 1 ? 'folder' : 'folders'}
           </p>
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg flex items-center transition-colors w-full sm:w-auto justify-center"
+          className={styles.newFolderBtn}
         >
-          <FiPlus className="w-4 h-4 mr-2" />
+          <FiPlus style={{marginRight: 8, width: 16, height: 16}} />
           New Folder
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-6 flex items-center">
-          <FiAlertCircle className="h-5 w-5 mr-3 mt-0.5 flex-shrink-0" />
+        <div className={styles.error}>
+          <FiAlertCircle style={{width: 20, height: 20}} />
           <span>{error}</span>
         </div>
       )}
 
       {folders.length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-slate-700 rounded-2xl">
-          <div className="mx-auto w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
-            <FiFolder className="h-8 w-8 text-indigo-500" />
+        <div className={styles.empty}>
+          <div className={styles.emptyIcon}>
+            <FiFolder style={{width: 32, height: 32, color: '#6366f1'}} />
           </div>
-          <h3 className="text-lg font-medium text-white">No folders yet</h3>
-          <p className="mt-1 text-slate-400 max-w-md mx-auto">
+          <h3 className={styles.emptyTitle}>No folders yet</h3>
+          <p className={styles.emptyDesc}>
             Organize your study materials by creating your first folder
           </p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="mt-6 inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            className={styles.emptyBtn}
           >
-            <FiPlus className="-ml-1 mr-2 h-4 w-4" />
+            <FiPlus style={{marginRight: 8, width: 16, height: 16}} />
             Create Folder
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className={styles.grid}>
           {folders.map((folder) => (
             <div
               key={folder.id}
-              className="group relative bg-slate-800/50 hover:bg-slate-800/80 rounded-xl p-5 transition-all border border-slate-700/50 hover:border-slate-600/70 overflow-hidden"
+              className={styles.folderCard}
+              tabIndex={0}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3">
-                  <div className="p-2.5 bg-indigo-500/10 rounded-lg text-indigo-400">
-                    <FiFolder className="w-5 h-5" />
+              <div className={styles.folderRow}>
+                <div style={{display: 'flex', alignItems: 'flex-start'}}>
+                  <div className={styles.folderIcon}>
+                    <FiFolder style={{width: 20, height: 20}} />
                   </div>
-                  <div>
-                    <h3 className="font-medium text-white group-hover:text-indigo-400 transition-colors">
-                      {folder.name}
-                    </h3>
+                  <div className={styles.folderInfo}>
+                    <h3 className={styles.folderName}>{folder.name}</h3>
                     {folder.description && (
-                      <p className="mt-1 text-sm text-slate-400 line-clamp-2">
+                      <p className={styles.folderDesc}>
                         {folder.description}
                       </p>
                     )}
-                    <div className="mt-3 text-xs text-slate-500">
+                    <div className={styles.folderDate}>
                       Created {formatDate(folder.createdAt)}
                     </div>
                   </div>
                 </div>
-                <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className={styles.folderActions}>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       // Handle edit
                     }}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors"
+                    className={styles.actionBtn}
                     title="Edit folder"
                   >
-                    <FiEdit2 className="w-4 h-4" />
+                    <FiEdit2 style={{width: 16, height: 16}} />
                   </button>
                   <button
                     onClick={(e) => {
@@ -204,23 +205,23 @@ const FoldersPage = () => {
                       handleDeleteFolder(folder.id);
                     }}
                     disabled={isDeleting === folder.id}
-                    className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
+                    className={styles.actionBtn}
                     title="Delete folder"
                   >
                     {isDeleting === folder.id ? (
-                      <FiLoader className="w-4 h-4 animate-spin" />
+                      <FiLoader style={{width: 16, height: 16}} className="animate-spin" />
                     ) : (
-                      <FiTrash2 className="w-4 h-4" />
+                      <FiTrash2 style={{width: 16, height: 16}} />
                     )}
                   </button>
                 </div>
               </div>
               <button
                 onClick={() => navigate(`/folders/${folder.id}`)}
-                className="mt-4 w-full flex items-center justify-between text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+                className={styles.viewBtn}
               >
                 View contents
-                <FiChevronRight className="w-4 h-4" />
+                <FiChevronRight style={{width: 16, height: 16}} />
               </button>
             </div>
           ))}
@@ -229,28 +230,28 @@ const FoldersPage = () => {
 
       {/* Create Folder Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className={styles.modalBackdrop}>
           <div 
-            className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-slate-700/50 shadow-2xl transform transition-all duration-200 scale-95 group-hover:scale-100"
+            className={styles.modal}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className={styles.modalHeader}>
               <div>
-                <h2 className="text-xl font-bold text-white">Create New Folder</h2>
-                <p className="text-sm text-slate-400 mt-1">Organize your study materials</p>
+                <h2 className={styles.modalTitle}>Create New Folder</h2>
+                <p className={styles.modalDesc}>Organize your study materials</p>
               </div>
               <button
                 onClick={() => setIsCreateModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 -m-1.5 rounded-lg hover:bg-slate-700/50 transition-colors"
+                className={styles.closeBtn}
                 aria-label="Close"
               >
-                <FiX className="w-5 h-5" />
+                <FiX style={{width: 20, height: 20}} />
               </button>
             </div>
-            <form onSubmit={handleCreateFolder} className="space-y-5">
+            <form onSubmit={handleCreateFolder} className={styles.form}>
               <div>
-                <label htmlFor="folder-name" className="block text-sm font-medium text-slate-300 mb-2">
-                  Folder Name <span className="text-red-400">*</span>
+                <label htmlFor="folder-name" className={styles.formLabel}>
+                  Folder Name <span className={styles.required}>*</span>
                 </label>
                 <input
                   type="text"
@@ -258,29 +259,29 @@ const FoldersPage = () => {
                   required
                   value={newFolder.name}
                   onChange={(e) => setNewFolder({ ...newFolder, name: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className={styles.formInput}
                   placeholder="e.g., Math Notes"
                   autoFocus
                 />
               </div>
               <div>
-                <label htmlFor="folder-description" className="block text-sm font-medium text-slate-300 mb-2">
-                  Description <span className="text-slate-500">(Optional)</span>
+                <label htmlFor="folder-description" className={styles.formLabel}>
+                  Description <span className={styles.optional}>(Optional)</span>
                 </label>
                 <textarea
                   id="folder-description"
                   rows={3}
                   value={newFolder.description}
                   onChange={(e) => setNewFolder({ ...newFolder, description: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className={styles.formTextarea}
                   placeholder="Add a brief description..."
                 />
               </div>
-              <div className="pt-4 border-t border-slate-700/50 flex justify-end space-x-3">
+              <div className={styles.formFooter}>
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-5 py-2.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg transition-colors"
+                  className={styles.cancelBtn}
                   disabled={isSubmitting}
                 >
                   Cancel
@@ -288,13 +289,12 @@ const FoldersPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting || !newFolder.name.trim()}
-                  className={`px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${
-                    isSubmitting || !newFolder.name.trim() ? 'opacity-70 cursor-not-allowed' : ''
-                  }`}
+                  className={styles.submitBtn}
+                  style={isSubmitting || !newFolder.name.trim() ? {opacity: 0.7, cursor: 'not-allowed'} : {}}
                 >
                   {isSubmitting ? (
-                    <span className="flex items-center">
-                      <FiLoader className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                    <span style={{display: 'flex', alignItems: 'center'}}>
+                      <FiLoader style={{marginLeft: -4, marginRight: 8, width: 16, height: 16}} className="animate-spin" />
                       Creating...
                     </span>
                   ) : (
