@@ -231,6 +231,16 @@ const QuestionSetsPage = () => {
                     <div className={styles.setDate}>
                       Created {formatDate(questionSet.createdAt)}
                     </div>
+                    <div className={styles.setDate}>
+                      {questionSet.nextReviewAt ? (
+                        <>Next review: {formatDate(questionSet.nextReviewAt)}</>
+                      ) : (
+                        <span>No review scheduled</span>
+                      )}
+                    </div>
+                    <div className={styles.setDate}>
+                      Mastery: {typeof questionSet.currentTotalMasteryScore === 'number' ? `${Math.round(questionSet.currentTotalMasteryScore)}%` : 'N/A'}
+                    </div>
                   </div>
                 </div>
                 <div className={styles.setActions}>

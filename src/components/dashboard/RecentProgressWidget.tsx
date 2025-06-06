@@ -23,7 +23,15 @@ const RecentProgressWidget: React.FC<RecentProgressWidgetProps> = ({ recentProgr
         {recentProgress.map((item) => (
           <li key={item.id} className={styles.listItem}>
             <div className={styles.setName}>{item.name}</div>
-            <div className={styles.mastery}>Mastery: <span className={styles.masteryScore}>{item.masteryScore}</span></div>
+            <div className={styles.mastery}>
+  Mastery: <span className={styles.masteryScore}>
+    {typeof item.currentTotalMasteryScore === 'number' && !isNaN(item.currentTotalMasteryScore)
+      ? `${Math.round(item.currentTotalMasteryScore)}%`
+      : (typeof item.masteryScore === 'number' && !isNaN(item.masteryScore)
+        ? `${Math.round(item.masteryScore)}%`
+        : 'N/A')}
+  </span>
+</div>
             <div className={styles.reviewedAt}>{item.reviewedAtLabel || item.reviewedAt}</div>
           </li>
         ))}

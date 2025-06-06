@@ -10,7 +10,7 @@
   /* ======================================== */
 
   /* Color Palette */
-  --color-primary: #e619a1; 
+  --color-primary: #7280a8; 
   --color-primary-hover: #4338ca; 
   --color-secondary: #10b981; 
   --color-danger: #ef4444; 
@@ -20,7 +20,7 @@
   --color-text-on-primary: #ffffff; 
 
   --color-background: #f9fafb;
-  --color-surface: #e43333; 
+  --color-surface: #8a7a7a; 
   --color-border: #e5e7eb; 
   --color-input-bg: #f3f4f6;
   --color-input-border: #d1d5db; 

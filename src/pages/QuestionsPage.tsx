@@ -33,6 +33,8 @@ const QuestionSkeleton = () => (
 
 const QuestionsPage = () => {
   const { questionSetId } = useParams<{ questionSetId: string }>();
+// Helper to get folderId from loaded questionSet
+type QuestionSetWithFolder = QuestionSet & { folderId: string };
   const navigate = useNavigate();
   
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -100,14 +102,21 @@ const QuestionsPage = () => {
     e.preventDefault();
     if (!questionSetId || !newQuestion.text.trim() || !newQuestion.answer.trim()) return;
 
+    // Get folderId from loaded questionSet
+    const folderId = (questionSet as QuestionSetWithFolder)?.folderId;
+    if (!folderId) {
+      setError('Cannot create question: missing folder ID.');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
-      const createdQuestion = await createQuestion(questionSetId, {
+      // Only send text and answer, NOT questionSetId
+      const createdQuestion = await createQuestion(folderId, questionSetId, {
         text: newQuestion.text.trim(),
         answer: newQuestion.answer.trim(),
-        questionSetId
+        questionType: 'short-answer'
       });
-      
       setQuestions(prev => [createdQuestion, ...prev]);
       setNewQuestion({ text: '', answer: '' });
       setIsCreateModalOpen(false);

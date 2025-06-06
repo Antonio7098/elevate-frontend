@@ -274,10 +274,17 @@ const ReviewSessionPage = () => {
 
     try {
       const payload = { 
-        questionSetId: setId,
-        outcomes: sessionOutcomes,
-        timeSpent: timeSpentInSeconds, 
+        questionSetId: String(setId),
+        outcomes: sessionOutcomes.map(outcome => ({
+          questionId: String(outcome.questionId),
+          scoreAchieved: typeof outcome.scoreAchieved === 'number' ? outcome.scoreAchieved : 0, // Ensure number 0-5
+          userAnswerText: outcome.userAnswer, // Rename field
+          uueFocus: outcome.uueFocus,
+          ...(outcome.timeSpent !== undefined && { timeSpentOnQuestion: outcome.timeSpent })
+        })),
+        sessionDurationSeconds: timeSpentInSeconds, // Rename field
       };
+
       console.log('🔍 [ReviewSession] Submitting payload:', JSON.stringify(payload, null, 2)); // Log the entire payload
       await apiClient.post(`/reviews`, payload);
       console.log('✅ [ReviewSession] Session outcomes submitted successfully.');

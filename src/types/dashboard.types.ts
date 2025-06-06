@@ -11,7 +11,8 @@ export interface RecentProgressSet {
   id: string;
   name: string;
   lastReviewedAt: string; // ISO date string
-  masteryScore: number;
+  masteryScore?: number; // legacy or fallback
+  currentTotalMasteryScore?: number; // new backend field
 }
 
 export interface OverallStats {

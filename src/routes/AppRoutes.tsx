@@ -56,6 +56,7 @@ const AppRoutes = () => {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/review" element={<ReviewSessionPage />} />
+          <Route path="/review/:folderId/:setId" element={<ReviewSessionPage />} />
           <Route path="/quiz/set/:setId" element={<ReviewSessionPage />} />
           <Route index element={<Navigate to="/dashboard" replace />} />
         </Route>

@@ -54,26 +54,15 @@ export const getQuestion = async (questionSetId: string, questionId: string): Pr
 };
 
 // Create a new question
-export const createQuestion = async (questionSetId: string, data: CreateQuestionData): Promise<Question> => {
+export const createQuestion = async (folderId: string, questionSetId: string, data: CreateQuestionData): Promise<Question> => {
   try {
-    // Try the nested route approach
-    try {
-      const response = await apiClient.post<Question>(`/questionsets/${questionSetId}/questions`, {
-        ...data,
-        // No need to include questionSetId in the body since it's in the URL
-      });
-      return response.data;
-    } catch (nestedError) {
-      // If that fails, try the direct approach with questionSetId in the body
-      console.log(`Trying alternative endpoint for creating question in set ${questionSetId}`);
-      const response = await apiClient.post<Question>(`/questions`, {
-        ...data,
-        questionSetId
-      });
-      return response.data;
-    }
+    // Use only the backend's supported nested route
+    const response = await apiClient.post<Question>(`/folders/${folderId}/questionsets/${questionSetId}/questions`, {
+      ...data
+    });
+    return response.data;
   } catch (error) {
-    console.error(`Failed to create question in question set ${questionSetId}:`, error);
+    console.error(`Failed to create question in question set ${questionSetId} in folder ${folderId}:`, error);
     throw error;
   }
 };

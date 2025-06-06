@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { DueTodaySet } from '../../types/dashboard.types';
 import styles from './TodaysTasksWidget.module.css';
 
@@ -7,6 +8,8 @@ interface TodaysTasksWidgetProps {
 }
 
 const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({ dueToday }) => {
+  const navigate = useNavigate();
+
   if (!dueToday || dueToday.length === 0) {
     return (
       <div className={styles.widgetBox}>
@@ -15,6 +18,17 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({ dueToday }) => {
       </div>
     );
   }
+
+  const handleCardClick = (folderId: string | number, setId: string | number) => {
+    navigate(`/review/${folderId}/${setId}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, folderId: string | number, setId: string | number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCardClick(folderId, setId);
+    }
+  };
 
   return (
     <div className={styles.widgetBox}>
@@ -28,8 +42,10 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({ dueToday }) => {
               className={isCritical ? styles.cardCritical : styles.cardStandard}
               tabIndex={0}
               role="button"
+              aria-label={`Review ${set.name}`}
               title={`Review ${set.name}`}
-              onClick={() => window.location.href = `/review/${set.id}`}
+              onClick={() => handleCardClick(set.folderId, set.id)}
+              onKeyDown={(e) => handleKeyDown(e, set.folderId, set.id)}
             >
               <div className={styles.setName}>{set.name}</div>
               <div className={styles.dueInfo}>{set.dueLabel || 'Due now'}</div>

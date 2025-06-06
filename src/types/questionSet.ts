@@ -1,4 +1,6 @@
 export interface QuestionSet {
+  currentTotalMasteryScore?: number;
+  nextReviewAt?: string;
   id: string;
   name: string;
   description?: string;
