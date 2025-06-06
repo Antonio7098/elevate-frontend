@@ -1,11 +1,13 @@
 .widgetBox {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.06);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px 0 rgba(0,0,0,0.10);
+  border: 1px solid #f0f2f7;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   min-width: 260px;
 }
+
 
 .title {
   font-size: 1.15rem;
@@ -23,35 +25,63 @@
 .cardsContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.1rem;
 }
+@media (max-width: 600px) {
+  .cardsContainer {
+    gap: 0.7rem;
+  }
+  .cardStandard, .cardCritical {
+    min-width: 120px;
+    font-size: 0.98rem;
+    padding: 0.8rem 0.7rem;
+  }
+}
+
 
 .cardStandard {
-  background: #e6fbe6;
-  color: #1b5e20;
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
+  background: #eafeea;
+  color: #198754;
+  border-radius: 12px;
+  padding: 1.1rem 1.3rem;
   min-width: 180px;
   cursor: pointer;
-  transition: box-shadow 0.15s, transform 0.15s;
-  box-shadow: 0 1px 4px 0 rgba(60,180,60,0.10);
+  transition: box-shadow 0.15s, transform 0.15s, border 0.15s;
+  box-shadow: 0 2px 8px 0 rgba(60,180,60,0.08);
+  border: 1.5px solid #d0f5d0;
+  outline: none;
 }
+.cardStandard:hover,
+.cardStandard:focus {
+  box-shadow: 0 6px 20px 0 rgba(60,180,60,0.18);
+  border: 1.5px solid #8eea8e;
+  transform: translateY(-2px) scale(1.02);
+  outline: 2px solid #198754;
+}
+
 
 .cardCritical {
-  background: #ffebee;
-  color: #b71c1c;
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
+  background: #ffeded;
+  color: #c62828;
+  border-radius: 12px;
+  padding: 1.1rem 1.3rem;
   min-width: 180px;
   cursor: pointer;
-  transition: box-shadow 0.15s, transform 0.15s;
-  box-shadow: 0 1px 4px 0 rgba(183,28,28,0.10);
+  box-shadow: 0 2px 8px 0 rgba(200,40,40,0.08);
+  border: 1.5px solid #ffd6d6;
+  outline: none;
+  transition: box-shadow 0.15s, transform 0.15s, border 0.15s;
+}
+.cardCritical:hover,
+.cardCritical:focus {
+  box-shadow: 0 6px 20px 0 rgba(200,40,40,0.18);
+  border: 1.5px solid #ff8a8a;
+  transform: translateY(-2px) scale(1.02);
+  outline: 2px solid #c62828;
 }
 
-.cardStandard:hover, .cardCritical:hover {
-  box-shadow: 0 4px 16px 0 rgba(44,44,44,0.13);
-  transform: translateY(-2px) scale(1.03);
-}
+
+
 
 .setName {
   font-weight: 500;
