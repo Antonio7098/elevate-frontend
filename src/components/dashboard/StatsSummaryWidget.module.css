@@ -1,0 +1,64 @@
+.widgetBox {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.06);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  min-width: 260px;
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #222;
+}
+
+.empty {
+  color: #888;
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.statsGrid {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.statItem {
+  flex: 1 1 100px;
+  background: #f5f7fb;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  text-align: center;
+}
+
+.statLabel {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.statValue {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.statsFooter {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+.statsLink {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.98rem;
+}
+
+.statsLink:hover {
+  text-decoration: underline;
+}

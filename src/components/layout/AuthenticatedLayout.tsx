@@ -6,13 +6,19 @@ interface AuthenticatedLayoutProps {
   children?: ReactNode;
 }
 
+import styles from './AuthenticatedLayout.module.css';
+
 const AuthenticatedLayout: FC<AuthenticatedLayoutProps> = () => {
   return (
-    <div className="flex h-screen bg-slate-100">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto p-6 ml-20">
-        <Outlet />
-      </main>
+    <div className={styles.root}>
+      <div className={styles.sidebar}>
+        <Sidebar />
+      </div>
+      <div className={styles.main}>
+        <div className={styles.content}>
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 };

@@ -5,6 +5,8 @@ interface RegistrationSuccessProps {
   onClose: () => void;
 }
 
+import styles from './RegistrationSuccess.module.css';
+
 export const RegistrationSuccess = ({ email, onClose }: RegistrationSuccessProps) => {
   useEffect(() => {
     // Auto-close the success message after 5 seconds
@@ -16,11 +18,11 @@ export const RegistrationSuccess = ({ email, onClose }: RegistrationSuccessProps
   }, [onClose]);
 
   return (
-    <div className="rounded-md bg-green-50 p-4 mb-4">
-      <div className="flex">
-        <div className="flex-shrink-0">
+    <div className={styles.container}>
+      <div className={styles.flex}>
+        <div className={styles.flexShrink0}>
           <svg
-            className="h-5 w-5 text-green-400"
+            className={styles.icon}
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -32,24 +34,24 @@ export const RegistrationSuccess = ({ email, onClose }: RegistrationSuccessProps
             />
           </svg>
         </div>
-        <div className="ml-3">
-          <p className="text-sm font-medium text-green-800">
+        <div className={styles.ml3}>
+          <p className={`${styles.textSm} ${styles.fontMedium} ${styles.textGreen800}`}>
             Registration successful! Welcome, {email}
           </p>
-          <p className="mt-1 text-sm text-green-700">
+          <p className={`${styles.mt1} ${styles.textSm} ${styles.textGreen700}`}>
             You're now logged in and can start using Elevate.
           </p>
         </div>
-        <div className="ml-auto pl-3">
-          <div className="-mx-1.5 -my-1.5">
+        <div className={`${styles.mlAuto} ${styles.pl3}`}>
+          <div className={`${styles.negMx1_5} ${styles.negMy1_5}`}> 
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex rounded-md bg-green-50 p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
+              className={styles.dismissBtn}
             >
-              <span className="sr-only">Dismiss</span>
+              <span className={styles.srOnly}>Dismiss</span>
               <svg
-                className="h-5 w-5"
+                className={styles.iconBtn}
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
