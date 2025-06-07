@@ -2,7 +2,10 @@
 
 export interface MasteryHistoryPoint {
   timestamp: string; // ISO date string
-  score: number; // mastery percentage or score
+  useScore: number;
+  exploreScore: number;
+  understandScore: number;
+  totalMasteryScore: number;
 }
 
 export interface UUEScores {

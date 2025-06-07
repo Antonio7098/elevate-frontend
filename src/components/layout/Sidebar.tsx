@@ -40,7 +40,7 @@ const Sidebar: React.FC = () => {
     { name: 'Dashboard', href: '/dashboard', icon: <FiHome className={iconClassName} /> },
     { name: 'Folders', href: '/folders', icon: <FiFolder className={iconClassName} /> },
     { name: 'AI Chat', href: '/chat', icon: <FiMessageSquare className={iconClassName} /> },
-    { name: 'Stats', href: '/stats', icon: <FiBarChart2 className={iconClassName} /> },
+    { name: 'My Progress', href: '/my-progress', icon: <FiBarChart2 className={iconClassName} /> },
   ];
 
   const bottomNavItems: NavigationItem[] = [

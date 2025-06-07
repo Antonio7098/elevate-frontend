@@ -10,17 +10,17 @@
   /* ======================================== */
 
   /* Color Palette */
-  --color-primary: #7280a8; 
-  --color-primary-hover: #4338ca; 
-  --color-secondary: #10b981; 
-  --color-danger: #ef4444; 
+  --color-primary: #ffffff; 
+  --color-primary-hover: #ffffff; 
+  --color-secondary: #ffffff; 
+  --color-danger: #ffffff; 
   
-  --color-text-base: #18dd59; 
-  --color-text-muted: #6b7280; 
+  --color-text-base: #ffffff; 
+  --color-text-muted: #ffffff; 
   --color-text-on-primary: #ffffff; 
 
   --color-background: #f9fafb;
-  --color-surface: #8a7a7a; 
+  --color-surface: #261bca; 
   --color-border: #e5e7eb; 
   --color-input-bg: #f3f4f6;
   --color-input-border: #d1d5db; 
@@ -46,13 +46,13 @@
   /* DARK THEME OVERRIDES            */
   /* ======================================== */
 
-  --color-primary: #6366f1; /* Indigo 500 */
-  --color-primary-hover: #4f46e5; /* Indigo 600 */
+  --color-primary: #f8f8fa; /* Indigo 500 */
+  --color-primary-hover: #f8ffdd; /* Indigo 600 */
   --color-secondary: #34d399; /* Emerald 400 */
   --color-danger: #f87171; /* Red 400 */
 
   --color-text-base: #f3f4f6; /* Gray 100 */
-  --color-text-muted: #a1a1aa; /* Zinc 400 */
+  --color-text-muted: #ffffff; /* Zinc 400 */
   --color-text-on-primary: #ffffff; /* White */
 
   --color-background: #181e29; /* Slate 900 */

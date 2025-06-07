@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styles from './StatsPage.module.css';
+import styles from './MyProgress.module.css';
 import { getFolders } from '../services/folderService';
 import type { Folder } from '../types/folder';
 import { getQuestionSets } from '../services/questionSetService';
@@ -10,7 +10,7 @@ import MasteryOverTimeChart from '../components/stats/MasteryOverTimeChart';
 import UUEScoresWidget from '../components/stats/UUEScoresWidget';
 import SRStatusWidget from '../components/stats/SRStatusWidget';
 
-const StatsPage: React.FC = () => {
+const MyProgress: React.FC = () => {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [selectedSetId, setSelectedSetId] = useState<string | null>(null);
 
@@ -87,6 +87,7 @@ const StatsPage: React.FC = () => {
         setFolderStats(null); // Clear previous folder stats
         try {
           const data = await getFolderStats(selectedFolderId);
+          console.log('Fetched Folder Stats:', data);
           setFolderStats(data);
         } catch (err) {
           setErrorFolderStats('Failed to load folder statistics.');
@@ -110,6 +111,7 @@ const StatsPage: React.FC = () => {
         setFolderStats(null); // Clear folder stats as set stats take precedence
         try {
           const data = await getSetStats(selectedSetId);
+          console.log('Fetched Set Stats:', data);
           setSetStats(data);
         } catch (err) {
           setErrorSetStats('Failed to load question set statistics.');
@@ -211,7 +213,7 @@ const StatsPage: React.FC = () => {
           <div className={styles.setStatsContainer}>
             <div>
               <h3>Set Stats: {questionSets.find(s => s.id === selectedSetId)?.name}</h3>
-              <p>Overall Mastery: { (setStats.masteryHistory && setStats.masteryHistory.length > 0 ? setStats.masteryHistory[setStats.masteryHistory.length - 1].score.toFixed(2) : 'N/A') || 'N/A'}</p>
+              <p>Overall Mastery: {setStats.masteryHistory && setStats.masteryHistory.length > 0 && typeof setStats.masteryHistory[setStats.masteryHistory.length - 1]?.totalMasteryScore === 'number' ? setStats.masteryHistory[setStats.masteryHistory.length - 1].totalMasteryScore.toFixed(2) : 'N/A'}</p>
               <UUEScoresWidget scores={setStats.uueScores} />
               <SRStatusWidget status={setStats.srStatus} />
               {setStats.masteryHistory && <MasteryOverTimeChart data={setStats.masteryHistory} title="Question Set Mastery Over Time" />}
@@ -227,4 +229,4 @@ const StatsPage: React.FC = () => {
   );
 };
 
-export default StatsPage;
+export default MyProgress;

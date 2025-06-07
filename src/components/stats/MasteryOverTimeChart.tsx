@@ -31,8 +31,8 @@ const MasteryOverTimeChart: React.FC<MasteryOverTimeChartProps> = ({ data, title
       month: 'short',
       day: 'numeric',
     }),
-    // Ensure score is a number
-    score: Number(point.score),
+    // Ensure score is a number, map to null if not
+    score: isNaN(Number(point.totalMasteryScore)) ? null : Number(point.totalMasteryScore) * 100,
   }));
 
   return (
@@ -51,10 +51,22 @@ const MasteryOverTimeChart: React.FC<MasteryOverTimeChartProps> = ({ data, title
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="formattedTimestamp" />
+          <XAxis dataKey="formattedTimestamp" padding={{ left: 20, right: 20 }} />
           <YAxis domain={[0, 100]} label={{ value: 'Mastery Score (%)', angle: -90, position: 'insideLeft' }} />
           <Tooltip
-            formatter={(value: number) => [`${value.toFixed(2)}%`, 'Mastery']}
+            formatter={(value: any) => { // Use 'any' here to bypass overly strict Recharts ValueType, or be more specific if needed
+            if (typeof value === 'number') {
+              return [`${value.toFixed(2)}%`, 'Mastery'];
+            }
+            // Handle cases where 'value' might be null (our specific case for invalid scores)
+            // or other types that Recharts might pass if the dataKey was different.
+            // For 'score', we've mapped invalid to null, so checking for null is also useful.
+            if (value === null || value === undefined) {
+                return ['N/A', 'Mastery'];
+            }
+            // Fallback for other unexpected types, though for 'score' it should be number or null.
+            return [`${String(value)}`, 'Mastery']; 
+          }}
             labelFormatter={(label: string) => `Date: ${label}`}
           />
           <Legend />
