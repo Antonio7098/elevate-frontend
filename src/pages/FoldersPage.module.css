@@ -123,270 +123,254 @@
 }
 .emptyBtn:hover,
 .emptyBtn:focus {
-  background: var(--color-primary-hover);
+
+.emptyDescription {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-lg);
+  max-width: 400px;
+  line-height: var(--line-height-relaxed);
 }
 
-.folderCard {
-  position: relative;
-  background: color-mix(in srgb, var(--color-surface) 50%, transparent);
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  transition: background 0.2s, border 0.2s;
-  border: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
-  overflow: hidden;
-}
-.folderCard:hover {
-  background: color-mix(in srgb, var(--color-surface) 80%, transparent);
-  border-color: var(--color-border);
-}
-.folderRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-.folderIcon {
-  padding: 0.625rem;
-  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
-  border-radius: 0.5rem;
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.folderInfo {
-  margin-left: 0.75rem;
-}
-.folderName {
-  font-weight: 500;
-  color: var(--color-text-on-primary);
-  transition: color 0.2s;
-}
-.folderCard:hover .folderName {
-  color: var(--color-primary);
-}
-.folderDesc {
-  margin-top: 0.25rem;
-  font-size: 0.95rem;
-  color: var(--color-text-muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.folderDate {
-  margin-top: 0.75rem;
-  font-size: 0.8rem;
-  color: #64748b;
-}
-.folderActions {
-  display: flex;
-  gap: 0.25rem;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.folderCard:hover .folderActions,
-.folderCard:focus-within .folderActions {
-  opacity: 1;
-}
-.actionBtn {
-  padding: 0.375rem;
-  border: none;
-  background: var(--color-background);
-  color: var(--color-text-muted);
-  border-radius: 0.5rem;
-  transition: background 0.2s, color 0.2s;
-  cursor: pointer;
-}
-.actionBtn:hover {
-  color: var(--color-text-base);
-  background: var(--color-background-hover);
-}
-.actionBtn[title="Delete folder"]:hover {
-  color: var(--color-danger);
-  background: var(--color-background-hover);
-}
-.actionBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.viewBtn {
-  margin-top: 1rem;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-primary);
-  background: var(--color-background);
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.viewBtn:hover,
-.viewBtn:focus {
-  color: var(--color-primary-hover);
+.emptyStateBtn {
+  /* Inherits from .newFolderBtn, specific overrides below */
+  padding: var(--space-md) var(--space-lg); /* Larger padding for emphasis */
+  font-size: var(--font-size-md);
 }
 
 /* Modal Styles */
 .modalBackdrop {
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(4px);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.65); /* Slightly darker backdrop */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
-  padding: 1rem;
+  z-index: 1000;
+  animation: fadeInModal 0.2s ease-out;
+  padding: var(--space-md); /* Ensure modal is not flush with screen edges on small screens */
 }
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .modal {
-  background: var(--color-surface);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  background-color: var(--color-background-primary);
+  padding: var(--space-xl);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl); /* More pronounced shadow */
   width: 100%;
-  max-width: 28rem;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 10px 32px 0 rgba(0,0,0,0.18);
-  transform: scale(0.95);
-  transition: transform 0.2s;
+  max-width: 500px;
+  animation: slideInModal 0.25s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother animation */
+  position: relative;
 }
-.modal:focus-within {
-  transform: scale(1);
+
+@keyframes slideInModal {
+  from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
+
 .modalTitle {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: var(--color-text-base);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
 }
-.modalDesc {
-  font-size: 0.95rem;
-  color: var(--color-text-muted);
-  margin-top: 0.25rem;
-}
+
 .closeBtn {
-  color: var(--color-text-muted);
-  padding: 0.25rem;
-  margin: -0.375rem;
-  border-radius: 0.5rem;
-  background: var(--color-background);
+  background: none;
   border: none;
-  transition: color 0.2s, background 0.2s;
+  color: var(--color-text-secondary);
+  font-size: 1.25rem; /* Adjusted size */
+  cursor: pointer;
+  padding: var(--space-sm); /* Consistent padding */
+  line-height: 1;
+  border-radius: var(--border-radius-full);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
-.closeBtn:hover,
-.closeBtn:focus {
-  color: var(--color-text-base);
-  background: var(--color-background-hover);
+
+.closeBtn:hover {
+  background-color: var(--color-background-hover);
+  color: var(--color-text-primary);
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 1px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--space-lg);
 }
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
 .formLabel {
-  display: block;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
 }
-.required {
-  color: var(--color-danger);
+
+.requiredIndicator {
+  color: var(--color-error);
+  margin-left: var(--space-xxs);
 }
-.optional {
-  color: var(--color-text-muted);
-}
+
 .formInput,
 .formTextarea {
   width: 100%;
-  padding: 0.625rem 1rem;
-  background: var(--color-input-bg);
-  border: 1.5px solid var(--color-input-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-white);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
   font-size: var(--font-size-md);
-  transition: border 0.2s, box-shadow 0.2s;
+  background-color: var(--color-background-input);
+  color: var(--color-text-input);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
 .formInput::placeholder,
 .formTextarea::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-text-placeholder);
 }
+
 .formInput:focus,
 .formTextarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light-transparent);
 }
-.formFooter {
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-border);
+
+.formTextarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit; /* Ensure consistent font */
+}
+
+.formActions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border-subtle);
 }
-.cancelBtn {
-  padding: 0.625rem 1.25rem;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  background: var(--color-background);
-  border: none;
-  border-radius: 0.5rem;
-  transition: color 0.2s;
+
+.btn {
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.5; /* Ensure text is vertically centered */
 }
-.cancelBtn:hover,
-.cancelBtn:focus {
-  color: var(--color-text-base);
-  color: var(--color-text-on-primary);
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 2px;
 }
-.submitBtn {
-  padding: 0.625rem 1.25rem;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-text-on-primary);
-  background: var(--color-primary);
-  border: none;
-  border-radius: 0.5rem;
-  transition: background 0.2s, opacity 0.2s;
+
+.btnPrimary {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
 }
-.submitBtn:hover,
-.submitBtn:focus {
-  background: var(--color-primary-hover);
+
+.btnPrimary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-sm);
 }
-.submitBtn:disabled {
+
+.btnPrimary:disabled {
+  background-color: var(--color-primary-light);
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-/* Skeleton Loader */
-.skeleton {
-  padding: 1rem;
-  background: var(--color-surface);
-  border-radius: 0.75rem;
-  animation: skeletonPulse 1.2s ease-in-out infinite alternate;
+.btnSecondary {
+  background-color: var(--color-background-secondary); /* Subtle background */
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
 }
-.skeletonBar {
-  height: 1.5rem;
-  background: #334155;
-  border-radius: 0.5rem;
-  width: 75%;
-  margin-bottom: 0.5rem;
+
+.btnSecondary:hover:not(:disabled) {
+  background-color: var(--color-background-hover);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-xs);
 }
-.skeletonBarSmall {
-  height: 1rem;
-  background: #334155;
-  border-radius: 0.5rem;
-  width: 50%;
+
+.btnSecondary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
-@keyframes skeletonPulse {
-  0% { opacity: 1; }
-  100% { opacity: 0.6; }
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+  margin-right: var(--space-sm);
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-md);
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .title {
+    font-size: var(--font-size-xl);
+  }
+
+  .newFolderBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal {
+    /* margin: var(--space-md); Already handled by modalBackdrop padding */
+    padding: var(--space-lg);
+  }
+
+  .formActions {
+    flex-direction: column-reverse; /* Stack buttons, primary on bottom */
+  }
+
+  .btn {
+    width: 100%;
+  }
 }

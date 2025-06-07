@@ -1,19 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  FiPlus, 
-  FiFolder, 
-  FiTrash2, 
-  FiEdit2, 
-  FiChevronRight,
+
+import {
+  FiPlus,
+  FiFolder,
   FiLoader,
   FiX,
-  FiAlertCircle
+  FiAlertCircle,
+  FiPlusCircle
 } from 'react-icons/fi';
-import { useAuth } from '../context/AuthContext';
-import { getFolders, createFolder, deleteFolder } from '../services/folderService';
-import type { Folder, CreateFolderData } from '../types/folder';
+import { FolderListItem } from '../components/folders/FolderListItem';
 
+import { getFolders, createFolder, deleteFolder, updateFolder } from '../services/folderService';
+import type { Folder, CreateFolderData } from '../types/folder';
 import styles from './FoldersPage.module.css';
 
 // Skeleton loader for folders
@@ -25,29 +23,23 @@ const FolderSkeleton = () => (
 );
 
 const FoldersPage = () => {
+  // --- Edit Folder State ---
+  const [editFolderId, setEditFolderId] = useState<string | null>(null);
+  const [editFolderData, setEditFolderData] = useState<CreateFolderData>({ name: '', description: '' });
+  const [isEditing, setIsEditing] = useState(false);
+
   const [folders, setFolders] = useState<Folder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [newFolder, setNewFolder] = useState<CreateFolderData>({ 
-    name: '', 
-    description: '' 
+  const [newFolder, setNewFolder] = useState<CreateFolderData>({
+    name: '',
+    description: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  
-  // Format date to a readable format
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
+  const [isDeleting, setIsDeleting] = useState<string | null>(null); // Stores ID of folder being deleted
 
-  // Load folders
+
   const loadFolders = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -62,12 +54,10 @@ const FoldersPage = () => {
     }
   }, []);
 
-  // Initial load
   useEffect(() => {
     loadFolders();
   }, [loadFolders]);
 
-  // Handle folder creation
   const handleCreateFolder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFolder.name.trim()) return;
@@ -78,28 +68,24 @@ const FoldersPage = () => {
         name: newFolder.name.trim(),
         description: newFolder.description?.trim() || undefined,
       });
-      
-      await loadFolders();
-      setNewFolder({ name: '', description: '' });
-      setIsCreateModalOpen(false);
+      await loadFolders(); // Refresh folder list
+      setNewFolder({ name: '', description: '' }); // Reset form
+      setIsCreateModalOpen(false); // Close modal
     } catch (err) {
       console.error('Failed to create folder:', err);
-      setError('Failed to create folder. Please try again.');
+      setError('Failed to create folder. Please try again.'); // Consider showing error in modal
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle folder deletion
   const handleDeleteFolder = async (folderId: string) => {
-    if (!window.confirm('Are you sure you want to delete this folder? This action cannot be undone.')) {
-      return;
-    }
-
+    // Optional: Add a confirmation dialog here if not present in FolderListItem
+    // if (!window.confirm('Are you sure you want to delete this folder?')) return;
     try {
       setIsDeleting(folderId);
       await deleteFolder(folderId);
-      await loadFolders();
+      await loadFolders(); // Refresh folder list
     } catch (err) {
       console.error('Failed to delete folder:', err);
       setError('Failed to delete folder. Please try again.');
@@ -108,11 +94,42 @@ const FoldersPage = () => {
     }
   };
 
-  // Loading state
+  // Handle edit button click from FolderListItem
+  const handleEditClick = (folder: Folder) => {
+    setEditFolderId(folder.id);
+    setEditFolderData({ name: folder.name, description: folder.description || '' });
+    setIsCreateModalOpen(false);
+  };
+
+  // Handle edit modal input change
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setEditFolderData({ ...editFolderData, [e.target.name]: e.target.value });
+  };
+
+  // Handle edit modal submit
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editFolderId) return;
+    try {
+      setIsEditing(true);
+      await updateFolder(editFolderId, {
+        name: editFolderData.name.trim(),
+        description: editFolderData.description?.trim() || undefined,
+      });
+      await loadFolders();
+      setEditFolderId(null);
+      setEditFolderData({ name: '', description: '' });
+    } catch (err) {
+      setError('Failed to update folder. Please try again.');
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className={styles.container}>
-        <div className={styles.grid}>
+        <div className={styles.folderList}>
           {[1, 2, 3].map((i) => (
             <FolderSkeleton key={i} />
           ))}
@@ -120,6 +137,8 @@ const FoldersPage = () => {
       </div>
     );
   }
+
+  // Removed error display from here as it's better handled within the main layout or via toasts
 
   return (
     <div className={styles.container}>
@@ -134,169 +153,110 @@ const FoldersPage = () => {
           onClick={() => setIsCreateModalOpen(true)}
           className={styles.newFolderBtn}
         >
-          <FiPlus style={{marginRight: 8, width: 16, height: 16}} />
+          <FiPlus style={{ marginRight: 8, width: 16, height: 16 }} />
           New Folder
         </button>
       </div>
 
       {error && (
         <div className={styles.error}>
-          <FiAlertCircle style={{width: 20, height: 20}} />
+          <FiAlertCircle style={{ width: 20, height: 20 }} />
           <span>{error}</span>
         </div>
       )}
 
-      {folders.length === 0 ? (
-        <div className={styles.empty}>
-          <div className={styles.emptyIcon}>
-            <FiFolder style={{width: 32, height: 32, color: '#6366f1'}} />
+      {folders.length === 0 && !isLoading ? (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIconContainer}>
+            <FiFolder className={styles.emptyFolderIcon} />
           </div>
           <h3 className={styles.emptyTitle}>No folders yet</h3>
-          <p className={styles.emptyDesc}>
-            Organize your study materials by creating your first folder
+          <p className={styles.emptyDescription}>
+            Organize your study materials by creating your first folder.
           </p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className={styles.emptyBtn}
+            className={`${styles.newFolderBtn} ${styles.emptyStateBtn}`}
           >
-            <FiPlus style={{marginRight: 8, width: 16, height: 16}} />
+            <FiPlusCircle style={{ marginRight: 8, width: 18, height: 18 }} />
             Create Folder
           </button>
         </div>
       ) : (
-        <div className={styles.grid}>
+        <div className={styles.folderList}>
           {folders.map((folder) => (
-            <div
+            <FolderListItem
               key={folder.id}
-              className={styles.folderCard}
-              tabIndex={0}
-            >
-              <div className={styles.folderRow}>
-                <div style={{display: 'flex', alignItems: 'flex-start'}}>
-                  <div className={styles.folderIcon}>
-                    <FiFolder style={{width: 20, height: 20}} />
-                  </div>
-                  <div className={styles.folderInfo}>
-                    <h3 className={styles.folderName}>{folder.name}</h3>
-                    {folder.description && (
-                      <p className={styles.folderDesc}>
-                        {folder.description}
-                      </p>
-                    )}
-                    <div className={styles.folderDate}>
-                      Created {formatDate(folder.createdAt)}
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.folderActions}>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Handle edit
-                    }}
-                    className={styles.actionBtn}
-                    title="Edit folder"
-                  >
-                    <FiEdit2 style={{width: 16, height: 16}} />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteFolder(folder.id);
-                    }}
-                    disabled={isDeleting === folder.id}
-                    className={styles.actionBtn}
-                    title="Delete folder"
-                  >
-                    {isDeleting === folder.id ? (
-                      <FiLoader style={{width: 16, height: 16}} className="animate-spin" />
-                    ) : (
-                      <FiTrash2 style={{width: 16, height: 16}} />
-                    )}
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate(`/folders/${folder.id}`)}
-                className={styles.viewBtn}
-              >
-                View contents
-                <FiChevronRight style={{width: 16, height: 16}} />
-              </button>
-            </div>
+              folder={folder}
+              onDelete={handleDeleteFolder}
+              isDeleting={isDeleting === folder.id}
+              onEdit={handleEditClick}
+            />
           ))}
         </div>
       )}
 
       {/* Create Folder Modal */}
-      {isCreateModalOpen && (
+      {isCreateModalOpen ? (
         <div className={styles.modalBackdrop}>
-          <div 
-            className={styles.modal}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div>
-                <h2 className={styles.modalTitle}>Create New Folder</h2>
-                <p className={styles.modalDesc}>Organize your study materials</p>
-              </div>
+              <h2 className={styles.modalTitle}>Create New Folder</h2>
               <button
                 onClick={() => setIsCreateModalOpen(false)}
                 className={styles.closeBtn}
-                aria-label="Close"
+                aria-label="Close modal"
               >
-                <FiX style={{width: 20, height: 20}} />
+                <FiX />
               </button>
             </div>
             <form onSubmit={handleCreateFolder} className={styles.form}>
-              <div>
+              <div className={styles.formGroup}>
                 <label htmlFor="folder-name" className={styles.formLabel}>
-                  Folder Name <span className={styles.required}>*</span>
+                  Folder Name <span className={styles.requiredIndicator}>*</span>
                 </label>
                 <input
                   type="text"
                   id="folder-name"
-                  required
                   value={newFolder.name}
                   onChange={(e) => setNewFolder({ ...newFolder, name: e.target.value })}
                   className={styles.formInput}
-                  placeholder="e.g., Math Notes"
+                  placeholder="e.g., Advanced Calculus Notes"
+                  required
                   autoFocus
                 />
               </div>
-              <div>
+              <div className={styles.formGroup}>
                 <label htmlFor="folder-description" className={styles.formLabel}>
-                  Description <span className={styles.optional}>(Optional)</span>
+                  Description (Optional)
                 </label>
                 <textarea
                   id="folder-description"
-                  rows={3}
                   value={newFolder.description}
                   onChange={(e) => setNewFolder({ ...newFolder, description: e.target.value })}
                   className={styles.formTextarea}
-                  placeholder="Add a brief description..."
+                  placeholder="A brief summary of what this folder contains"
+                  rows={3}
                 />
               </div>
-              <div className={styles.formFooter}>
+              <div className={styles.formActions}>
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className={styles.cancelBtn}
+                  className={`${styles.btn} ${styles.btnSecondary}`}
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
+                  className={`${styles.btn} ${styles.btnPrimary}`}
                   disabled={isSubmitting || !newFolder.name.trim()}
-                  className={styles.submitBtn}
-                  style={isSubmitting || !newFolder.name.trim() ? {opacity: 0.7, cursor: 'not-allowed'} : {}}
                 >
                   {isSubmitting ? (
-                    <span style={{display: 'flex', alignItems: 'center'}}>
-                      <FiLoader style={{marginLeft: -4, marginRight: 8, width: 16, height: 16}} className="animate-spin" />
-                      Creating...
-                    </span>
+                    <>
+                      <FiLoader className={styles.spinner} /> Creating...
+                    </>
                   ) : (
                     'Create Folder'
                   )}
@@ -305,7 +265,75 @@ const FoldersPage = () => {
             </form>
           </div>
         </div>
-      )}
+      ) : null}
+      {/* Edit Folder Modal */}
+      {editFolderId ? (
+        <div className={styles.modalBackdrop}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Edit Folder</h2>
+              <button
+                onClick={() => setEditFolderId(null)}
+                className={styles.closeBtn}
+                aria-label="Close modal"
+              >
+                <FiX />
+              </button>
+            </div>
+            <form onSubmit={handleEditSubmit} className={styles.form}>
+              <div className={styles.formGroup}>
+                <label htmlFor="edit-folder-name" className={styles.formLabel}>
+                  Folder Name <span className={styles.requiredIndicator}>*</span>
+                </label>
+                <input
+                  type="text"
+                  id="edit-folder-name"
+                  name="name"
+                  value={editFolderData.name}
+                  onChange={handleEditChange}
+                  className={styles.formInput}
+                  required
+                  autoFocus
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="edit-folder-description" className={styles.formLabel}>
+                  Description (Optional)
+                </label>
+                <textarea
+                  id="edit-folder-description"
+                  name="description"
+                  value={editFolderData.description}
+                  onChange={handleEditChange}
+                  className={styles.formTextarea}
+                  rows={3}
+                />
+              </div>
+              <div className={styles.formActions}>
+                <button
+                  type="button"
+                  onClick={() => setEditFolderId(null)}
+                  className={`${styles.btn} ${styles.btnSecondary}`}
+                  disabled={isEditing}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={`${styles.btn} ${styles.btnPrimary}`}
+                  disabled={isEditing || !editFolderData.name.trim()}
+                >
+                  {isEditing ? (
+                    <><FiLoader className={styles.spinner} /> Saving...</>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

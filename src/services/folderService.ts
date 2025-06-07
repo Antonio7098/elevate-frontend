@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import type { Folder, CreateFolderData } from '../types/folder';
+import type { Folder, CreateFolderData, UpdateFolderData } from '../types/folder';
 
 export const getFolders = async (): Promise<Folder[]> => {
   try {
@@ -36,6 +36,16 @@ export const deleteFolder = async (folderId: string): Promise<void> => {
     await apiClient.delete(`/folders/${folderId}`);
   } catch (error) {
     console.error('Failed to delete folder:', error);
+    throw error;
+  }
+};
+
+export const updateFolder = async (folderId: string, folderData: UpdateFolderData): Promise<Folder> => {
+  try {
+    const response = await apiClient.put<Folder>(`/folders/${folderId}`, folderData);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to update folder with ID ${folderId}:`, error);
     throw error;
   }
 };
