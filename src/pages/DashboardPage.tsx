@@ -5,7 +5,6 @@ import { getTodaysTasks } from '../services/todaysTasksService';
 import type { DashboardData } from '../types/dashboard.types';
 import TodaysTasksWidget from '../components/dashboard/TodaysTasksWidget';
 import RecentProgressWidget from '../components/dashboard/RecentProgressWidget';
-import StatsSummaryWidget from '../components/dashboard/StatsSummaryWidget';
 import styles from './DashboardPage.module.css';
 
 const DashboardPage: React.FC = () => {
@@ -95,34 +94,26 @@ const DashboardPage: React.FC = () => {
     );
   }
 
-  // Debug: log dashboardData and tasksError on each render
-  console.log('[Dashboard] dashboardData:', dashboardData);
-  console.log('[Dashboard] tasksError:', tasksError);
-
   return (
     <div>
-      <div className={styles.welcome}>Welcome back, Antonio!</div>
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
-        <button
-          className={styles.beginTasksBtn}
-          style={{
-            background: '#6366f1', color: '#fff', padding: '0.9rem 2.2rem', fontSize: '1.15rem', borderRadius: '0.7rem', border: 'none', fontWeight: 600, cursor: isStartingTasks ? 'not-allowed' : 'pointer', opacity: isStartingTasks ? 0.7 : 1, boxShadow: '0 2px 12px 0 rgba(99,102,241,0.10)' 
-          }}
-          onClick={handleBeginTodaysTasks}
-          disabled={isStartingTasks}
-        >
-          {isStartingTasks ? 'Starting…' : "Start Today's Tasks"}
-        </button>
+      <div className={styles.welcomeSection}>
+        <h1 className={styles.welcome}>Welcome back, Antonio!</h1>
+        <p className={styles.welcomeMessage}>
+          Your hard work is really paying off! I've noticed you've recently pushed the mastery on your "Advanced Calculus" set up to 85% – that's fantastic progress on a tough subject.
+        </p>
+        <p className={styles.welcomeMessage}>
+          To keep that momentum going, I've lined up your tasks for today. We'll start with a few "Critical" review questions from your "Geometry" set to make sure those core theorems are locked in. After that, we have some "Core" review items from "The Tudors" ready to help you advance your understanding there. Let's get started!
+        </p>
       </div>
-      {tasksError && (
-        <div style={{ color: '#b91c1c', textAlign: 'center', marginBottom: 12 }}>{tasksError}</div>
-      )}
       <div className={styles.dashboardContainer}>
-        <TodaysTasksWidget dueToday={dashboardData?.dueToday || []} />
+        <TodaysTasksWidget 
+          dueToday={dashboardData?.dueToday || []} 
+          onStartTasks={handleBeginTodaysTasks}
+          isStarting={isStartingTasks}
+          error={tasksError}
+        />
         <RecentProgressWidget recentProgress={dashboardData?.recentProgress || []} />
-        <StatsSummaryWidget overallStats={dashboardData?.overallStats || null} />
       </div>
-      <pre style={{ marginTop: '2rem', background: '#f9f9f9', padding: '1rem', borderRadius: '8px' }}>{JSON.stringify(dashboardData, null, 2)}</pre>
     </div>
   );
 };

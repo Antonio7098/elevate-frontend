@@ -5,6 +5,7 @@ export interface DueTodaySet {
   name: string;
   nextReviewAt: string; // ISO date string
   isCritical: boolean; // Derived from logic, e.g., overdue
+  currentTotalMasteryScore?: number; // Mastery score from 0-1
 }
 
 export interface RecentProgressSet {

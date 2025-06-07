@@ -5,9 +5,17 @@ import styles from './TodaysTasksWidget.module.css';
 
 interface TodaysTasksWidgetProps {
   dueToday: DueTodaySet[];
+  onStartTasks?: () => void;
+  isStarting?: boolean;
+  error?: string | null;
 }
 
-const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({ dueToday }) => {
+const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({ 
+  dueToday, 
+  onStartTasks, 
+  isStarting = false, 
+  error = null 
+}) => {
   const navigate = useNavigate();
 
   if (!dueToday || dueToday.length === 0) {
@@ -32,7 +40,19 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({ dueToday }) => {
 
   return (
     <div className={styles.widgetBox}>
-      <h3 className={styles.title}>Today's Tasks</h3>
+      <div className={styles.widgetHeader}>
+        <h3 className={styles.title}>Today's Tasks</h3>
+        {onStartTasks && (
+          <button
+            className={styles.startButton}
+            onClick={onStartTasks}
+            disabled={isStarting}
+          >
+            {isStarting ? 'Starting…' : "Start Today's Tasks"}
+          </button>
+        )}
+      </div>
+      {error && <div className={styles.errorMessage}>{error}</div>}
       <div className={styles.cardsContainer}>
         {dueToday.map((set) => {
           const isCritical = set.isCritical || false; // You can refine this logic
@@ -49,6 +69,11 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({ dueToday }) => {
             >
               <div className={styles.setName}>{set.name}</div>
               <div className={styles.dueInfo}>{set.dueLabel || 'Due now'}</div>
+              {set.currentTotalMasteryScore !== undefined && (
+                <div className={styles.masteryScore}>
+                  Mastery: {Math.round(set.currentTotalMasteryScore * 100)}%
+                </div>
+              )}
             </div>
           );
         })}
