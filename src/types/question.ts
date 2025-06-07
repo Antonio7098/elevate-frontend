@@ -21,6 +21,7 @@ export interface Question {
   marksAvailable?: number; // Total marks this question is out of (e.g., 1-5)
   conceptTags?: string[]; // Array of concept tags associated with this question
   userAnswers?: UserAnswer[]; // History of user answers to this question
+  uueFocus?: string; // Understand, Use, or Explore
 }
 
 export interface CreateQuestionData {

@@ -14,6 +14,7 @@ interface ReviewQuestion extends Question {
   questionType?: 'SHORT_ANSWER' | 'TRUE_FALSE' | 'MULTIPLE_CHOICE';
   options?: string[]; // For multiple choice questions
   marksAvailable?: number; // Marks available for the question
+  uueFocus?: string; // Understand, Use, or Explore
 }
 
 // Helper function to map numeric learning stage to UUE focus string
@@ -272,46 +273,98 @@ const ReviewSessionPage = () => {
 
     console.log('🚀 [ReviewSession] Completing session and submitting outcomes...');
     console.log('📊 [ReviewSession] Final session outcomes:', sessionOutcomes);
-    // TODO: Consider adding a visual loading state for submission (e.g., a new state variable `isSubmitting`) 
+    // TODO: Consider adding a visual loading state for submission (e.g., a new state variable `isSubmitting`)
 
     const timeSpentInSeconds = startTimeRef.current ? Math.round((Date.now() - startTimeRef.current) / 1000) : 0;
     const sessionStart = startTimeRef.current ? new Date(startTimeRef.current).toISOString() : new Date().toISOString();
 
+    console.log('🚀 [ReviewSession] Completing session and submitting outcomes...');
+    // Log a deep copy to avoid issues with console display of mutable objects
+    console.log('📊 [ReviewSession] Final session outcomes (deep copy):', JSON.parse(JSON.stringify(sessionOutcomes)));
+
+    // Defensive: Validate all outcomes have valid uueFocus
+    const allowedUueFocus = ['Understand', 'Use', 'Explore'];
+    console.log('[ReviewSession] Starting uueFocus validation. Allowed:', allowedUueFocus);
+
+    const invalidOutcomes = sessionOutcomes.filter((o, index) => {
+      const isValid = o.uueFocus && allowedUueFocus.includes(o.uueFocus);
+      console.log(`[ReviewSession] Validating outcome #${index}: ID=${o.questionId}, uueFocus="${o.uueFocus}", IsValidFocus=${isValid}`);
+      return !isValid; // filter keeps items for which this returns true (i.e., !isValid means it's an invalid outcome)
+    });
+
+    console.log('[ReviewSession] Filtered invalidOutcomes (deep copy):', JSON.parse(JSON.stringify(invalidOutcomes)));
+    console.log(`[ReviewSession] Number of invalid outcomes found: ${invalidOutcomes.length}`);
+
+    if (invalidOutcomes.length > 0) {
+      console.error('[ReviewSession] Validation failed: Invalid uueFocus found. Aborting submission.');
+      setError('One or more answers are missing a valid UUE Focus (Understand, Use, or Explore). Please retry or contact support.');
+      setSessionComplete(true);
+      return;
+    }
+
+    console.log('[ReviewSession] Validation passed. Proceeding to try API call.');
+    if (!setId) {
+      setError('No question set ID available for submission. Please retry or contact support.');
+      setSessionComplete(true);
+      return;
+    }
     try {
       const payload = {
-        sessionStartTime: sessionStart,
+        questionSetId: String(setId), // REQUIRED by backend, must be string
         sessionDurationSeconds: timeSpentInSeconds,
         outcomes: sessionOutcomes.map(outcome => ({
-          questionId: String(outcome.questionId),
+          questionId: String(outcome.questionId), // Backend expects string
           userAnswerText: outcome.userAnswer,
           scoreAchieved: typeof outcome.scoreAchieved === 'number' ? outcome.scoreAchieved : 0,
           uueFocus: outcome.uueFocus,
           ...(outcome.timeSpent !== undefined && { timeSpentOnQuestion: outcome.timeSpent })
         }))
       };
+      // sessionStartTime is not required by backend, so omit from payload
 
-      console.log('🔍 [ReviewSession] Submitting payload:', JSON.stringify(payload, null, 2));
+
+      console.log('🔍 [ReviewSession] Submitting payload:', payload);
+      console.log('🔍 [ReviewSession] Submitting payload (JSON):', JSON.stringify(payload, null, 2));
+      
       await apiClient.post(`/reviews`, payload);
       console.log('✅ [ReviewSession] Session outcomes submitted successfully.');
       setSessionComplete(true); // Mark session as complete in UI after successful submission
+
     } catch (err: any) {
       console.error('❌ [ReviewSession] Error submitting session outcomes:', err);
       let errorMessage = 'Failed to save session results. Please try again.';
-      if (err.response && err.response.data) {
-        if (err.response.data.errors && Array.isArray(err.response.data.errors)) {
-          // Handle express-validator style errors
-          errorMessage = err.response.data.errors.map((e: { msg: string }) => e.msg).join(', ');
-        } else if (err.response.data.message) {
-          // Handle custom message format
-          errorMessage = err.response.data.message;
+      if (err.response) {
+        console.error('🔎 [ReviewSession] Full Axios response object:', err.response);
+        if (err.response.data) {
+          if (err.response.data.errors && Array.isArray(err.response.data.errors)) {
+            errorMessage = err.response.data.errors.map((e: { msg: string }) => e.msg).join(', ');
+          } else if (typeof err.response.data === 'string' && err.response.data.length > 0) { // Handle plain text error
+            errorMessage = err.response.data; 
+          } else if (err.response.data.message) {
+            errorMessage = err.response.data.message;
+          }
+          // Attempt to stringify data if it's an object, otherwise append if it's already a string
+          if (typeof err.response.data === 'object') {
+             errorMessage += '\nRaw backend error: ' + JSON.stringify(err.response.data, null, 2);
+          } else if (typeof err.response.data === 'string' && err.response.data !== errorMessage) {
+             errorMessage += '\nRaw backend error: ' + err.response.data;
+          }
+        } else {
+          errorMessage += ` (Status: ${err.response.status} ${err.response.statusText})`;
         }
+      } else if (err.request) {
+        console.error('🔎 [ReviewSession] Error: No response received. Request details:', err.request);
+        errorMessage = 'No response from server. Please check your network connection.';
       } else if (err.message) {
         errorMessage = err.message;
       }
-      setError(errorMessage); // Display error to the user
-      setSessionComplete(true); 
+      console.error('🔎 [ReviewSession] Full Axios error object (for context):', err);
+      setError(errorMessage);
+      setSessionComplete(true);
     } finally {
-      // TODO: Set `isSubmitting` to false if it was used
+      // This block executes regardless of try/catch outcome.
+      // Useful for cleanup, e.g., setting a loading state to false.
+      console.log('[ReviewSession] Submission attempt finished.');
     }
   };
 
@@ -422,6 +475,11 @@ const ReviewSessionPage = () => {
         {/* Question display */}
         <div className="mb-6">
           <h2 className={styles.questionText}>{currentQuestion?.text}</h2>
+          {currentQuestion?.uueFocus && (
+            <span className={styles.cardUueFocus} style={{marginBottom: '0.5rem', display: 'inline-block'}}>
+              {currentQuestion.uueFocus}
+            </span>
+          )}
           {/* Display concept tags if available */}
           {currentQuestion?.conceptTags && currentQuestion.conceptTags.length > 0 && (
             <div style={{marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem'}}>

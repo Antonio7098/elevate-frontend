@@ -251,6 +251,11 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
                   <h3 className={styles.cardName}>
                     {question.text}
                   </h3>
+                  {question.uueFocus && (
+                    <span className={styles.cardUueFocus}>
+                      {question.uueFocus}
+                    </span>
+                  )}
                   <div className={styles.cardAnswer}>
                     <div className={styles.cardAnswerLabel}>
                       <span className={styles.cardAnswerIcon}><FiCheck size={16} /></span>

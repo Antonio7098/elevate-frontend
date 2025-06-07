@@ -1,0 +1,43 @@
+.chartContainer {
+  width: 100%;
+  height: 350px; /* Increased height slightly for better spacing */
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--color-surface, #f8f9fa); /* Using a subtle background */
+  border-radius: 0.5rem;
+  box-shadow: var(--elevation-1, 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)); /* Consistent shadow */
+}
+
+.chartTitle {
+  font-size: 1.1rem; /* Adjusted for hierarchy */
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+/* Placeholder for any Recharts specific overrides if needed via global CSS or specific props */
+.rechartsTooltipContent {
+  background-color: var(--color-surface-raised) !important;
+  border-color: var(--color-border) !important;
+  border-radius: 0.25rem !important;
+}
+
+.rechartsLegendWrapper {
+  padding-top: 10px !important;
+}
+
+@media (max-width: 768px) {
+  .chartContainer {
+    padding: 1rem;
+    height: 300px; /* Adjust height if necessary for smaller screens */
+  }
+
+  .chartTitle {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Note: Recharts axis/legend font sizes might need to be adjusted via props if they become too small */
+}
