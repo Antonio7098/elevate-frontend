@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './ReviewSessionPage.module.css';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FiArrowLeft, FiArrowRight, FiLoader, FiAlertCircle } from 'react-icons/fi';
 import { apiClient } from '../services/apiClient';
 import { evaluateUserAnswer } from '../services/evaluationService';
@@ -75,6 +75,8 @@ const determineQuestionType = (question: Question): ReviewQuestion => {
 
 const ReviewSessionPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  console.log('[ReviewSessionPage] Initial location.state:', location.state);
   const { setId } = useParams<{ setId?: string }>();
   const startTimeRef = useRef<number | null>(null);
   
@@ -102,44 +104,50 @@ const ReviewSessionPage = () => {
     scoreAchieved: number;
     uueFocus: string; // Understand, Use, Extend
     evaluationFeedback?: string; // Optional: if you want to store feedback per question
+    timeSpent?: number; // Time spent on the question in seconds
   }
 
   // Load questions when component mounts
   useEffect(() => {
+    console.log('[ReviewSessionPage] useEffect - location.state:', location.state);
+    // 1. Check for location.state.questions (Today's Tasks flow)
+    // 2. Else, fallback to fetching by setId (Ad-Hoc Quiz flow)
+    const state = location.state as { questions?: Question[]; sessionTitle?: string } | undefined;
+    if (state && Array.isArray(state.questions) && state.questions.length > 0) {
+      console.log('[ReviewSessionPage] useEffect - Using questions from location.state:', state.questions);
+      const processedQuestions = state.questions.map(determineQuestionType);
+      setQuestions(processedQuestions);
+      setSessionTitle(state.sessionTitle || "Today's Review");
+      startTimeRef.current = Date.now();
+      setIsLoading(false);
+      return;
+    }
+
+    // Fallback: fetch by setId from params
     const fetchQuestionSet = async () => {
       if (!setId) {
         setError('No question set ID provided');
         setIsLoading(false);
         return;
       }
-      
       try {
         // Fetch question set directly using the standalone endpoint
         console.log(`Fetching question set with ID: ${setId}`);
         const questionSet = await apiClient.get<QuestionSet>(`/questionsets/${setId}`).then(res => res.data);
         setSessionTitle(`Quiz: ${questionSet.name}`);
-        
         // Fetch questions directly using the standalone endpoint
         console.log(`Fetching questions for question set with ID: ${setId}`);
         const fetchedQuestions = await apiClient.get<Question[]>(`/questionsets/${setId}/questions`).then(res => res.data);
-        
         if (fetchedQuestions.length === 0) {
           setError('No questions found for this question set');
           setIsLoading(false);
           return;
         }
-        
         // Process questions to determine their type
         const processedQuestions = fetchedQuestions.map(determineQuestionType);
         setQuestions(processedQuestions);
-        
-        // Initialize session stats
-        // Removed sessionStats initialization
-        
         startTimeRef.current = Date.now(); // Start timer when questions are loaded
-        
         setIsLoading(false);
-        
         console.log('Fetched questions with learning data:', processedQuestions);
       } catch (err) {
         console.error('Error fetching questions:', err);
@@ -147,9 +155,8 @@ const ReviewSessionPage = () => {
         setIsLoading(false);
       }
     };
-    
     fetchQuestionSet();
-  }, [setId]);
+  }, [location.state, setId]);
 
   // Handle marking an answer
   const handleMarkAnswer = async () => {
@@ -252,11 +259,8 @@ const ReviewSessionPage = () => {
 
   // Handle submitting all session outcomes to the backend
   const handleCompleteSession = async () => {
-    if (!setId) {
-      console.error("❌ [ReviewSession] Set ID is missing, cannot complete session.");
-      setError("Session ID is missing. Cannot save results.");
-      return;
-    }
+    // No longer require setId for session submission, as questionSetId is not top-level in payload
+    // However, we keep setId for navigation or context if needed
 
     // If there are no outcomes to submit (e.g., user went through questions without marking any, or no questions loaded)
     // but the session is being 'completed', we can just mark it as complete in the UI.
@@ -271,21 +275,22 @@ const ReviewSessionPage = () => {
     // TODO: Consider adding a visual loading state for submission (e.g., a new state variable `isSubmitting`) 
 
     const timeSpentInSeconds = startTimeRef.current ? Math.round((Date.now() - startTimeRef.current) / 1000) : 0;
+    const sessionStart = startTimeRef.current ? new Date(startTimeRef.current).toISOString() : new Date().toISOString();
 
     try {
-      const payload = { 
-        questionSetId: String(setId),
+      const payload = {
+        sessionStartTime: sessionStart,
+        sessionDurationSeconds: timeSpentInSeconds,
         outcomes: sessionOutcomes.map(outcome => ({
           questionId: String(outcome.questionId),
-          scoreAchieved: typeof outcome.scoreAchieved === 'number' ? outcome.scoreAchieved : 0, // Ensure number 0-5
-          userAnswerText: outcome.userAnswer, // Rename field
+          userAnswerText: outcome.userAnswer,
+          scoreAchieved: typeof outcome.scoreAchieved === 'number' ? outcome.scoreAchieved : 0,
           uueFocus: outcome.uueFocus,
           ...(outcome.timeSpent !== undefined && { timeSpentOnQuestion: outcome.timeSpent })
-        })),
-        sessionDurationSeconds: timeSpentInSeconds, // Rename field
+        }))
       };
 
-      console.log('🔍 [ReviewSession] Submitting payload:', JSON.stringify(payload, null, 2)); // Log the entire payload
+      console.log('🔍 [ReviewSession] Submitting payload:', JSON.stringify(payload, null, 2));
       await apiClient.post(`/reviews`, payload);
       console.log('✅ [ReviewSession] Session outcomes submitted successfully.');
       setSessionComplete(true); // Mark session as complete in UI after successful submission
@@ -304,8 +309,6 @@ const ReviewSessionPage = () => {
         errorMessage = err.message;
       }
       setError(errorMessage); // Display error to the user
-      // Still mark as complete visually, but with an error message shown.
-      // Alternatively, don't setSessionComplete(true) to allow a retry if that UX is preferred.
       setSessionComplete(true); 
     } finally {
       // TODO: Set `isSubmitting` to false if it was used

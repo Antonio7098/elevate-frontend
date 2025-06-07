@@ -57,6 +57,7 @@ const AppRoutes = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/review" element={<ReviewSessionPage />} />
           <Route path="/review/:folderId/:setId" element={<ReviewSessionPage />} />
+          <Route path="/review/today" element={<ReviewSessionPage />} /> {/* Added for Today's Tasks */}
           <Route path="/quiz/set/:setId" element={<ReviewSessionPage />} />
           <Route index element={<Navigate to="/dashboard" replace />} />
         </Route>
