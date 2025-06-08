@@ -1,0 +1,251 @@
+.pageRoot {
+  width: 100%;
+  margin: 0 auto; /* Center pageRoot if a global max-width is ever applied to body/html */
+  padding: 2rem 1rem 3rem 1rem;
+  background: var(--color-background);
+  min-height: 100vh;
+}
+
+.progressPage { /* Content wrapper for Overall view */
+  max-width: 1200px;
+  margin: 0 auto; /* Center content within pageRoot */
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-base);
+  margin-bottom: 2rem;
+}
+
+.topSection {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.chartCard {
+  flex: 2;
+  min-width: 340px;
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.statsSummary {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: flex-start;
+}
+
+.setsMissedBox {
+  background: #fff5f5;
+  border-radius: 8px;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.setsMissedLabel {
+  color: #c026d3;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.setsMissedValue {
+  color: #be185d;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.uuBarBox {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 1.25rem 1rem 1rem 1rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-base);
+  margin: 2.5rem 0 1.25rem 0;
+}
+
+.foldersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.5rem;
+}
+
+.folderCard {
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 1.5rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.15s;
+}
+
+.folderCard:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.folderInfo {
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+.folderName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-base);
+}
+
+.folderSets {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.centered {
+  width: 100%;
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+}
+
+
+/* Folder View Specific Styles */
+.folderPage {
+  max-width: 1100px; /* Max width for folder content area */
+  margin: 0 auto; /* Center content within pageRoot */
+}
+
+/* Scoped page title for Folder View */
+.folderPage .pageTitle {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--color-text-base);
+  margin-bottom: 2rem;
+}
+
+/* Scoped section title for Folder View */
+.folderPage .sectionTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-text-base);
+  margin: 2.5rem 0 1.25rem 0;
+}
+
+.setsGrid { /* Grid for question sets within a folder */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.25rem;
+}
+
+.setCard { /* Card for individual question set in folder view */
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 1.25rem 0.75rem 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.15s;
+}
+
+.setCard:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.setInfo { /* Info section within a setCard */
+  margin-top: 0.65rem;
+  text-align: center;
+}
+
+.setName { /* Name of the set in setCard */
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--color-text-base);
+  display: block; /* Ensure it takes full width for centering if text is short */
+}
+
+.setCount { /* Question count in setCard */
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Question Set View Specific Styles */
+.setPage {
+  max-width: 900px; /* Max width for set content area */
+  margin: 0 auto; /* Center content within pageRoot */
+}
+
+/* Scoped page title for Set View */
+.setPage .pageTitle {
+  font-size: 1.4rem; /* Slightly smaller for set view */
+  font-weight: 700;
+  color: var(--color-text-base);
+  margin-bottom: 2rem;
+}
+
+/* Scoped section title for Set View */
+.setPage .sectionTitle {
+  font-size: 1.05rem; /* Slightly smaller for set view */
+  font-weight: 600;
+  color: var(--color-text-base);
+  margin: 2.2rem 0 1.1rem 0;
+}
+
+.questionsList { /* List container for questions in set view */
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Spacing between question items */
+}
+
+/* Responsive styles */
+@media (max-width: 900px) {
+  .topSection {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .chartCard, .statsSummary {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .pageRoot { /* Apply responsive padding to the main root container */
+    padding: 1rem 0.25rem 2rem 0.25rem;
+  }
+  .chartCard, .statsSummary, .folderCard {
+    padding: 1rem 0.5rem;
+  }
+  .sectionTitle {
+    font-size: 1.1rem;
+    margin: 2rem 0 1rem 0;
+  }
+}

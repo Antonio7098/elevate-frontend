@@ -156,7 +156,7 @@ export const verifyToken = async (): Promise<boolean> => {
   
   try {
     console.log('🔍 [authService] Verifying token...');
-    await apiClient.get('/auth/verify-token');
+    await apiClient.get('/api/auth/verify-token');
     console.log('✅ [authService] Token is valid');
     return true;
   } catch (error: any) {

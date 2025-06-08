@@ -42,14 +42,14 @@ export const checkAiServiceHealth = async (): Promise<boolean> => {
     console.log('🩺 [HealthCheck] Checking AI service health directly...');
     // Try the health endpoint on the AI service directly
     try {
-      const response = await aiServiceClient.get('/health');
+      const response = await aiServiceClient.get('/api/health');
       console.log(`🩺 [HealthCheck] AI service health check response: ${response.status}`);
       return response.status === 200;
     } catch (healthError) {
       console.warn('⚠️ [HealthCheck] AI service health check failed, trying alternative endpoint');
       // Try the root endpoint as a fallback
       try {
-        const altResponse = await aiServiceClient.get('/');
+        const altResponse = await aiServiceClient.get('/api/');
         console.log(`🩺 [HealthCheck] AI service alternative health check response: ${altResponse.status}`);
         return altResponse.status === 200;
       } catch (altError) {

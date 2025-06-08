@@ -1,0 +1,127 @@
+.folderPage {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem 1rem;
+  background: var(--color-background);
+  min-height: 100vh;
+}
+
+.pageTitle {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--color-text-base);
+  margin-bottom: 2rem;
+}
+
+.topSection {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.chartCard {
+  flex: 2;
+  min-width: 340px;
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.uuBarBox {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  background: var(--color-surface);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  padding: 1.25rem 1rem 1rem 1rem;
+  height: fit-content;
+}
+
+.sectionTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-text-base);
+  margin: 2.5rem 0 1.25rem 0;
+}
+
+.setsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.25rem;
+}
+
+.setCard {
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 1.25rem 0.75rem 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.15s;
+}
+
+.setCard:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.setInfo {
+  margin-top: 0.65rem;
+  text-align: center;
+}
+
+.setName {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--color-text-base);
+}
+
+.setCount {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.centered {
+  width: 100%;
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+}
+
+/* Responsive styles */
+@media (max-width: 900px) {
+  .topSection {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .chartCard, .uuBarBox {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .folderPage {
+    padding: 1rem 0.25rem 2rem 0.25rem;
+  }
+  .chartCard, .uuBarBox, .setCard {
+    padding: 1rem 0.5rem;
+  }
+  .sectionTitle {
+    font-size: 1rem;
+    margin: 2rem 0 1rem 0;
+  }
+}

@@ -134,7 +134,9 @@ const LoginPage = () => {
       
       // Save the new token and user data
       console.log('💾 [LoginPage] 💾 Saving auth data...');
+      console.log('[LoginPage] Attempting to store authToken:', token);
       localStorage.setItem('authToken', token);
+      console.log('[LoginPage] authToken stored. Value from localStorage right after setting:', localStorage.getItem('authToken'));
       localStorage.setItem('userData', JSON.stringify(user));
       
       console.log('🔑 [LoginPage] 🔑 Calling login from AuthContext...');

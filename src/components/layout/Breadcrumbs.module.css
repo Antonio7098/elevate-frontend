@@ -1,0 +1,31 @@
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  font-size: 0.98rem;
+  margin-bottom: 1.3rem;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.separator {
+  margin: 0 0.5em;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.link {
+  color: var(--color-primary, #6366f1);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.link:hover, .link:focus {
+  color: var(--color-primary-hover, #4338ca);
+  text-decoration: underline;
+  outline: none;
+}
+
+.current {
+  color: var(--color-text-base);
+  font-weight: 600;
+}

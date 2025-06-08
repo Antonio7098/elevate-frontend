@@ -217,7 +217,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       console.log('💾 [Auth] Saving token to localStorage...');
+      console.log('[AuthContext] Attempting to store authToken:', token);
       localStorage.setItem('authToken', token);
+      console.log('[AuthContext] authToken stored. Value from localStorage right after setting:', localStorage.getItem('authToken'));
 
       console.log('🔄 [Auth] Updating auth state to authenticated...');
       updateState({

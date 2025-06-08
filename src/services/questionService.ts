@@ -91,11 +91,11 @@ export const deleteQuestion = async (questionSetId: string, questionId: string):
   try {
     // Try the nested route approach
     try {
-      await apiClient.delete(`/questionsets/${questionSetId}/questions/${questionId}`);
+      await apiClient.delete(`/api/questionsets/${questionSetId}/questions/${questionId}`);
     } catch (nestedError) {
       // If that fails, try the direct approach
       console.log(`Trying alternative endpoint for deleting question ${questionId}`);
-      await apiClient.delete(`/questions/${questionId}`);
+      await apiClient.delete(`/api/questions/${questionId}`);
     }
   } catch (error) {
     console.error(`Failed to delete question ${questionId} in question set ${questionSetId}:`, error);

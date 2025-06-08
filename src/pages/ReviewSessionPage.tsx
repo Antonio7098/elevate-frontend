@@ -326,7 +326,7 @@ const ReviewSessionPage = () => {
       console.log('🔍 [ReviewSession] Submitting payload:', payload);
       console.log('🔍 [ReviewSession] Submitting payload (JSON):', JSON.stringify(payload, null, 2));
       
-      await apiClient.post(`/reviews`, payload);
+      await apiClient.post(`/api/reviews`, payload);
       console.log('✅ [ReviewSession] Session outcomes submitted successfully.');
       setSessionComplete(true); // Mark session as complete in UI after successful submission
 
