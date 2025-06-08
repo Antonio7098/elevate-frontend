@@ -16,25 +16,50 @@ const RecentProgressWidget: React.FC<RecentProgressWidgetProps> = ({ recentProgr
     );
   }
 
+  const getMasteryPercentage = (item: RecentProgressSet) => {
+    if (typeof item.currentTotalMasteryScore === 'number' && !isNaN(item.currentTotalMasteryScore)) {
+      return Math.round(item.currentTotalMasteryScore);
+    }
+    if (typeof item.masteryScore === 'number' && !isNaN(item.masteryScore)) {
+      return Math.round(item.masteryScore);
+    }
+    return 0;
+  };
+
+  const getMasteryLevel = (percentage: number) => {
+    if (percentage >= 80) return 'high';
+    if (percentage >= 50) return 'medium';
+    return 'low';
+  };
+
   return (
     <div className={styles.widgetBox}>
       <h3 className={styles.title}>Recent Progress</h3>
       <ul className={styles.list}>
-        {recentProgress.map((item) => (
-          <li key={item.id} className={styles.listItem}>
-            <div className={styles.setName}>{item.name}</div>
-            <div className={styles.mastery}>
-  Mastery: <span className={styles.masteryScore}>
-    {typeof item.currentTotalMasteryScore === 'number' && !isNaN(item.currentTotalMasteryScore)
-      ? `${Math.round(item.currentTotalMasteryScore)}%`
-      : (typeof item.masteryScore === 'number' && !isNaN(item.masteryScore)
-        ? `${Math.round(item.masteryScore)}%`
-        : 'N/A')}
-  </span>
-</div>
-            <div className={styles.reviewedAt}>{item.reviewedAtLabel || item.reviewedAt}</div>
-          </li>
-        ))}
+        {recentProgress.map((item) => {
+          const masteryPercentage = getMasteryPercentage(item);
+          const masteryLevel = getMasteryLevel(masteryPercentage);
+          
+          return (
+            <li key={item.id} className={styles.listItem}>
+              <div className={styles.content}>
+                <div className={styles.setName}>{item.name}</div>
+                <div className={styles.meta}>
+                  <div className={`${styles.mastery} ${styles[`mastery-${masteryLevel}`]}`}>
+                    {masteryPercentage}%
+                  </div>
+                  <div className={styles.reviewedAt}>
+                    {new Date(item.lastReviewedAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </div>
+                </div>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

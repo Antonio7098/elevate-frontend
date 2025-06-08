@@ -1,65 +1,90 @@
 import { Outlet } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import Sidebar from './Sidebar';
+import styles from './AuthenticatedLayout.module.css';
 
 interface AuthenticatedLayoutProps {
   children?: ReactNode;
 }
 
-import styles from './AuthenticatedLayout.module.css';
-
-import { useState } from 'react';
-
 const AuthenticatedLayout: FC<AuthenticatedLayoutProps> = () => {
+  const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Only show menu button on mobile (≤600px)
-  // Sidebar/backdrop use mobile overlay styles
+  // Check if the viewport is mobile size
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    // Initial check
+    checkIfMobile();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkIfMobile);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
+
+  // Close sidebar when clicking outside on mobile
+  const handleBackdropClick = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
+  // Toggle sidebar (for mobile menu button)
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
     <div className={styles.root}>
-      {/* Hamburger button (mobile only) */}
-      <button
-        className={styles.menuButton}
-        aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
-        style={{ display: 'none' }}
-        onClick={() => setSidebarOpen((open) => !open)}
+      {/* Mobile Menu Button */}
+      {isMobile && (
+        <button
+          className={styles.menuButton}
+          onClick={toggleSidebar}
+          aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={sidebarOpen}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+          </svg>
+        </button>
+      )}
+
+      {/* Sidebar */}
+      <div 
+        className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}
+        onMouseEnter={() => !isMobile && setSidebarOpen(true)}
+        onMouseLeave={() => !isMobile && setSidebarOpen(false)}
       >
-        {/* Hamburger icon */}
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="4" y1="6" x2="20" y2="6" />
-          <line x1="4" y1="12" x2="20" y2="12" />
-          <line x1="4" y1="18" x2="20" y2="18" />
-        </svg>
-      </button>
-      {/* Sidebar overlay for mobile */}
-      <div
-        className={sidebarOpen ? `${styles.sidebar} ${styles.sidebarOpen}` : styles.sidebar}
-        tabIndex={-1}
-        aria-hidden={!sidebarOpen}
-      >
-        <Sidebar />
+        <Sidebar onNavigate={() => isMobile && setSidebarOpen(false)} />
       </div>
-      {/* Backdrop overlay (mobile only, visible when sidebar open) */}
-      {sidebarOpen && (
-        <div
-          className={styles.sidebarBackdrop}
-          onClick={() => setSidebarOpen(false)}
-          aria-label="Close menu"
-          tabIndex={0}
+
+      {/* Backdrop for mobile */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className={styles.sidebarBackdrop} 
+          onClick={handleBackdropClick}
           role="button"
+          tabIndex={0}
+          aria-label="Close menu"
+          onKeyDown={(e) => e.key === 'Enter' && handleBackdropClick()}
         />
       )}
-      <div className={styles.main}>
+
+      {/* Main Content */}
+      <main className={`${styles.main} ${sidebarOpen && !isMobile ? styles.mainShifted : ''}`}>
         <div className={styles.content}>
           <Outlet />
         </div>
-      </div>
-      {/* Show menu button only on mobile with JS (avoid SSR mismatch) */}
-      <style>{`
-        @media (max-width: 600px) {
-          .${styles.menuButton} { display: flex !important; }
-        }
-      `}</style>
+      </main>
     </div>
   );
 };

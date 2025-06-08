@@ -95,7 +95,7 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className={styles.pageContainer}>
       <div className={styles.welcomeSection}>
         <h1 className={styles.welcome}>Welcome back, Antonio!</h1>
         <p className={styles.welcomeMessage}>
@@ -105,14 +105,19 @@ const DashboardPage: React.FC = () => {
           To keep that momentum going, I've lined up your tasks for today. We'll start with a few "Critical" review questions from your "Geometry" set to make sure those core theorems are locked in. After that, we have some "Core" review items from "The Tudors" ready to help you advance your understanding there. Let's get started!
         </p>
       </div>
+      
       <div className={styles.dashboardContainer}>
-        <TodaysTasksWidget 
-          dueToday={dashboardData?.dueToday || []} 
-          onStartTasks={handleBeginTodaysTasks}
-          isStarting={isStartingTasks}
-          error={tasksError}
-        />
-        <RecentProgressWidget recentProgress={dashboardData?.recentProgress || []} />
+        <div className={styles.mainColumn}>
+          <TodaysTasksWidget 
+            dueToday={dashboardData?.dueToday || []} 
+            onStartTasks={handleBeginTodaysTasks}
+            isStarting={isStartingTasks}
+            error={tasksError}
+          />
+        </div>
+        <div className={styles.sidebar}>
+          <RecentProgressWidget recentProgress={dashboardData?.recentProgress || []} />
+        </div>
       </div>
     </div>
   );

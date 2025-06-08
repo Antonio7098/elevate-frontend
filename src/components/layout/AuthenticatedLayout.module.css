@@ -1,39 +1,34 @@
 .root {
   display: flex;
-  height: 100vh;
-  background: #fff;
-  overflow: hidden;
+  min-height: 100vh;
+  background: var(--color-background);
+  overflow-x: hidden;
 }
 .sidebar {
-  width: 20rem; /* w-80 */
-  height: 100%;
-  position: sticky;
+  position: fixed;
   top: 0;
-  overflow-y: auto;
-  transition: box-shadow 0.2s; /* Removed left transition for desktop */
+  left: 0;
+  bottom: 0;
   z-index: 1001;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: transform 0.2s ease-in-out, width 0.2s ease-in-out;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .sidebar {
-    position: fixed !important;
-    left: -100vw !important;
-    top: 0;
-    width: 220px !important;
-    min-width: 0;
-    max-width: 80vw;
-    height: 100vh;
-    background: #111827;
-    box-shadow: 2px 0 16px 0 rgba(0,0,0,0.18);
-    transition: left 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.2s;
-    z-index: 1001;
-    display: block;
+    transform: translateX(-100%);
+    width: 280px !important;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.1);
   }
+  
   .sidebarOpen {
-    left: 0 !important;
-    transition: left 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.2s;
-
-    box-shadow: 2px 0 16px 0 rgba(0,0,0,0.25);
+    transform: translateX(0);
+  }
+  
+  .main {
+    margin-left: 0;
+    width: 100%;
   }
   .sidebarBackdrop {
     position: fixed;
@@ -83,10 +78,20 @@
 
 .main {
   flex: 1;
-  overflow-y: auto;
-  padding: 1.25rem; /* p-5 */
+  min-height: 100vh;
+  margin-left: 5rem; /* Match sidebar collapsed width */
+  transition: margin-left 0.2s ease-in-out;
+  width: calc(100% - 5rem);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  background: var(--color-background);
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar:hover ~ .main {
+  margin-left: 16rem; /* Match sidebar expanded width */
+  width: calc(100% - 16rem);
 }
 .content {
   width: 100%;

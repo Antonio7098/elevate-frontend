@@ -18,9 +18,13 @@ interface NavigationItem {
   icon: React.ReactNode;
 }
 
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
 import styles from './Sidebar.module.css';
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   
@@ -74,6 +78,7 @@ const Sidebar: React.FC = () => {
               `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
             }
             title={item.name}
+            onClick={onNavigate}
           >
             <span className={styles.icon}>{item.icon}</span>
             <span className={styles.linkText}>{item.name}</span>
