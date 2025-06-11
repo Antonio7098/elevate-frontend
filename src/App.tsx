@@ -3,16 +3,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { AppRoutes } from './routes';
+import AppRoutes from './AppRoutes';
 import { ErrorBoundary } from 'react-error-boundary';
 import { StrictMode } from 'react';
 
-// Create a client
+console.log("🟢 [App] Initializing application");
+
+// Create a basic client
 const queryClient = new QueryClient();
 
 import styles from './App.module.css';
 
 function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  console.error('❌ [ErrorFallary] Error caught:', error);
   return (
     <div role="alert" className={styles.errorFallback}>
       <p className={styles.fontBold}>Something went wrong:</p>
@@ -28,6 +31,7 @@ function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetError
 }
 
 function App() {
+  console.log("🟢 [App] Rendering application");
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
@@ -35,17 +39,18 @@ function App() {
           <ErrorBoundary
             FallbackComponent={ErrorFallback}
             onReset={() => {
+              console.log("🔄 [App] Resetting application state");
               // Reset the state of your app here
               window.location.href = '/';
             }}
           >
             <ThemeProvider>
-                <AuthProvider>
-                  <div className={styles.bg}>
-                    <AppRoutes />
-                  </div>
-                </AuthProvider>
-              </ThemeProvider>
+              <AuthProvider>
+                <div className={styles.bg}>
+                  <AppRoutes />
+                </div>
+              </AuthProvider>
+            </ThemeProvider>
           </ErrorBoundary>
         </BrowserRouter>
         <ReactQueryDevtools initialIsOpen={false} />

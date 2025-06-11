@@ -1,16 +1,30 @@
 import axios from 'axios';
 
+console.log("🟢 [apiClient] Initializing API client");
+
 const apiClient = axios.create({
   baseURL: 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },
+  transformResponse: [(data) => {
+    try {
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('❌ [apiClient] Error parsing response:', error);
+      return data;
+    }
+  }]
 });
 
 // Request interceptor for adding auth token
 apiClient.interceptors.request.use(
   (config) => {
-    console.log('🔑 [apiClient] Adding auth token to request:', config.url);
+    console.log('🔑 [apiClient] Adding auth token to request:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers
+    });
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -29,12 +43,18 @@ apiClient.interceptors.request.use(
 // Response interceptor for handling common errors
 apiClient.interceptors.response.use(
   (response) => {
-    console.log(`✅ [apiClient] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`);
+    console.log(`✅ [apiClient] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, {
+      data: response.data,
+      headers: response.headers
+    });
     return response;
   },
   (error) => {
     if (error.response) {
-      console.error(`❌ [apiClient] ${error.response.status} ${error.config?.method?.toUpperCase() || 'REQUEST'} ${error.config?.url || 'unknown'}`);
+      console.error(`❌ [apiClient] ${error.response.status} ${error.config?.method?.toUpperCase() || 'REQUEST'} ${error.config?.url || 'unknown'}`, {
+        data: error.response.data,
+        headers: error.response.headers
+      });
       
       // Handle specific status codes
       switch (error.response.status) {
