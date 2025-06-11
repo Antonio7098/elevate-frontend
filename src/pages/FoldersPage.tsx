@@ -1,18 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
-
-import {
-  FiPlus,
-  FiFolder,
-  FiLoader,
-  FiX,
-  FiAlertCircle,
-  FiPlusCircle
-} from 'react-icons/fi';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { FiFolder, FiPlus, FiChevronRight, FiAlertCircle, FiLoader, FiX, FiPlusCircle, FiTrash2, FiEdit2, FiArrowLeft, FiFileText } from 'react-icons/fi';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createFolder, getFolders, deleteFolder, updateFolder } from '../services/folderService';
+import { getQuestionSets } from '../services/questionSetService';
+import type { Folder, CreateFolderData, UpdateFolderData } from '../types/folder';
+import type { QuestionSet } from '../types/questionSet';
+import styles from './FoldersPage.module.css';
 import { FolderListItem } from '../components/folders/FolderListItem';
 
-import { getFolders, createFolder, deleteFolder, updateFolder } from '../services/folderService';
-import type { Folder, CreateFolderData } from '../types/folder';
-import styles from './FoldersPage.module.css';
+console.log("🟢 FoldersPage.tsx loaded and running!");
 
 // Skeleton loader for folders
 const FolderSkeleton = () => (
@@ -22,240 +19,387 @@ const FolderSkeleton = () => (
   </div>
 );
 
-const FoldersPage = () => {
-  // --- Edit Folder State ---
-  const [editFolderId, setEditFolderId] = useState<string | null>(null);
-  const [editFolderData, setEditFolderData] = useState<CreateFolderData>({ name: '', description: '' });
-  const [isEditing, setIsEditing] = useState(false);
+// Breadcrumb component
+const Breadcrumbs = ({ folders, currentFolder }: { folders: Folder[], currentFolder: Folder | null }) => {
+  const breadcrumbs: Folder[] = [];
+  let current = currentFolder;
 
-  const [folders, setFolders] = useState<Folder[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Build breadcrumb path by traversing up the tree
+  while (current) {
+    breadcrumbs.unshift(current);
+    current = folders.find(f => f.id === current?.parentId) || null;
+  }
+
+  return (
+    <div className={styles.breadcrumbs}>
+      <Link to="/folders" className={styles.breadcrumbLink}>
+        My Folders
+      </Link>
+      {breadcrumbs.map((folder) => (
+        <div key={folder.id} className={styles.breadcrumbItem}>
+          <FiChevronRight className={styles.breadcrumbSeparator} />
+          <Link 
+            to={`/folders/${folder.id}`}
+            className={styles.breadcrumbLink}
+          >
+            {folder.name}
+          </Link>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default function FoldersPage() {
+  const { folderId } = useParams<{ folderId: string }>();
+  console.log('📍 [FoldersPage] Current folderId:', folderId);
+  
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [newFolder, setNewFolder] = useState<CreateFolderData>({
-    name: '',
-    description: ''
-  });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [newFolder, setNewFolder] = useState<CreateFolderData>({ name: '', description: '', parentId: folderId || null });
+  const [editFolderId, setEditFolderId] = useState<string | null>(null);
+  const [editFolderData, setEditFolderData] = useState<UpdateFolderData>({ name: '', description: '', parentId: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null); // Stores ID of folder being deleted
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [folderToDelete, setFolderToDelete] = useState<Folder | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentFolder, setCurrentFolder] = useState<Folder | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch all folders
+  const { data: folders = [], isLoading: isLoadingFolders } = useQuery({
+    queryKey: ['folders'],
+    queryFn: getFolders
+  });
 
-  const loadFolders = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await getFolders();
-      setFolders(data);
-    } catch (err) {
-      console.error('Failed to load folders:', err);
-      setError('Failed to load folders. Please try again later.');
-    } finally {
-      setIsLoading(false);
+  // Fetch question sets for the current folder
+  const { data: questionSets = [], isLoading: isLoadingQuestionSets } = useQuery({
+    queryKey: ['questionSets', folderId],
+    queryFn: () => folderId ? getQuestionSets(folderId) : Promise.resolve([]),
+    enabled: !!folderId
+  });
+
+  // Fetch current folder if folderId is provided
+  const { data: currentFolderData, isLoading: isLoadingCurrentFolder } = useQuery({
+    queryKey: ['folder', folderId],
+    queryFn: () => folderId ? getFolders().then(folders => 
+      folders.find(f => f.id === folderId)
+    ) : null,
+    enabled: !!folderId
+  });
+
+  // Flatten the nested folder structure
+  const flattenedFolders = useMemo(() => {
+    const flatten = (folders: Folder[]): Folder[] => {
+      return folders.reduce((acc: Folder[], folder) => {
+        acc.push(folder);
+        if (folder.children && folder.children.length > 0) {
+          acc.push(...flatten(folder.children));
+        }
+        return acc;
+      }, []);
+    };
+    return flatten(folders);
+  }, [folders]);
+
+  const displayFolders = useMemo(() => {
+    return flattenedFolders.filter(folder => {
+      const matchesSearch = folder.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (folder.description && folder.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      if (folderId) {
+        return String(folder.parentId) === String(folderId) && matchesSearch;
+      }
+      return !folder.parentId && matchesSearch;
+    });
+  }, [flattenedFolders, folderId, searchQuery]);
+
+  // Create folder mutation
+  const createFolderMutation = useMutation({
+    mutationFn: createFolder,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+      setIsCreateModalOpen(false);
+      setNewFolder({ name: '', description: '', parentId: folderId || null });
+    },
+    onError: (error) => {
+      setError('Failed to create folder. Please try again.');
+      console.error('Error creating folder:', error);
     }
-  }, []);
+  });
 
+  // Delete folder mutation
+  const deleteFolderMutation = useMutation({
+    mutationFn: deleteFolder,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+      setIsDeleting(null);
+      setFolderToDelete(null);
+      // If we're in the folder being deleted, navigate back to root
+      if (folderId === folderToDelete?.id) {
+        navigate('/folders');
+      }
+    },
+    onError: (error) => {
+      setError('Failed to delete folder. Please try again.');
+      console.error('Error deleting folder:', error);
+      setIsDeleting(null);
+    }
+  });
+
+  // Update folder mutation
+  const updateFolderMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateFolderData }) => updateFolder(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+      setIsEditModalOpen(false);
+      setEditFolderId(null);
+      setEditFolderData({ name: '', description: '', parentId: null });
+    },
+    onError: (error) => {
+      setError('Failed to update folder. Please try again.');
+      console.error('Error updating folder:', error);
+    }
+  });
+
+  // Reset new folder parentId when folderId changes
   useEffect(() => {
-    loadFolders();
-  }, [loadFolders]);
+    setNewFolder(prev => ({ ...prev, parentId: folderId || null }));
+  }, [folderId]);
 
   const handleCreateFolder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newFolder.name.trim()) return;
-
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-      await createFolder({
-        name: newFolder.name.trim(),
-        description: newFolder.description?.trim() || undefined,
-      });
-      await loadFolders(); // Refresh folder list
-      setNewFolder({ name: '', description: '' }); // Reset form
-      setIsCreateModalOpen(false); // Close modal
-    } catch (err) {
-      console.error('Failed to create folder:', err);
-      setError('Failed to create folder. Please try again.'); // Consider showing error in modal
+      await createFolderMutation.mutateAsync(newFolder);
+    } catch (error) {
+      console.error('Error creating folder:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteFolder = async (folderId: string) => {
-    // Optional: Add a confirmation dialog here if not present in FolderListItem
-    // if (!window.confirm('Are you sure you want to delete this folder?')) return;
+  const handleDeleteFolder = async (id: string) => {
+    setIsDeleting(id);
     try {
-      setIsDeleting(folderId);
-      await deleteFolder(folderId);
-      await loadFolders(); // Refresh folder list
-    } catch (err) {
-      console.error('Failed to delete folder:', err);
-      setError('Failed to delete folder. Please try again.');
+      await deleteFolderMutation.mutateAsync(id);
+    } catch (error) {
+      console.error('Error deleting folder:', error);
     } finally {
       setIsDeleting(null);
     }
   };
 
-  // Handle edit button click from FolderListItem
-  const handleEditClick = (folder: Folder) => {
-    setEditFolderId(folder.id);
-    setEditFolderData({ name: folder.name, description: folder.description || '' });
-    setIsCreateModalOpen(false);
-  };
-
-  // Handle edit modal input change
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setEditFolderData({ ...editFolderData, [e.target.name]: e.target.value });
-  };
-
-  // Handle edit modal submit
-  const handleEditSubmit = async (e: React.FormEvent) => {
+  const handleUpdateFolder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editFolderId) return;
+    
+    setIsSubmitting(true);
     try {
-      setIsEditing(true);
-      await updateFolder(editFolderId, {
-        name: editFolderData.name.trim(),
-        description: editFolderData.description?.trim() || undefined,
-      });
-      await loadFolders();
-      setEditFolderId(null);
-      setEditFolderData({ name: '', description: '' });
-    } catch (err) {
-      setError('Failed to update folder. Please try again.');
+      await updateFolderMutation.mutateAsync({ id: editFolderId, data: editFolderData });
+    } catch (error) {
+      console.error('Error updating folder:', error);
     } finally {
-      setIsEditing(false);
+      setIsSubmitting(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.folderList}>
-          {[1, 2, 3].map((i) => (
-            <FolderSkeleton key={i} />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Removed error display from here as it's better handled within the main layout or via toasts
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>My Folders</h1>
+          <h1 className={styles.title}>
+            {folderId ? (currentFolderData?.name || 'Loading...') : 'Folders'}
+          </h1>
           <p className={styles.subtitle}>
-            {folders.length} {folders.length === 1 ? 'folder' : 'folders'}
+            {folderId ? 'View folder contents' : 'Organize your study materials'}
           </p>
         </div>
         <button
-          onClick={() => setIsCreateModalOpen(true)}
           className={styles.newFolderBtn}
+          onClick={() => setIsCreateModalOpen(true)}
         >
-          <FiPlus style={{ marginRight: 8, width: 16, height: 16 }} />
+          <FiPlus />
           New Folder
         </button>
       </div>
 
-      {error && (
-        <div className={styles.error}>
-          <FiAlertCircle style={{ width: 20, height: 20 }} />
-          <span>{error}</span>
-        </div>
-      )}
+      {/* Breadcrumbs */}
+      <div className={styles.breadcrumbs}>
+        <button 
+          className={styles.breadcrumbLink} 
+          onClick={() => navigate('/folders')}
+        >
+          <FiArrowLeft /> Back to Folders
+        </button>
+        {folderId && currentFolderData && (
+          <>
+            <FiChevronRight className={styles.breadcrumbSeparator} />
+            <span className={styles.breadcrumbLink}>{currentFolderData.name}</span>
+          </>
+        )}
+      </div>
 
-      {folders.length === 0 && !isLoading ? (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIconContainer}>
-            <FiFolder className={styles.emptyFolderIcon} />
-          </div>
-          <h3 className={styles.emptyTitle}>No folders yet</h3>
-          <p className={styles.emptyDescription}>
-            Organize your study materials by creating your first folder.
-          </p>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className={`${styles.newFolderBtn} ${styles.emptyStateBtn}`}
-          >
-            <FiPlusCircle style={{ marginRight: 8, width: 18, height: 18 }} />
-            Create Folder
-          </button>
-        </div>
-      ) : (
+      {/* Loading State */}
+      {(isLoadingFolders || isLoadingQuestionSets) && (
         <div className={styles.folderList}>
-          {folders.map((folder) => (
-            <FolderListItem
-              key={folder.id}
-              folder={folder}
-              onDelete={handleDeleteFolder}
-              isDeleting={isDeleting === folder.id}
-              onEdit={handleEditClick}
-            />
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={styles.skeleton}>
+              <div className={styles.skeletonBar} />
+              <div className={styles.skeletonBarSmall} />
+            </div>
           ))}
         </div>
       )}
 
+      {/* Folder List */}
+      <div className={styles.folderList}>
+        {/* Display folders */}
+        {displayFolders.map(folder => (
+          <div key={folder.id} className={styles.folderItem}>
+            <Link to={`/folders/${folder.id}`} className={styles.folderLink}>
+              <FiFolder className={styles.folderIcon} />
+              <div className={styles.folderInfo}>
+                <h3 className={styles.folderName}>{folder.name}</h3>
+                {folder.description && (
+                  <p className={styles.folderDescription}>{folder.description}</p>
+                )}
+              </div>
+            </Link>
+            <div className={styles.folderActions}>
+              <button
+                className={styles.actionButton}
+                onClick={() => {
+                  setEditFolderId(folder.id);
+                  setEditFolderData({
+                    name: folder.name,
+                    description: folder.description || '',
+                    parentId: folder.parentId
+                  });
+                  setIsEditModalOpen(true);
+                }}
+              >
+                <FiEdit2 /> Edit
+              </button>
+              <button
+                className={`${styles.actionButton} ${styles.deleteButton}`}
+                onClick={() => {
+                  setFolderToDelete(folder);
+                  setIsDeleting(folder.id);
+                }}
+              >
+                <FiTrash2 /> Delete
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {/* Display question sets */}
+        {folderId && questionSets.map(questionSet => (
+          <div key={questionSet.id} className={styles.folderItem}>
+            <Link to={`/question-sets/${questionSet.id}`} className={styles.folderLink}>
+              <FiFileText className={styles.folderIcon} />
+              <div className={styles.folderInfo}>
+                <h3 className={styles.folderName}>{questionSet.name}</h3>
+                {questionSet.description && (
+                  <p className={styles.folderDescription}>{questionSet.description}</p>
+                )}
+              </div>
+            </Link>
+            <div className={styles.folderActions}>
+              <button
+                className={styles.actionButton}
+                onClick={() => navigate(`/question-sets/${questionSet.id}/edit`)}
+              >
+                <FiEdit2 /> Edit
+              </button>
+              <button
+                className={`${styles.actionButton} ${styles.deleteButton}`}
+                onClick={() => handleDeleteFolder(questionSet.id)}
+              >
+                <FiTrash2 /> Delete
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {/* Empty state */}
+        {!isLoadingFolders && !isLoadingQuestionSets && displayFolders.length === 0 && (!folderId || questionSets.length === 0) && (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIconContainer}>
+              <FiFolder className={styles.emptyFolderIcon} />
+            </div>
+            <h3 className={styles.emptyTitle}>No folders found</h3>
+            <p className={styles.emptyDescription}>
+              {folderId 
+                ? "This folder is empty. Create a new subfolder or question set to get started."
+                : "Create your first folder to start organizing your content."}
+            </p>
+            <button 
+              className={styles.emptyStateBtn}
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              <FiPlus /> Create New Folder
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Create Folder Modal */}
-      {isCreateModalOpen ? (
-        <div className={styles.modalBackdrop}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      {isCreateModalOpen && (
+        <div className={styles.elevateModalBackdrop}>
+          <div className={styles.elevateModal}>
             <div className={styles.modalHeader}>
               <h2 className={styles.modalTitle}>Create New Folder</h2>
               <button
-                onClick={() => setIsCreateModalOpen(false)}
                 className={styles.closeBtn}
-                aria-label="Close modal"
+                onClick={() => setIsCreateModalOpen(false)}
               >
                 <FiX />
               </button>
             </div>
             <form onSubmit={handleCreateFolder} className={styles.form}>
               <div className={styles.formGroup}>
-                <label htmlFor="folder-name" className={styles.formLabel}>
-                  Folder Name <span className={styles.requiredIndicator}>*</span>
+                <label className={styles.formLabel}>
+                  Name<span className={styles.requiredIndicator}>*</span>
                 </label>
                 <input
                   type="text"
-                  id="folder-name"
-                  value={newFolder.name}
-                  onChange={(e) => setNewFolder({ ...newFolder, name: e.target.value })}
                   className={styles.formInput}
-                  placeholder="e.g., Advanced Calculus Notes"
+                  value={newFolder.name}
+                  onChange={(e) => setNewFolder(prev => ({ ...prev, name: e.target.value }))}
                   required
-                  autoFocus
+                  placeholder="Enter folder name"
                 />
               </div>
               <div className={styles.formGroup}>
-                <label htmlFor="folder-description" className={styles.formLabel}>
-                  Description (Optional)
-                </label>
+                <label className={styles.formLabel}>Description</label>
                 <textarea
-                  id="folder-description"
-                  value={newFolder.description}
-                  onChange={(e) => setNewFolder({ ...newFolder, description: e.target.value })}
                   className={styles.formTextarea}
-                  placeholder="A brief summary of what this folder contains"
-                  rows={3}
+                  value={newFolder.description}
+                  onChange={(e) => setNewFolder(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Enter folder description (optional)"
                 />
               </div>
               <div className={styles.formActions}>
                 <button
                   type="button"
-                  onClick={() => setIsCreateModalOpen(false)}
                   className={`${styles.btn} ${styles.btnSecondary}`}
-                  disabled={isSubmitting}
+                  onClick={() => setIsCreateModalOpen(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className={`${styles.btn} ${styles.btnPrimary}`}
-                  disabled={isSubmitting || !newFolder.name.trim()}
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <>
-                      <FiLoader className={styles.spinner} /> Creating...
+                      <FiLoader className={styles.spinner} />
+                      Creating...
                     </>
                   ) : (
                     'Create Folder'
@@ -265,66 +409,62 @@ const FoldersPage = () => {
             </form>
           </div>
         </div>
-      ) : null}
+      )}
+
       {/* Edit Folder Modal */}
-      {editFolderId ? (
-        <div className={styles.modalBackdrop}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+      {isEditModalOpen && editFolderId && (
+        <div className={styles.elevateModalBackdrop}>
+          <div className={styles.elevateModal}>
             <div className={styles.modalHeader}>
               <h2 className={styles.modalTitle}>Edit Folder</h2>
               <button
-                onClick={() => setEditFolderId(null)}
                 className={styles.closeBtn}
-                aria-label="Close modal"
+                onClick={() => setIsEditModalOpen(false)}
               >
                 <FiX />
               </button>
             </div>
-            <form onSubmit={handleEditSubmit} className={styles.form}>
+            <form onSubmit={handleUpdateFolder} className={styles.form}>
               <div className={styles.formGroup}>
-                <label htmlFor="edit-folder-name" className={styles.formLabel}>
-                  Folder Name <span className={styles.requiredIndicator}>*</span>
+                <label className={styles.formLabel}>
+                  Name<span className={styles.requiredIndicator}>*</span>
                 </label>
                 <input
                   type="text"
-                  id="edit-folder-name"
-                  name="name"
-                  value={editFolderData.name}
-                  onChange={handleEditChange}
                   className={styles.formInput}
+                  value={editFolderData.name}
+                  onChange={(e) => setEditFolderData(prev => ({ ...prev, name: e.target.value }))}
                   required
-                  autoFocus
+                  placeholder="Enter folder name"
                 />
               </div>
               <div className={styles.formGroup}>
-                <label htmlFor="edit-folder-description" className={styles.formLabel}>
-                  Description (Optional)
-                </label>
+                <label className={styles.formLabel}>Description</label>
                 <textarea
-                  id="edit-folder-description"
-                  name="description"
-                  value={editFolderData.description}
-                  onChange={handleEditChange}
                   className={styles.formTextarea}
-                  rows={3}
+                  value={editFolderData.description}
+                  onChange={(e) => setEditFolderData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Enter folder description (optional)"
                 />
               </div>
               <div className={styles.formActions}>
                 <button
                   type="button"
-                  onClick={() => setEditFolderId(null)}
                   className={`${styles.btn} ${styles.btnSecondary}`}
-                  disabled={isEditing}
+                  onClick={() => setIsEditModalOpen(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className={`${styles.btn} ${styles.btnPrimary}`}
-                  disabled={isEditing || !editFolderData.name.trim()}
+                  disabled={isSubmitting}
                 >
-                  {isEditing ? (
-                    <><FiLoader className={styles.spinner} /> Saving...</>
+                  {isSubmitting ? (
+                    <>
+                      <FiLoader className={styles.spinner} />
+                      Saving...
+                    </>
                   ) : (
                     'Save Changes'
                   )}
@@ -333,9 +473,7 @@ const FoldersPage = () => {
             </form>
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
-};
-
-export default FoldersPage;
+}

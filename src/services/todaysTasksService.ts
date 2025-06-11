@@ -11,7 +11,10 @@ export interface QuestionWithContext {
   questionSetId: number;
   questionSetName: string;
   selectedForUUEFocus?: string;
-  // ...other fields as needed
+  selfMark: number | null;
+  autoMark: number | null;
+  aiGenerated: boolean;
+  inCat: boolean;
 }
 
 export interface TodaysTasksResponse {

@@ -2,6 +2,8 @@ export interface Folder {
   id: string;
   name: string;
   description?: string;
+  parentId: string | null;
+  children: Folder[];
   questionSetCount?: number;
   masteryScore?: number;
   createdAt: string;
@@ -12,9 +14,11 @@ export interface Folder {
 export interface CreateFolderData {
   name: string;
   description?: string;
+  parentId?: string | null;
 }
 
 export interface UpdateFolderData {
   name?: string;
   description?: string;
+  parentId?: string | null;
 }

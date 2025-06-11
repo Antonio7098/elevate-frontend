@@ -34,13 +34,6 @@ const QuestionSetsPage = () => {
   const [folder, setFolder] = useState<Folder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [newQuestionSet, setNewQuestionSet] = useState({ 
-    name: '', 
-    description: '' 
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const navigate = useNavigate();
   
   // Format date to a readable format
@@ -88,32 +81,6 @@ const QuestionSetsPage = () => {
     loadQuestionSets();
   }, [loadFolder, loadQuestionSets]);
 
-  // Handle question set creation
-  const handleCreateQuestionSet = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!folderId || !newQuestionSet.name.trim()) return;
-
-    try {
-      setIsSubmitting(true);
-      const questionSetData: CreateQuestionSetData = {
-        name: newQuestionSet.name.trim(),
-        description: newQuestionSet.description?.trim() || undefined,
-        folderId
-      };
-      
-      const createdQuestionSet = await createQuestionSet(folderId, questionSetData);
-      
-      setQuestionSets(prev => [createdQuestionSet, ...prev]);
-      setNewQuestionSet({ name: '', description: '' });
-      setIsCreateModalOpen(false);
-    } catch (err) {
-      console.error('Failed to create question set:', err);
-      setError('Failed to create question set. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   // Handle question set deletion
   const handleDeleteQuestionSet = async (questionSetId: string) => {
     if (!folderId || !window.confirm('Are you sure you want to delete this question set? This action cannot be undone.')) {
@@ -121,14 +88,11 @@ const QuestionSetsPage = () => {
     }
 
     try {
-      setIsDeleting(questionSetId);
       await deleteQuestionSet(folderId, questionSetId);
       await loadQuestionSets();
     } catch (err) {
       console.error('Failed to delete question set:', err);
       setError('Failed to delete question set. Please try again.');
-    } finally {
-      setIsDeleting(null);
     }
   };
 
@@ -175,7 +139,7 @@ const QuestionSetsPage = () => {
             AI-Powered Set
           </button>
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => navigate(`/folders/${folderId}/create-set`)}
             className={styles.newSetBtn}
           >
             <FiPlus style={{marginRight: 8, width: 16, height: 16}} />
@@ -201,7 +165,7 @@ const QuestionSetsPage = () => {
             Create your first question set to start studying
           </p>
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => navigate(`/folders/${folderId}/create-set`)}
             className={styles.emptyBtn}
           >
             <FiPlus style={{marginRight: 8, width: 16, height: 16}} />
@@ -259,15 +223,10 @@ const QuestionSetsPage = () => {
                       e.stopPropagation();
                       handleDeleteQuestionSet(questionSet.id);
                     }}
-                    disabled={isDeleting === questionSet.id}
                     className={styles.actionBtn}
                     title="Delete question set"
                   >
-                    {isDeleting === questionSet.id ? (
-                      <FiLoader style={{width: 16, height: 16}} className="animate-spin" />
-                    ) : (
-                      <FiTrash2 style={{width: 16, height: 16}} />
-                    )}
+                    <FiTrash2 style={{width: 16, height: 16}} />
                   </button>
                 </div>
               </div>
@@ -289,85 +248,6 @@ const QuestionSetsPage = () => {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Create Question Set Modal */}
-      {isCreateModalOpen && (
-        <div className={styles.modalBackdrop}>
-          <div 
-            className={styles.modal}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles.modalHeader}>
-              <div>
-                <h2 className={styles.modalTitle}>Create New Question Set</h2>
-                <p className={styles.modalDesc}>Add questions to study</p>
-              </div>
-              <button
-                onClick={() => setIsCreateModalOpen(false)}
-                className={styles.closeBtn}
-                aria-label="Close"
-              >
-                <FiX style={{width: 20, height: 20}} />
-              </button>
-            </div>
-            <form onSubmit={handleCreateQuestionSet} className={styles.form}>
-              <div>
-                <label htmlFor="question-set-name" className={styles.formLabel}>
-                  Title <span className={styles.required}>*</span>
-                </label>
-                <input
-                  type="text"
-                  id="question-set-name"
-                  required
-                  value={newQuestionSet.name}
-                  onChange={(e) => setNewQuestionSet({ ...newQuestionSet, name: e.target.value })}
-                  className={styles.formInput}
-                  placeholder="e.g., Chapter 5 Questions"
-                  autoFocus
-                />
-              </div>
-              <div>
-                <label htmlFor="question-set-description" className={styles.formLabel}>
-                  Description <span className={styles.optional}>(Optional)</span>
-                </label>
-                <textarea
-                  id="question-set-description"
-                  rows={3}
-                  value={newQuestionSet.description}
-                  onChange={(e) => setNewQuestionSet({ ...newQuestionSet, description: e.target.value })}
-                  className={styles.formTextarea}
-                  placeholder="Add a brief description..."
-                />
-              </div>
-              <div className={styles.formFooter}>
-                <button
-                  type="button"
-                  onClick={() => setIsCreateModalOpen(false)}
-                  className={styles.cancelBtn}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !newQuestionSet.name.trim()}
-                  className={styles.submitBtn}
-                  style={isSubmitting || !newQuestionSet.name.trim() ? {opacity: 0.7, cursor: 'not-allowed'} : {}}
-                >
-                  {isSubmitting ? (
-                    <span style={{display: 'flex', alignItems: 'center'}}>
-                      <FiLoader style={{marginLeft: -4, marginRight: 8, width: 16, height: 16}} className="animate-spin" />
-                      Creating...
-                    </span>
-                  ) : (
-                    'Create Question Set'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
       )}
     </div>

@@ -8,6 +8,7 @@ const FoldersPage = lazy(() => import('../pages/FoldersPage'));
 const QuestionSetsPage = lazy(() => import('../pages/QuestionSetsPage'));
 const QuestionsPage = lazy(() => import('../pages/QuestionsPage'));
 const CreateAiQuestionSetPage = lazy(() => import('../pages/CreateAiQuestionSetPage'));
+const CreateQuestionSetPage = lazy(() => import('../pages/CreateQuestionSetPage'));
 const ChatPage = lazy(() => import('../pages/ChatPage'));
 const MyProgressPage = lazy(() => import('../pages/MyProgressPage')); // Corrected import path if it was MyProgress.tsx before
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
@@ -47,10 +48,10 @@ const AppRoutes = () => {
         <Route element={<ProtectedLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/folders" element={<FoldersPage />} />
-          <Route path="/folders/:folderId" element={<QuestionSetsPage />} />
+          <Route path="/folders/:folderId" element={<FoldersPage />} />
           <Route path="/question-sets/:questionSetId" element={<QuestionsPage />} />
           <Route path="/create-set" element={<CreateAiQuestionSetPage />} />
-          <Route path="/folders/:folderId/create-set" element={<CreateAiQuestionSetPage />} />
+          <Route path="/folders/:folderId/create-set" element={<CreateQuestionSetPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/my-progress" element={<MyProgressPage />} />
           <Route path="/my-progress/folders/:folderId" element={<MyProgressPage />} />
