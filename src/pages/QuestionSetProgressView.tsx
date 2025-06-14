@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchQuestionSetStats, fetchQuestionSetQuestions } from '../api/stats';
 import type { QuestionSetStatsDetails, QuestionStat } from '../api/stats';
 import MasteryLineChart from '../components/stats/MasteryLineChart';
@@ -10,6 +10,7 @@ import Breadcrumbs from '../components/layout/Breadcrumbs';
 
 const QuestionSetProgressView: React.FC = () => {
   const { setId } = useParams<{ setId: string }>();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<QuestionSetStatsDetails | null>(null);
   const [questions, setQuestions] = useState<QuestionStat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +48,14 @@ const QuestionSetProgressView: React.FC = () => {
   return (
     <div className={styles.setPage}>
       <Breadcrumbs />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button
+          className={styles.reviewBtn}
+          onClick={() => navigate(`/review/set/${setId}`)}
+        >
+          Begin Review
+        </button>
+      </div>
       <h1 className={styles.pageTitle}>{stats.name} - Set Progress</h1>
       <div className={styles.topSection}>
         <div className={styles.chartCard}>

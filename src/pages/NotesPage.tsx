@@ -3,10 +3,12 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { FiArrowLeft, FiSave, FiTrash2 } from 'react-icons/fi';
+import 'react-quill/dist/quill.bubble.css';
+import { FiArrowLeft, FiSave, FiTrash2, FiMessageSquare } from 'react-icons/fi';
 import { getNoteById, createNote, updateNote, deleteNote } from '../services/noteService';
 import type { CreateNoteData, UpdateNoteData } from '../types/note';
 import styles from './NotesPage.module.css';
+import ChatPanel from '../components/ChatPanel';
 
 const NotesPage = () => {
   const { noteId } = useParams<{ noteId: string }>();
@@ -14,10 +16,15 @@ const NotesPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isNewNote = noteId === 'new';
-  const folderId = searchParams.get('folderId');
-
+  const urlFolderId = searchParams.get('folderId');
+  
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [effectiveFolderId, setEffectiveFolderId] = useState<string | null>(urlFolderId);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [originalTitle, setOriginalTitle] = useState('');
+  const [originalContent, setOriginalContent] = useState('');
+  const [showChat, setShowChat] = useState(false);
 
   // Fetch existing note if editing
   const { data: note, isLoading, isError } = useQuery({
@@ -30,6 +37,18 @@ const NotesPage = () => {
     retry: false
   });
 
+  // Update effectiveFolderId when note data is loaded
+  useEffect(() => {
+    if (note) {
+      setTitle(note.title);
+      setContent(note.content);
+      setOriginalTitle(note.title);
+      setOriginalContent(note.content);
+      // Use URL folderId if available, otherwise use note's folderId
+      setEffectiveFolderId(urlFolderId || (note.folderId ? String(note.folderId) : null));
+    }
+  }, [note, urlFolderId]);
+
   // Redirect to dashboard if note is not found
   useEffect(() => {
     console.log('Note loading state:', { isError, isNewNote, noteId, note });
@@ -39,20 +58,12 @@ const NotesPage = () => {
     }
   }, [isError, isNewNote, navigate, noteId, note]);
 
-  // Set initial values when note is loaded
-  useEffect(() => {
-    if (note) {
-      setTitle(note.title);
-      setContent(note.content);
-    }
-  }, [note]);
-
   // Create note mutation
   const createMutation = useMutation({
     mutationFn: (data: CreateNoteData) => createNote(data),
     onSuccess: (newNote) => {
-      queryClient.invalidateQueries({ queryKey: ['notes', folderId] });
-      navigate(`/notes/${newNote.id}`);
+      queryClient.invalidateQueries({ queryKey: ['notes', effectiveFolderId] });
+      navigate(`/notes/${newNote.id}?folderId=${effectiveFolderId}`);
     }
   });
 
@@ -61,7 +72,7 @@ const NotesPage = () => {
     mutationFn: (data: UpdateNoteData) => updateNote(noteId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['note', noteId] });
-      queryClient.invalidateQueries({ queryKey: ['notes', folderId] });
+      queryClient.invalidateQueries({ queryKey: ['notes', effectiveFolderId] });
     }
   });
 
@@ -69,13 +80,13 @@ const NotesPage = () => {
   const deleteMutation = useMutation({
     mutationFn: () => deleteNote(noteId!),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes', folderId] });
-      navigate(`/folders/${folderId}`);
+      queryClient.invalidateQueries({ queryKey: ['notes', effectiveFolderId] });
+      navigate(`/folders/${effectiveFolderId}`);
     }
   });
 
   const handleSave = () => {
-    if (!folderId) {
+    if (!effectiveFolderId) {
       alert('No folder selected');
       return;
     }
@@ -84,14 +95,31 @@ const NotesPage = () => {
       createMutation.mutate({
         title,
         content,
-        folderId
+        folderId: effectiveFolderId
       });
     } else {
-      updateMutation.mutate({
-        title,
-        content
+      const updatePayload: any = {};
+      if (title && title.trim() !== '') updatePayload.title = title;
+      if (content && content.trim() !== '') updatePayload.content = content;
+      updatePayload.folderId = effectiveFolderId;
+      updateMutation.mutate(updatePayload, {
+        onSuccess: () => {
+          setIsEditMode(false);
+          setOriginalTitle(title);
+          setOriginalContent(content);
+        }
       });
     }
+  };
+
+  const handleEdit = () => {
+    setIsEditMode(true);
+  };
+
+  const handleCancel = () => {
+    setTitle(originalTitle);
+    setContent(originalContent);
+    setIsEditMode(false);
   };
 
   const handleDelete = () => {
@@ -105,48 +133,100 @@ const NotesPage = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <button 
-          className={styles.backButton}
-          onClick={() => navigate(`/folders/${folderId}`)}
+    <div className={styles.containerWithChat}>
+      <div className={styles.rightSidebar}>
+        <button
+          className={styles.toggleChatBtn}
+          onClick={() => setShowChat((prev) => !prev)}
+          title={showChat ? 'Hide Chat' : 'Show Chat'}
         >
-          <FiArrowLeft /> Back to Folder
+          <FiMessageSquare /> {showChat ? 'Hide Chat' : 'Chat'}
         </button>
-        <div className={styles.actions}>
+        {showChat && (
+          <div className={styles.chatPanelWrapper}>
+            <ChatPanel />
+          </div>
+        )}
+      </div>
+      <div className={styles.container}>
+        <div className={styles.header}>
           <button 
-            className={styles.saveButton}
-            onClick={handleSave}
-            disabled={createMutation.isPending || updateMutation.isPending}
+            className={styles.backButton}
+            onClick={() => navigate(`/folders/${effectiveFolderId}`)}
           >
-            <FiSave /> Save
+            <FiArrowLeft /> Back to Folder
           </button>
-          {!isNewNote && (
-            <button 
-              className={styles.deleteButton}
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-            >
-              <FiTrash2 /> Delete
-            </button>
+          <div className={styles.actions}>
+            {isEditMode ? (
+              <>
+                <button 
+                  className={styles.saveButton}
+                  onClick={handleSave}
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                >
+                  <FiSave /> Save
+                </button>
+                <button 
+                  className={styles.deleteButton}
+                  onClick={handleCancel}
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                {!isNewNote && (
+                  <button 
+                    className={styles.saveButton}
+                    onClick={handleEdit}
+                  >
+                    Edit
+                  </button>
+                )}
+                {!isNewNote && (
+                  <button 
+                    className={styles.deleteButton}
+                    onClick={handleDelete}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <FiTrash2 /> Delete
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.editor}>
+          {isEditMode ? (
+            <>
+              <input
+                type="text"
+                className={styles.titleInput}
+                placeholder="Note Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <ReactQuill
+                theme="bubble"
+                value={content}
+                onChange={setContent}
+                className={styles.quillEditor}
+              />
+            </>
+          ) : (
+            <>
+              <h1 className={styles.titleInput} style={{ border: 'none', fontWeight: 600, fontSize: '1.5rem', marginBottom: '1rem' }}>{title}</h1>
+              <ReactQuill
+                theme="bubble"
+                value={content}
+                readOnly
+                className={styles.quillEditor}
+              />
+            </>
           )}
         </div>
-      </div>
-
-      <div className={styles.editor}>
-        <input
-          type="text"
-          className={styles.titleInput}
-          placeholder="Note Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <ReactQuill
-          theme="snow"
-          value={content}
-          onChange={setContent}
-          className={styles.quillEditor}
-        />
       </div>
     </div>
   );

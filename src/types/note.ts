@@ -21,4 +21,5 @@ export interface CreateNoteData {
 export interface UpdateNoteData {
   title?: string;
   content?: string;
+  folderId?: string | number;
 } 

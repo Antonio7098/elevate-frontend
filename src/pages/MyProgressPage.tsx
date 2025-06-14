@@ -8,6 +8,13 @@ import { UUESegmentedProgressBar } from '../components/stats/SegmentedProgressBa
 import styles from './MyProgressPage.module.css';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
 import QuestionStatItem from '../components/stats/QuestionStatItem'; // For Set View
+import { getFolders, pinFolder } from '../services/folderService';
+import { getQuestionSets, pinQuestionSet } from '../services/questionSetService';
+import type { Folder } from '../types/folder';
+import type { QuestionSet } from '../types/questionSet';
+import CarouselItemCard from '../components/stats/CarouselItemCard';
+
+type ProgressItem = (Folder | QuestionSet) & { isPinned: boolean };
 
 const MyProgressPage: React.FC = () => {
   const { folderId, setId } = useParams<{ folderId?: string; setId?: string }>();
@@ -29,6 +36,19 @@ const MyProgressPage: React.FC = () => {
   const [setQuestions, setSetQuestions] = useState<QuestionStat[]>([]);
   const [loadingSet, setLoadingSet] = useState(false);
   const [errorSet, setErrorSet] = useState<string | null>(null);
+
+  // New state for all folders and sets
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [questionSets, setQuestionSets] = useState<QuestionSet[]>([]);
+  const [pinnedItems, setPinnedItems] = useState<ProgressItem[]>([]);
+  const [unpinnedItems, setUnpinnedItems] = useState<ProgressItem[]>([]);
+
+  // State for weekly progress
+  const [weeklyProgress, setWeeklyProgress] = useState({
+    itemsReviewed: 0,
+    masteryGained: 0,
+    streakDays: 0
+  });
 
   // Fetch Overall Stats and Folders
   useEffect(() => {
@@ -193,6 +213,86 @@ const MyProgressPage: React.FC = () => {
     };
   }, [setId]);
 
+  // Fetch all folders and sets on mount
+  useEffect(() => {
+    let isMounted = true;
+    const fetchAllItems = async () => {
+      try {
+        setLoadingOverall(true);
+        setErrorOverall(null);
+        
+        // Fetch folders and question sets in parallel
+        const [foldersRes, setsRes] = await Promise.all([
+          getFolders(),
+          getQuestionSets('all')
+        ]);
+
+        if (!isMounted) return;
+
+        // Combine and split items based on isPinned flag
+        const allItems = [
+          ...foldersRes.map(f => ({ ...f, isPinned: !!f.isPinned })),
+          ...setsRes.map(s => ({ ...s, isPinned: !!s.isPinned }))
+        ];
+
+        setFolders(foldersRes);
+        setQuestionSets(setsRes);
+        setPinnedItems(allItems.filter(item => item.isPinned));
+        setUnpinnedItems(allItems.filter(item => !item.isPinned));
+        setLoadingOverall(false);
+      } catch (err) {
+        if (!isMounted) return;
+        setErrorOverall('Failed to load items. Please try again.');
+        setLoadingOverall(false);
+      }
+    };
+    fetchAllItems();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Pin/Unpin handlers
+  const handlePin = async (item: ProgressItem) => {
+    // Optimistically update UI
+    setUnpinnedItems(prev => prev.filter(i => i.id !== item.id));
+    setPinnedItems(prev => [...prev, { ...item, isPinned: true }]);
+
+    try {
+      if ('parentId' in item) {
+        // It's a Folder
+        await pinFolder(item.id, true);
+      } else {
+        // It's a QuestionSet
+        await pinQuestionSet(item.folderId, item.id, true);
+      }
+    } catch (err) {
+      // Revert UI on error
+      setPinnedItems(prev => prev.filter(i => i.id !== item.id));
+      setUnpinnedItems(prev => [...prev, { ...item, isPinned: false }]);
+      alert('Failed to pin item. Please try again.');
+    }
+  };
+
+  const handleUnpin = async (item: ProgressItem) => {
+    // Optimistically update UI
+    setPinnedItems(prev => prev.filter(i => i.id !== item.id));
+    setUnpinnedItems(prev => [...prev, { ...item, isPinned: false }]);
+
+    try {
+      if ('parentId' in item) {
+        // It's a Folder
+        await pinFolder(item.id, false);
+      } else {
+        // It's a QuestionSet
+        await pinQuestionSet(item.folderId, item.id, false);
+      }
+    } catch (err) {
+      // Revert UI on error
+      setUnpinnedItems(prev => prev.filter(i => i.id !== item.id));
+      setPinnedItems(prev => [...prev, { ...item, isPinned: true }]);
+      alert('Failed to unpin item. Please try again.');
+    }
+  };
+
   // Render logic will be updated later to show specific views
   // For now, let's keep the overall loading/error/data check for the default view
   if (loadingOverall) {
@@ -317,55 +417,91 @@ const MyProgressPage: React.FC = () => {
       <Breadcrumbs />
       <div className={styles.progressPage}>
         <h1 className={styles.pageTitle}>My Progress</h1>
-        <div className={styles.topSection}>
-          <div className={styles.chartCard}>
-            <MasteryLineChart
-              data={overallStats.masteryHistory}
-              title="Mastery Over Time"
-              height={260}
-            />
-          </div>
-          <div className={styles.statsSummary}>
-            <div className={styles.uuBarBox}>
-              <UUESegmentedProgressBar
-                understandScore={overallStats.understandScore}
-                useScore={overallStats.useScore}
-                exploreScore={overallStats.exploreScore}
-                height={12}
-                showLabels={true}
-                showValues={true}
-              />
+        {/* Weekly Progress Box */}
+        <div className={styles.weeklyProgressBox}>
+          <h2 className={styles.weeklyProgressTitle}>This Week's Progress</h2>
+          <div className={styles.weeklyProgressStats}>
+            <div className={styles.statItem}>
+              <div className={styles.statLabel}>Items Reviewed</div>
+              <div className={styles.statValue}>{weeklyProgress.itemsReviewed}</div>
             </div>
-            <div className={styles.setsMissedBox}>
-              <div className={styles.setsMissedCount}>{overallStats.dueSets}</div>
-              <div className={styles.setsMissedLabel}>Sets Missed</div>
+            <div className={styles.statItem}>
+              <div className={styles.statLabel}>Mastery Gained</div>
+              <div className={styles.statValue}>+{weeklyProgress.masteryGained}%</div>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statLabel}>Streak</div>
+              <div className={styles.statValue}>{weeklyProgress.streakDays} days</div>
             </div>
           </div>
         </div>
-        <h2 className={styles.sectionTitle}>Folders</h2>
-        <div className={styles.foldersGrid}>
-          {topFolders.map((folder) => (
-            <div
-              key={folder.id}
-              className={styles.folderCard}
-              onClick={() => navigate(`/my-progress/folders/${folder.id}`)}
-              tabIndex={0}
-              role="button"
-              aria-label={`View progress for ${folder.name}`}
-              onKeyDown={e => { if (e.key === 'Enter') navigate(`/my-progress/folders/${folder.id}`); }}
-            >
-              <CircularProgress
-                percentage={folder.currentMasteryScore}
-                size={80}
-                label={folder.name}
-              />
-              <div className={styles.folderInfo}>
-                <span className={styles.folderName}>{folder.name}</span>
-                <span className={styles.folderCount}>{folder.questionSetCount} sets</span>
+
+        {/* Pinned Items Section */}
+        <section className={styles.pinnedSection}>
+          <h2 className={styles.sectionTitle}>Pinned Items</h2>
+          {pinnedItems.length === 0 ? (
+            <p className={styles.emptyMessage}>No pinned items yet. Pin your favorite folders and sets from below!</p>
+          ) : (
+            <div className={styles.pinnedGrid}>
+              {pinnedItems.map(item => (
+                <div key={item.id} className={styles.pinnedItem}>
+                  <button
+                    className={styles.unpinButton}
+                    onClick={() => handleUnpin(item)}
+                    aria-label="Unpin item"
+                  >
+                    📌
+                  </button>
+                  <MasteryLineChart
+                    data={item.masteryHistory}
+                    title={item.name}
+                    height={200}
+                  />
+                  <UUESegmentedProgressBar
+                    understandScore={item.understandScore}
+                    useScore={item.useScore}
+                    exploreScore={item.exploreScore}
+                    height={8}
+                    showLabels={true}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Carousel Section */}
+        <section className={styles.carouselSection}>
+          <h2 className={styles.sectionTitle}>All Folders & Sets</h2>
+          <div className={styles.carousel}>
+            {unpinnedItems.map(item => (
+              <div key={item.id} className={styles.carouselItem}>
+                <CarouselItemCard
+                  name={item.name}
+                  masteryScore={('masteryScore' in item && typeof item.masteryScore === 'number') ? item.masteryScore : 0}
+                  understandScore={('understandScore' in item && typeof item.understandScore === 'number') ? item.understandScore : 0}
+                  useScore={('useScore' in item && typeof item.useScore === 'number') ? item.useScore : 0}
+                  exploreScore={('exploreScore' in item && typeof item.exploreScore === 'number') ? item.exploreScore : 0}
+                  onClick={() => {
+                    if ('parentId' in item) {
+                      // It's a Folder
+                      navigate(`/my-progress/folders/${item.id}`);
+                    } else {
+                      // It's a QuestionSet
+                      navigate(`/my-progress/sets/${item.id}`);
+                    }
+                  }}
+                />
+                <button
+                  className={styles.pinButton}
+                  onClick={() => handlePin(item)}
+                >
+                  Pin This Item
+                </button>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

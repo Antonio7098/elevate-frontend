@@ -30,6 +30,12 @@ const MasteryLineChart: React.FC<MasteryLineChartProps> = ({
     );
   }
 
+  // Convert scores to percentages (0-100)
+  const percentData = data.map(point => ({
+    ...point,
+    score: Math.round((typeof point.score === 'number' ? point.score : 0) * 100)
+  }));
+
   // Format date for display
   const formatXAxis = (dateString: string) => {
     const date = new Date(dateString);
@@ -67,7 +73,7 @@ const MasteryLineChart: React.FC<MasteryLineChartProps> = ({
       <div style={{ width, height }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={data}
+            data={percentData}
             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
           >
             <defs>

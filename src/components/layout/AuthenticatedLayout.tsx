@@ -8,7 +8,7 @@ interface AuthenticatedLayoutProps {
   children?: ReactNode;
 }
 
-const AuthenticatedLayout: FC<AuthenticatedLayoutProps> = () => {
+const AuthenticatedLayout: FC<AuthenticatedLayoutProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -82,7 +82,7 @@ const AuthenticatedLayout: FC<AuthenticatedLayoutProps> = () => {
       {/* Main Content */}
       <main className={`${styles.main} ${sidebarOpen && !isMobile ? styles.mainShifted : ''}`}>
         <div className={styles.content}>
-          <Outlet />
+          {children || <Outlet />}
         </div>
       </main>
     </div>

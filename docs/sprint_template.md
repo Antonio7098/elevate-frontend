@@ -1,4 +1,5 @@
 sprint# Sprint ##: [Sprint Goal / Main Feature Name]
+
 **Signed off:** DO NOT PROCEED WITH THE SPRINT UNLESS SIGNED OFF
 **Date Range:** [Start Date] - [End Date]
 **Primary Focus:** [e.g., Core API - Stats Endpoints, Frontend - Dashboard UI, Python AI - Question Generation Logic]

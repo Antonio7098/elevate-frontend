@@ -85,3 +85,9 @@ export const deleteQuestionSet = async (folderId: string, questionSetId: string)
     throw error;
   }
 };
+
+// Pin or unpin a question set
+export const pinQuestionSet = async (folderId: string, setId: string, isPinned: boolean): Promise<QuestionSet> => {
+  const response = await apiClient.put(`/folders/${folderId}/questionsets/${setId}/pin`, { isPinned });
+  return response.data;
+};

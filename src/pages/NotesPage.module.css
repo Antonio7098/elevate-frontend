@@ -1,3 +1,15 @@
+:root {
+  --sidebar-bg: #181c2a;
+  --sidebar-border: #23263a;
+  --sidebar-shadow: 2px 0 8px 0 rgba(0,0,0,0.04);
+  --sidebar-width: 340px;
+  --sidebar-min-width: 280px;
+  --sidebar-max-width: 400px;
+  --toggle-bg: #291d1d;
+  --toggle-hover: #2d3147;
+  --toggle-color: #fff;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -112,4 +124,68 @@
   height: 100vh;
   font-size: 1.25rem;
   color: #6b7280;
+}
+
+.containerWithChat {
+  display: flex;
+  flex-direction: row-reverse;
+  height: 100vh;
+  position: relative;
+  background: var(--background, #ffffff);
+}
+
+.rightSidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-min-width);
+  max-width: var(--sidebar-max-width);
+  background: var(--sidebar-bg);
+  border-left: 1px solid var(--sidebar-border);
+  box-shadow: -2px 0 8px 0 rgba(0,0,0,0.04);
+  z-index: 2;
+  height: 100vh;
+}
+
+.toggleChatBtn {
+  background: var(--toggle-bg);
+  color: var(--toggle-color);
+  border: none;
+  border-radius: 6px 0 0 6px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 1px 2px 8px 0 rgba(0,0,0,0.04);
+  transition: background 0.2s;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+  margin-right: 0;
+  width: 100%;
+  justify-content: flex-end;
+}
+.toggleChatBtn:hover {
+  background: var(--toggle-hover);
+}
+
+.chatPanelWrapper {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  background: var(--sidebar-bg);
+}
+
+.container {
+  flex: 1 1 0%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: auto;
+  background: var(--background, #ffffff);
 } 

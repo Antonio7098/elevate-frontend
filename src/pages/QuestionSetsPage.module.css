@@ -298,6 +298,27 @@
   color: var(--color-text-secondary-hover);
 }
 
+.reviewBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary, #2563eb);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin: 0 0.25rem;
+  padding: 0.5rem 1rem;
+}
+.reviewBtn:hover, .reviewBtn:focus {
+  background: var(--color-primary-dark, #1d4ed8);
+  color: #fff;
+}
+
 /* Modal Styles */
 .modalBackdrop {
   position: fixed;

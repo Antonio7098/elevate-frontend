@@ -536,3 +536,24 @@
   gap: 1rem;
   margin-top: 1rem;
 }
+
+.folderItemRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.reviewBtn {
+  padding: 0.5rem 1.25rem;
+  background: var(--color-primary, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.reviewBtn:hover, .reviewBtn:focus {
+  background: var(--color-primary-dark, #1d4ed8);
+  color: #fff;
+}

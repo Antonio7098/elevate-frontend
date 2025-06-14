@@ -1,0 +1,42 @@
+.card {
+  background: var(--color-surface);
+  border-radius: 12px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid var(--color-border);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-base);
+  margin: 0;
+  flex: 1;
+  margin-right: 1rem;
+  /* Ensure long titles don't break layout */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scores {
+  margin-top: 1rem;
+} 

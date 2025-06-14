@@ -9,6 +9,7 @@ export interface Folder {
   createdAt: string;
   updatedAt: string;
   userId: string;
+  isPinned?: boolean;
 }
 
 export interface CreateFolderData {

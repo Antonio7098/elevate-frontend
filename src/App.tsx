@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import AppRoutes from './AppRoutes';
+import AppRoutes from './routes/AppRoutes';
 import { ErrorBoundary } from 'react-error-boundary';
 import { StrictMode } from 'react';
 

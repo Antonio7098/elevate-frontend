@@ -8,6 +8,7 @@ export interface QuestionSet {
   createdAt: string;
   updatedAt: string;
   questionCount?: number;
+  isPinned?: boolean;
 }
 
 export interface CreateQuestionSetData {

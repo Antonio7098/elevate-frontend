@@ -88,6 +88,7 @@
     - [ ] Create a new endpoint that takes source text and generates structured notes.
 - [ ] **Worksheet Generation**
     - [ ] Create an endpoint for generating worksheets based on a topic or folder.
+- [ ] **Testing redit usage and costs**
 
 ---
 
@@ -104,6 +105,7 @@
 - [ ] **Style and implement feedback form**
 
 ---
+
 
 ## **Landing Page**
 

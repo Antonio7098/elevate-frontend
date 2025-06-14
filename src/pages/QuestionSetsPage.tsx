@@ -239,6 +239,13 @@ const QuestionSetsPage = () => {
                   <span><FiChevronRight size={16} /></span>
                 </button>
                 <button
+                  onClick={() => navigate(`/review/set/${questionSet.id}`)}
+                  className={styles.reviewBtn}
+                >
+                  Begin Review
+                  <span><FiChevronRight size={16} /></span>
+                </button>
+                <button
                   onClick={() => navigate(`/quiz/set/${questionSet.id}`)}
                   className={styles.quizBtn}
                 >

@@ -70,6 +70,10 @@ const FolderProgressView: React.FC = () => {
             key={set.id}
             className={styles.setCard}
             onClick={() => navigate(`/my-progress/sets/${set.id}`)}
+            tabIndex={0}
+            role="button"
+            aria-label={`View progress for ${set.name}`}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/my-progress/sets/${set.id}`); }}
           >
             <CircularProgress
               percentage={set.masteryScore}
@@ -79,6 +83,15 @@ const FolderProgressView: React.FC = () => {
             <div className={styles.setInfo}>
               <span className={styles.setName}>{set.name}</span>
               <span className={styles.setCount}>{set.questionCount} questions</span>
+              <button
+                className={styles.reviewBtn}
+                onClick={e => {
+                  e.stopPropagation();
+                  navigate(`/review/set/${set.id}`);
+                }}
+              >
+                Begin Review
+              </button>
             </div>
           </div>
         ))}

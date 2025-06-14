@@ -108,3 +108,9 @@ export const updateFolder = async (id: string, data: UpdateFolderData): Promise<
     throw error;
   }
 };
+
+// Pin or unpin a folder
+export const pinFolder = async (folderId: string, isPinned: boolean): Promise<Folder> => {
+  const response = await apiClient.put(`/folders/${folderId}/pin`, { isPinned });
+  return response.data;
+};
