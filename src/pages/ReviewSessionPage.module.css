@@ -1,17 +1,35 @@
 /* ReviewSessionPage.module.css
    Modular CSS for ReviewSessionPage, matching dashboard design system. */
 
-.container {
-  max-width: 44rem;
-  margin: 0 auto;
-  padding: 2.5rem 1rem 3rem 1rem;
-  background: var(--color-bg-panel, #181e29);
-  border-radius: 1.25rem;
-  box-shadow: 0 2px 24px 0 rgba(20, 20, 40, 0.12);
-  min-height: 70vh;
+.reviewSessionPageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Align to top, padding will handle spacing */
+  min-height: 100vh;
+  background-color: var(--color-bg-app, #f0f2f5); /* Light gray background */
+  padding: 2rem 1rem; /* Padding for the overall page */
+  box-sizing: border-box;
+}
+
+.wireframeContentArea {
+  max-width: 60rem; /* Max width for the 'paper' */
+  width: 90%;       /* Responsive width */
+  background: var(--color-surface, #ffffff); /* White paper background */
+  border-radius: 1rem; /* Rounded corners for paper */
+  padding: 2.5rem; /* Padding inside the paper */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Paper shadow effect */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  margin-top: 2rem; /* Space from top or back button */
+}
+
+/* Keep .container if it's used for other specific elements, otherwise it might be removed or repurposed */
+.container {
+  /* Styles for .container if still needed, e.g., for specific sections within wireframeContentArea */
+  /* For now, let's assume it's not the primary layout container anymore */
+  width: 100%; /* If used, make it full width of its parent */
 }
 
 .header {
@@ -19,6 +37,16 @@
   align-items: center;
   gap: 1.25rem;
   margin-bottom: 1.5rem;
+}
+
+.backButtonContainer {
+  width: 100%;
+  max-width: 60rem; /* Align with wireframeContentArea max-width */
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem; /* Space between back button and content */
+  padding: 0 1rem; /* Ensure it doesn't touch edges if page has no padding */
+  box-sizing: border-box;
 }
 
 .backBtn {
@@ -50,6 +78,10 @@
   margin-bottom: 0.5rem;
 }
 
+/* .questionCard might be deprecated if .wireframeContentArea serves its purpose */
+/* If specific styling for question cards within the main content is needed, this can be adapted. */
+/* For now, commenting out to avoid conflict, assuming .wireframeContentArea is the new primary card. */
+/*
 .questionCard {
   background: var(--color-surface);
   border-radius: 1rem;
@@ -60,6 +92,7 @@
   flex-direction: column;
   gap: 1.25rem;
 }
+*/
 
 .questionText {
   font-size: 1.15rem;
@@ -174,16 +207,31 @@
   gap: 0.7rem;
 }
 
-@media (max-width: 600px) {
-  .container {
-    padding: 1.2rem 0.3rem 1.5rem 0.3rem;
-    border-radius: 0.7rem;
+@media (max-width: 768px) { /* Adjusted breakpoint for better responsiveness */
+  .wireframeContentArea {
+    width: 95%;
+    padding: 1.5rem;
+    margin-top: 1rem;
   }
-  .questionCard {
-    padding: 1.2rem 0.7rem 1rem 0.7rem;
-    border-radius: 0.7rem;
+  .title {
+    font-size: 1.5rem; /* Adjusted title size for mobile */
+  }
+  .backButtonContainer {
+    width: 95%; /* Ensure back button aligns with content on mobile */
+    max-width: 60rem; /* Consistent with wireframeContentArea max-width */
+    margin-bottom: 0.5rem; /* Reduced margin for mobile */
+  }
+}
+
+@media (max-width: 600px) {
+  /* Specific overrides for very small screens if needed */
+  .wireframeContentArea {
+    padding: 1rem;
   }
   .title {
     font-size: 1.3rem;
+  }
+  .reviewSessionPageContainer {
+    padding: 1rem 0.5rem;
   }
 }

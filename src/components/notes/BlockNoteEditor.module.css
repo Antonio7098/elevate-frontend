@@ -1,0 +1,134 @@
+.editorContainer {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-primary);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s, background-color 0.2s;
+}
+
+.editor {
+  flex: 1;
+  overflow-y: auto;
+  font-family: var(--font-family);
+  line-height: 1.6;
+  background: transparent;
+}
+
+.createButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--primary-color, #8A2BE2);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(138,43,226,0.08);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.createButton:hover, .createButton:focus {
+  background: var(--primary-color-dark, #6c1bbd);
+  box-shadow: 0 4px 16px rgba(138,43,226,0.12);
+  transform: translateY(-2px) scale(1.03);
+  outline: none;
+}
+
+/* Custom styles for the editor */
+.editor :global(.bn-container) {
+  background-color: var(--background-primary);
+  border: none;
+  box-shadow: none;
+  border-radius: 12px;
+}
+
+.editor :global(.bn-editor) {
+  padding: 0;
+}
+
+/* Style for Insight Catalyst blocks */
+.editor :global(.bn-block[data-block-type="insightCatalyst"]) {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(138,43,226,0.06);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.editor :global(.bn-block[data-block-type="insightCatalyst"]:hover) {
+  border-color: var(--primary-color, #8A2BE2);
+  box-shadow: 0 4px 16px rgba(138,43,226,0.12);
+}
+
+/* Style for the catalyst type badge */
+.editor :global(.bn-block[data-block-type="insightCatalyst"]::before) {
+  content: attr(data-catalyst-type);
+  position: absolute;
+  top: -0.5rem;
+  left: 1rem;
+  background-color: var(--primary-color, #8A2BE2);
+  color: white;
+  padding: 0.2rem 0.7rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 8px rgba(138,43,226,0.10);
+}
+
+/* Style for tags in catalyst blocks */
+.editor :global(.bn-block[data-block-type="insightCatalyst"] .tags) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.editor :global(.bn-block[data-block-type="insightCatalyst"] .tag) {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  background-color: var(--background-primary);
+  border-radius: 12px;
+  color: var(--text-secondary);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .editorContainer {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  .createButton {
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+.errorFallback {
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--background-primary);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  color: var(--text-base);
+}
+
+.errorFallback h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-base);
+}
+
+.errorFallback p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+} 

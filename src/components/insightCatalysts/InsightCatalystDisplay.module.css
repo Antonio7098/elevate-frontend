@@ -1,0 +1,51 @@
+.catalystDisplay {
+  display: flex;
+  align-items: flex-start; /* Align items to the start for better text flow */
+  padding: 10px;
+  margin-bottom: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.catalystDisplay.clickable {
+  cursor: pointer;
+}
+
+.catalystDisplay.clickable:hover,
+.catalystDisplay.clickable:focus {
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.icon {
+  font-size: 1.3em;
+  margin-right: 10px;
+  color: #555;
+  flex-shrink: 0; /* Prevent icon from shrinking */
+  margin-top: 2px; /* Align icon slightly better with the first line of text */
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allow content to take remaining space */
+  min-width: 0; /* Important for text truncation if needed */
+}
+
+.typeLabel {
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #333;
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.text {
+  font-size: 1em;
+  color: #444;
+  line-height: 1.4;
+  margin: 0;
+  word-wrap: break-word; /* Ensure long words don't overflow */
+}

@@ -12,16 +12,27 @@ export interface Question {
   questionSetId: string;
   questionSetName?: string; // Name of the question set, added for context
   text: string;
-  answer: string;
+  answer: string | null; // From Prisma model, answer can be null
   createdAt: string;
   updatedAt: string;
-  questionType?: string; // Type of question (multiple-choice, true-false, short-answer, etc.)
-  options?: string[]; // Options for multiple choice questions
-  learningStage?: number; // 0-5 representing spaced repetition stage
-  marksAvailable?: number; // Total marks this question is out of (e.g., 1-5)
-  conceptTags?: string[]; // Array of concept tags associated with this question
+  questionType: string; // From Prisma model, not optional
+  options: string[]; // From Prisma model, not optional (empty array if not applicable)
+  learningStage?: number; // 0-5 representing spaced repetition stage - assuming this is frontend specific or maps to uueFocus/mastery
+  totalMarksAvailable: number; // From Prisma: marksAvailable, aliased, default 1
+  markingCriteria: any | null; // From Prisma model, JSON, can be null
+  conceptTags: string[]; // From Prisma model, not optional
   userAnswers?: UserAnswer[]; // History of user answers to this question
-  uueFocus?: string; // Understand, Use, or Explore
+  uueFocus: string; // From Prisma model, default "Understand"
+  lastAnswerCorrect?: boolean | null;
+  currentMasteryScore?: number | null;
+  difficultyScore?: number | null;
+  timesAnsweredCorrectly: number; // From Prisma model, default 0
+  timesAnsweredIncorrectly: number; // From Prisma model, default 0
+  selfMark: boolean; // From Prisma model, default false
+  autoMark: boolean; // From Prisma model, default false
+  aiGenerated: boolean; // From Prisma model, default false
+  inCat?: string | null;
+  imageUrls: string[]; // From Prisma model
 }
 
 export interface CreateQuestionData {

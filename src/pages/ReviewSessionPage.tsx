@@ -29,8 +29,10 @@ const mapNumericStageToUueFocus = (stage: number | undefined): 'Understand' | 'U
 
 // Helper function to determine question type based on content
 const determineQuestionType = (question: Question): ReviewQuestion => {
-  const text = question.text.toLowerCase();
-  const answer = question.answer.toLowerCase();
+  // Ensure text and answer are not null before calling toLowerCase
+  const text = question.text ? question.text.toLowerCase() : '';
+  const answer = question.answer ? question.answer.toLowerCase() : '';
+  
   
   // Check if it's a true/false question
   if (
@@ -92,12 +94,52 @@ const ReviewSessionPage = () => {
   
   // State for answer evaluation
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
-  const [evaluationStatus, setEvaluationStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [evaluationStatus, setEvaluationStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'self-mark-pending' | 'self-marked-success'>('idle');
   const [isMarked, setIsMarked] = useState<boolean>(false); // Track if current question is marked
   
   // State for storing outcomes of each question in the session
   const [sessionOutcomes, setSessionOutcomes] = useState<QuestionOutcome[]>([]);
+
+  // Effect to handle changes in the current question, including self-mark status
+  useEffect(() => {
+    const currentQuestion = questions[currentQuestionIndex];
+    console.log('[ReviewSessionPage] useEffect - currentQuestionIndex:', currentQuestionIndex, 'Raw currentQuestion:', currentQuestion);
+    if (currentQuestion) {
+      console.log('[ReviewSessionPage] useEffect - Current Question ID:', currentQuestion.id, 'selfMark:', currentQuestion.selfMark, 'autoMark:', currentQuestion.autoMark);
+      // Reset states for the new question
+      setUserAnswer('');
+      setEvaluation(null); 
+      setEvaluationStatus('idle');
+      setIsMarked(false);
+      setSelfMarkScore('');
+      
+      // Set marking criteria for the current question
+      setCurrentMarkingCriteria(currentQuestion.markingCriteria || 'No specific marking criteria provided. Please use your best judgment.');
+
+      if (currentQuestion.selfMark) {
+        // Prepare for self-marking, but don't show UI yet.
+        // UI will be shown when 'Mark/Score' is clicked.
+        setEvaluation({
+          isCorrect: null,
+          score: null,
+          feedback: "This question is designated for self-marking. Click 'Mark/Score' to proceed.",
+          action: "self_mark", 
+          error: null,
+        });
+        setEvaluationStatus('self-mark-pending'); 
+        setShowSelfMarkUI(false); // Explicitly keep it hidden until Mark button click
+      } else {
+        // If not inherently a self-mark question, ensure UI is hidden initially
+        setShowSelfMarkUI(false);
+      }
+    }
+  }, [currentQuestionIndex, questions]);
   
+  // State for self-marking fallback
+  const [showSelfMarkUI, setShowSelfMarkUI] = useState<boolean>(false);
+  const [selfMarkScore, setSelfMarkScore] = useState<number | string>('');
+  const [currentMarkingCriteria, setCurrentMarkingCriteria] = useState<any | null>(null);
+
   // Define types for component props and state
   interface QuestionOutcome {
     questionId: string;
@@ -170,8 +212,30 @@ const ReviewSessionPage = () => {
     console.log('🚀 [ReviewSession] Starting answer evaluation process');
     console.log('📋 [ReviewSession] Current question:', currentQuestion);
     console.log('✏️ [ReviewSession] User answer:', userAnswer);
+
+    // If question is designated for self-mark or autoMark is false, show self-mark UI directly
+    if (currentQuestion && (currentQuestion.selfMark || !currentQuestion.autoMark)) {
+      console.log('🚦 [ReviewSession] Self-mark or manual mark required. Skipping AI evaluation.');
+      setEvaluationStatus('self-mark-pending');
+      setEvaluation({
+        isCorrect: null,
+        score: null,
+        feedback: currentQuestion.selfMark 
+          ? "This question is designated for self-marking. Please review the criteria and score your answer."
+          : "This question requires manual marking. Please review the criteria and score your answer.",
+        action: "self_mark",
+        error: null,
+      });
+      setShowSelfMarkUI(true);
+      // Ensure marking criteria are available (might have been set by useEffect, but double-check)
+      if (!currentMarkingCriteria || (typeof currentMarkingCriteria === 'string' && currentMarkingCriteria.startsWith('No specific'))) {
+         setCurrentMarkingCriteria(currentQuestion.markingCriteria || 'No specific marking criteria provided. Please use your best judgment.');
+      }
+      setIsMarked(false); // Not marked until self-score is submitted
+      return; // Skip AI evaluation
+    }
     
-    // Reset previous evaluation
+    // Reset previous evaluation for AI marking path
     setEvaluation(null);
     setEvaluationStatus('loading');
     console.log('⏳ [ReviewSession] Evaluation status set to loading')
@@ -224,7 +288,8 @@ const ReviewSessionPage = () => {
       // Removed sessionStats update
     } catch (error: any) {
       console.error('❌ [ReviewSession] Error evaluating answer:', error);
-      
+      const currentQuestionForCatch = questions[currentQuestionIndex]; // Ensure currentQuestion is accessible
+
       // Detailed error logging
       if (error.response) {
         console.error(`❌ [ReviewSession] Server responded with status: ${error.response.status}`);
@@ -234,16 +299,69 @@ const ReviewSessionPage = () => {
       } else {
         console.error('❌ [ReviewSession] Error details:', error.message || 'Unknown error');
       }
-      
-      setEvaluationStatus('error');
-      setEvaluation({
-        isCorrect: false,
-        scoreAchieved: 0,
-        feedback: 'Error evaluating answer. Please try again.'
-      });
+
+      if (currentQuestionForCatch && currentQuestionForCatch.selfMark) {
+        console.log('🔄 [ReviewSession] AI evaluation failed. Switching to self-mark mode.');
+        setShowSelfMarkUI(true);
+        setCurrentMarkingCriteria(currentQuestionForCatch.markingCriteria || 'No marking criteria available.');
+        setEvaluationStatus('self-mark-pending'); // New status for self-marking
+        setEvaluation({
+          isCorrect: false, // Or null, as it's pending self-mark
+          scoreAchieved: 0, // Or null
+          feedback: 'AI evaluation failed. Please use the self-marking guide below.'
+        });
+      } else {
+        console.log('❌ [ReviewSession] AI evaluation failed. Self-mark not available for this question.');
+        setEvaluationStatus('error');
+        setEvaluation({
+          isCorrect: false,
+          scoreAchieved: 0,
+          feedback: 'Error evaluating answer. Please try again. Self-mark not available.'
+        });
+      }
     }
   };
   
+  // Handle submitting a self-marked score
+  const handleSelfMarkSubmit = () => {
+    const currentQuestion = questions[currentQuestionIndex];
+    const score = parseInt(String(selfMarkScore), 10);
+
+    if (isNaN(score) || score < 0 || score > (currentQuestion.totalMarksAvailable || 1)) {
+      // Basic validation, can be enhanced with a toast message
+      console.error(`[ReviewSession] Invalid self-mark score. Must be between 0 and ${currentQuestion.totalMarksAvailable || 1}.`);
+      // Optionally, set an error message in the UI for the user
+      setEvaluation(prev => ({ 
+        ...(prev ? prev : { isCorrect: false, scoreAchieved: 0, feedback: '' }), 
+        feedback: `Invalid score. Please enter a number between 0 and ${currentQuestion.totalMarksAvailable || 1}.` 
+      }));
+      return;
+    }
+
+    const newOutcome: QuestionOutcome = {
+      questionId: String(currentQuestion.id),
+      userAnswer: userAnswer, // The original user answer
+      scoreAchieved: score,
+      uueFocus: currentQuestion.uueFocus || 'Understand', // Or derive based on score
+      // evaluationFeedback: 'Self-marked by user.', // Or provide more context if needed
+    };
+    setSessionOutcomes(prevOutcomes => [...prevOutcomes, newOutcome]);
+
+    console.log('💾 [ReviewSession] Self-marked score submitted:', newOutcome);
+
+    setIsMarked(true); // Allows "Next Question" button to appear
+    setShowSelfMarkUI(false); // Hide self-mark UI
+    setEvaluationStatus('success'); // Or 'self-marked-success'
+    setEvaluation({
+      isCorrect: score > 0, // Consider it correct if any marks are given, or use a threshold
+      scoreAchieved: score,
+      feedback: `You self-marked this question with a score of ${score}/${currentQuestion.totalMarksAvailable || 1}.`
+    });
+    // Do not reset userAnswer here, as it's part of the outcome. It will be reset by handleNextQuestion.
+    setSelfMarkScore('');
+    setCurrentMarkingCriteria(null);
+  };
+
   // Handle moving to the next question
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
@@ -276,7 +394,6 @@ const ReviewSessionPage = () => {
     // TODO: Consider adding a visual loading state for submission (e.g., a new state variable `isSubmitting`)
 
     const timeSpentInSeconds = startTimeRef.current ? Math.round((Date.now() - startTimeRef.current) / 1000) : 0;
-    const sessionStart = startTimeRef.current ? new Date(startTimeRef.current).toISOString() : new Date().toISOString();
 
     console.log('🚀 [ReviewSession] Completing session and submitting outcomes...');
     // Log a deep copy to avoid issues with console display of mutable objects
@@ -449,140 +566,217 @@ const ReviewSessionPage = () => {
     );
   }
 
+  const debugCurrentQuestion = questions[currentQuestionIndex];
+
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <button
-          onClick={() => navigate(-1)}
-          className={styles.backBtn}
-        >
-          <span style={{marginRight: '0.5rem'}}><FiArrowLeft size={16} /></span>
-          Back
+    <div className={styles.reviewSessionPageContainer}>
+      {/* Header with Back Button and Session Title */}
+      {/* TEMPORARY DEBUG DISPLAY */}
+      {debugCurrentQuestion && (
+        <div style={{ padding: '10px', backgroundColor: 'lightyellow', border: '1px solid orange', margin: '10px' }}>
+          <p>DEBUG:</p>
+          <p>Current Question ID: {debugCurrentQuestion.id}</p>
+          <p>selfMark: {String(debugCurrentQuestion.selfMark)}</p>
+          <p>autoMark: {String(debugCurrentQuestion.autoMark)}</p>
+          <p>Evaluation Status: {evaluationStatus}</p>
+          <p>Show Self Mark UI: {String(showSelfMarkUI)}</p>
+        </div>
+      )}
+
+      <div className={styles.backButtonContainer}>
+        <button onClick={() => navigate(-1)} className={styles.backButton}>
+          <FiArrowLeft style={{ marginRight: '8px' }} /> Back
         </button>
-        <h1 className={styles.title}>{sessionTitle}</h1>
       </div>
 
-      {/* Session content */}
-      <div className={styles.questionCard}>
-        {/* Progress indicator */}
-        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', color: '#94a3b8', fontSize: '0.95rem'}}>
-          <div>
-            Question {currentQuestionIndex + 1} of {questions.length}
-          </div>
-        </div>
+      {/* Main Content Area based on wireframe */}
+      <div className={styles.wireframeContentArea}>
+        <h1 className={styles.sessionTitle}>{sessionTitle}</h1>
+        
+        {/* Session content conditional rendering */}
+        {currentQuestion ? (
+          <>
+            {/* Progress Text */}
+            {questions.length > 0 && (
+              <div className="mb-4">
+                <div className="text-sm text-gray-500">
+                  Question {currentQuestionIndex + 1} of {questions.length}
+                </div>
+              </div>
 
-        {/* Question display */}
-        <div className="mb-6">
-          <h2 className={styles.questionText}>{currentQuestion?.text}</h2>
+    <div className={styles.backButtonContainer}>
+      <button onClick={() => navigate(-1)} className={styles.backButton}>
+        <FiArrowLeft style={{ marginRight: '8px' }} /> Back
+      </button>
+    </div>
+
+
+    {/* Main Content Area based on wireframe */}
+    <div className={styles.wireframeContentArea}>
+      <h1 className={styles.sessionTitle}>{sessionTitle}</h1>
+      
+      {/* Session content conditional rendering */}
+      {currentQuestion ? (
+        <>
+          {/* Progress Text */}
+          {questions.length > 0 && (
+            <div className="mb-4">
+              <div className="text-sm text-gray-500">
+                Question {currentQuestionIndex + 1} of {questions.length}
+              </div>
+            </div>
+          )}
+
+          {/* Question Text Container */}
+          <div className={styles.questionTextContainer}>
+            <p className={styles.questionText}>{currentQuestion?.text}</p>
+            {currentQuestion?.totalMarksAvailable !== undefined && (
+              <p className={styles.marksAvailableText}>
+                (Marks: {currentQuestion.totalMarksAvailable})
+              </p>
+            )}
+          </div>
           {currentQuestion?.uueFocus && (
-            <span className={styles.cardUueFocus} style={{marginBottom: '0.5rem', display: 'inline-block'}}>
+            <span className={`${styles.uueFocusTag} ${styles.wireframeTag}`}>
               {currentQuestion.uueFocus}
             </span>
           )}
-          {/* Display concept tags if available */}
           {currentQuestion?.conceptTags && currentQuestion.conceptTags.length > 0 && (
-            <div style={{marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem'}}>
+            <div className={styles.conceptTagsContainer}>
               {currentQuestion.conceptTags.map((tag, index) => (
-                <span key={index} style={{padding: '0.25rem 0.5rem', fontSize: '0.82rem', background: 'rgba(99,102,241,0.20)', color: '#a5b4fc', borderRadius: '999px'}}>
+                <span key={index} className={styles.conceptTag}>
                   {tag}
                 </span>
               ))}
-            </div>
-          )}
-          
-          {/* Evaluation results */}
-          {evaluationStatus !== 'idle' && (
-            <div className="mt-4">
-              <AnswerEvaluation 
-                evaluation={evaluation} 
-                status={evaluationStatus} 
-              />
-            </div>
-          )}
-          
-          {/* Different input types based on question type */}
-          {currentQuestion?.questionType === 'TRUE_FALSE' ? (
-            <div className={styles.optionsGroup}>
-              <div className={styles.optionRow}>
-                <input
-                  type="radio"
-                  id="true-option"
-                  name="true-false"
-                  value="True"
-                  checked={userAnswer === 'True'}
-                  onChange={() => setUserAnswer('True')}
-                  className={styles.radio}
-                />
-                <label htmlFor="true-option" className={styles.radioLabel}>True</label>
-              </div>
-              <div className={styles.optionRow}>
-                <input
-                  type="radio"
-                  id="false-option"
-                  name="true-false"
-                  value="False"
-                  checked={userAnswer === 'False'}
-                  onChange={() => setUserAnswer('False')}
-                  className={styles.radio}
-                />
-                <label htmlFor="false-option" className={styles.radioLabel}>False</label>
-              </div>
-            </div>
-          ) : currentQuestion?.questionType === 'MULTIPLE_CHOICE' && currentQuestion.options ? (
-            <div className={styles.optionsGroup}>
-              {currentQuestion.options.map((option, index) => (
-                <div key={index} className={styles.optionRow}>
-                  <input
-                    type="radio"
-                    id={`option-${index}`}
-                    name="multiple-choice"
-                    value={option}
-                    checked={userAnswer === option}
-                    onChange={() => setUserAnswer(option)}
-                    className={styles.radio}
-                  />
-                  <label htmlFor={`option-${index}`} className={styles.radioLabel}>{option}</label>
+                  {currentQuestion.conceptTags.map((tag, index) => (
+                    <span key={index} className={styles.conceptTag}>
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <textarea
-              className={styles.textarea}
-              rows={4}
-              placeholder="Type your answer here..."
-              value={userAnswer}
-              onChange={(e) => setUserAnswer(e.target.value)}
-            />
-          )}
-        </div>
-
-        {/* Action buttons */}
-        <div className={styles.actions}>
-          {!isMarked ? (
-            <button
-              onClick={handleMarkAnswer}
-              disabled={!userAnswer.trim()}
-              className={styles.markBtn}
-            >
-              Mark Answer
-            </button>
-          ) : (
-            <button
-              onClick={handleNextQuestion}
-              className={styles.nextBtn}
-            >
-              {currentQuestionIndex < questions.length - 1 ? (
-                <>
-                  Next Question
-                  <span style={{marginLeft: '0.5rem'}}><FiArrowRight size={16} /></span>
-                </>
-              ) : (
-                'Complete Session'
               )}
-            </button>
-          )}
-        </div>
+            </div>
+
+            {/* Answer Input Area */}
+            <div className={styles.answerInputContainer}>
+              {currentQuestion?.questionType === 'TRUE_FALSE' ? (
+                <div className={`${styles.optionsGroup} ${styles.wireframeOptionsGroup}`}>
+                  <div className={styles.optionRow}>
+                    <input type="radio" id="true-option" name="true-false" value="True" checked={userAnswer === 'True'} onChange={() => setUserAnswer('True')} className={styles.radio} />
+                    <label htmlFor="true-option" className={styles.radioLabel}>True</label>
+                  </div>
+                  <div className={styles.optionRow}>
+                    <input type="radio" id="false-option" name="true-false" value="False" checked={userAnswer === 'False'} onChange={() => setUserAnswer('False')} className={styles.radio} />
+                    <label htmlFor="false-option" className={styles.radioLabel}>False</label>
+                  </div>
+                </div>
+              ) : currentQuestion?.questionType === 'MULTIPLE_CHOICE' && currentQuestion.options ? (
+                <div className={`${styles.optionsGroup} ${styles.wireframeOptionsGroup}`}>
+                  {currentQuestion.options.map((option, index) => (
+                    <div key={index} className={styles.optionRow}>
+                      <input type="radio" id={`option-${index}`} name="multiple-choice" value={option} checked={userAnswer === option} onChange={() => setUserAnswer(option)} className={styles.radio} />
+                      <label htmlFor={`option-${index}`} className={styles.radioLabel}>{option}</label>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <textarea
+                  className={`${styles.textarea} ${styles.wireframeTextarea}`}
+                  rows={4}
+                  placeholder="Answer..."
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                />
+              )}
+            </div>
+
+            {/* Evaluation Feedback Area / Self-Mark UI */}
+            <div className={styles.evaluationFeedbackContainer}>
+              {showSelfMarkUI ? (
+                <div className={styles.selfMarkContainer}>
+                  <h3 className={styles.selfMarkTitle}>Self-Marking Required</h3>
+                  {evaluation?.feedback && <p className={styles.selfMarkInstructions}>{evaluation.feedback}</p>}
+                  <h4>Marking Criteria:</h4>
+                  <pre className={styles.markingCriteriaBox}>
+                    {typeof currentMarkingCriteria === 'string' 
+                      ? currentMarkingCriteria 
+                      : JSON.stringify(currentMarkingCriteria, null, 2)}
+                  </pre>
+                  <div className={styles.selfMarkScoreInputContainer}>
+                    <label htmlFor="selfMarkScore" className={styles.selfMarkScoreLabel}>
+                      Your Score (0 - {questions[currentQuestionIndex]?.totalMarksAvailable || 1}):
+                    </label>
+                    <input 
+                      type="number"
+                      id="selfMarkScore"
+                      value={selfMarkScore}
+                      onChange={(e) => setSelfMarkScore(e.target.value)}
+                      min="0"
+                      max={questions[currentQuestionIndex]?.totalMarksAvailable || 1}
+                      className={styles.selfMarkScoreInput}
+                      placeholder={`Enter score`}
+                    />
+                  </div>
+                  <button 
+                    onClick={handleSelfMarkSubmit} 
+                    className={`${styles.markBtn} ${styles.selfMarkSubmitButton}`}
+                    disabled={selfMarkScore === ''}
+                  >
+                    Submit Score
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h3 className={styles.feedbackTitle}>Feedback</h3>
+                  {(evaluationStatus === 'success' || evaluationStatus === 'error') && evaluation ? (
+                    <AnswerEvaluation 
+                      evaluation={evaluation} 
+                      status={evaluationStatus} 
+                    />
+                  ) : (
+                    <div className={styles.feedbackPlaceholder}>
+                      {evaluationStatus === 'loading' && <FiLoader className="animate-spin mr-2" />} 
+                      {evaluationStatus === 'loading' ? 'Evaluating...' : 
+                       evaluation?.feedback && evaluationStatus !== 'self-mark-pending' ? evaluation.feedback : 
+                       'Submit an answer to see feedback.'}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Action Buttons - Mark/Score and Next Question */}
+            <div className={styles.wireframeActionsContainer}>
+              {!isMarked ? (
+                <button
+                  onClick={handleMarkAnswer}
+                  disabled={!userAnswer.trim() || evaluationStatus === 'loading'}
+                  className={`${styles.markBtn} ${styles.wireframeMarkButton}`}
+                >
+                  {evaluationStatus === 'loading' ? <FiLoader className="animate-spin" /> : 'Mark/Score'}
+                </button>
+              ) : (
+                <button
+                  onClick={handleNextQuestion}
+                  className={`${styles.nextBtn} ${styles.wireframeNextButton}`}
+                >
+                  {currentQuestionIndex < questions.length - 1 ? (
+                    <>
+                      Next Question <FiArrowRight style={{ marginLeft: '8px' }} />
+                    </>
+                  ) : (
+                    'Complete Session'
+                  )}
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className={styles.noQuestionState}>
+            <FiAlertCircle size={24} className="mb-2 text-yellow-500" />
+            <p>No question loaded. This might be an error or the session is empty.</p>
+          </div>
+        )}
       </div>
     </div>
   );

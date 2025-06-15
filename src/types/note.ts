@@ -1,9 +1,9 @@
+import type { CustomBlock } from '../lib/blocknote/schema';
+
 export interface Note {
   id: string | number;
   title: string;
-  content: {
-    text: string;
-  };
+  content: CustomBlock[];
   plainText: string;
   folderId: string | number;
   userId: string | number;
@@ -14,12 +14,12 @@ export interface Note {
 
 export interface CreateNoteData {
   title: string;
-  content: string;
+  content: CustomBlock[];
   folderId: string | number;
 }
 
 export interface UpdateNoteData {
   title?: string;
-  content?: string;
+  content?: CustomBlock[];
   folderId?: string | number;
 } 

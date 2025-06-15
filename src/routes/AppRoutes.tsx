@@ -14,7 +14,8 @@ const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const FoldersPage = lazy(() => import('../pages/FoldersPage').then(module => ({ default: module.FoldersPage })));
 const QuestionSetsPage = lazy(() => import('../pages/QuestionSetsPage'));
 const ReviewSessionPage = lazy(() => import('../pages/ReviewSessionPage'));
-const NotesPage = lazy(() => import('../pages/NotesPage'));
+// const NotePage = lazy(() => import('../pages/NotePage').then(module => ({ default: module.default })));
+import NotePage from '../pages/NotePage'; // Direct import for debugging
 const ChatPage = lazy(() => import('../pages/ChatPage'));
 const MyProgressPage = lazy(() => import('../pages/MyProgressPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
@@ -28,6 +29,7 @@ const Loading = () => (
     <div className={styles.spinner} />
   </div>
 );
+
 
 // This component checks for auth and then renders the layout with the actual pages
 const ProtectedRoutes = () => {
@@ -61,8 +63,8 @@ const ProtectedRoutes = () => {
         <Route path="question-sets/:questionSetId" element={<QuestionsPage />} />
         <Route path="quiz/set/:setId" element={<ReviewSessionPage />} />
         <Route path="review/today" element={<ReviewSessionPage />} />
-        <Route path="notes/new" element={<NotesPage />} />
-        <Route path="notes/:noteId" element={<NotesPage />} />
+        <Route path="notes/new" element={<NotePage />} />
+        <Route path="notes/:noteId" element={<NotePage />} />
         <Route path="review/set/:setId" element={<ReviewSessionPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
