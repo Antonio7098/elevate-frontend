@@ -1,13 +1,25 @@
 import React from 'react';
-import type { Note, NoteBlock } from '../../types/note.types';
+import { useBlockNote } from '@blocknote/react';
+import { BlockNoteView } from '@blocknote/mantine';
+import '@blocknote/core/style.css';
+import '@blocknote/mantine/style.css';
+import type { BlockSchemaFromSpecs } from '@blocknote/core';
+
+import type { Note } from '../../types/note.types';
+import { type CustomBlock, type FullCustomBlock, schema, customBlockSpecs } from '../../lib/blocknote/schema';
 import styles from './NoteViewer.module.css';
 
 interface NoteViewerProps {
   note: Note;
-  content: NoteBlock[];
+  content: (CustomBlock | FullCustomBlock)[];
 }
 
 export const NoteViewer: React.FC<NoteViewerProps> = ({ note, content }) => {
+  const editor = useBlockNote<BlockSchemaFromSpecs<typeof customBlockSpecs>>({
+    initialContent: content,
+    schema,
+  });
+
   return (
     <div className={styles.viewerContainer}>
       <h1 className={styles.title}>{note.title}</h1>
@@ -18,33 +30,7 @@ export const NoteViewer: React.FC<NoteViewerProps> = ({ note, content }) => {
         {note.readingTime && <span>Reading Time: {note.readingTime} min</span>}
       </div>
       <div className={styles.content}>
-        {content.map((block, index) => {
-          if (block.type === 'insightCatalyst') {
-            return (
-              <div key={block.id || index} className={styles.catalyst}>
-                <span className={styles.catalystType}>{block.props.type}</span>
-                <p>{block.content}</p>
-                {block.props.metadata?.tags && (
-                  <div className={styles.tags}>
-                    {block.props.metadata.tags.map((tag: string) => (
-                      <span key={tag} className={styles.tag}>{tag}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          }
-          return (
-            <div key={block.id || index} className={styles.block}>
-              {block.type === 'paragraph' && (
-                <p>{block.content}</p>
-              )}
-              {block.type === 'heading' && (
-                <h2>{block.content}</h2>
-              )}
-            </div>
-          );
-        })}
+        <BlockNoteView editor={editor} editable={false} />
       </div>
     </div>
   );

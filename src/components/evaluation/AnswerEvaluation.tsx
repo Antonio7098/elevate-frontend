@@ -4,7 +4,7 @@ import type { EvaluationResult } from '../../services/evaluationService';
 
 interface AnswerEvaluationProps {
   evaluation: EvaluationResult | null;
-  status: 'idle' | 'loading' | 'success' | 'error';
+  status: 'idle' | 'loading' | 'success' | 'error' | 'self-mark-pending' | 'self-marked-success';
 }
 
 const AnswerEvaluation: React.FC<AnswerEvaluationProps> = ({ evaluation, status }) => {

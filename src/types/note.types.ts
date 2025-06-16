@@ -1,4 +1,4 @@
-import type { Block as BlockNoteBlock } from '@blocknote/core';
+import { type CustomBlock } from '../lib/blocknote/schema';
 
 export type CatalystType = 'question' | 'reflection' | 'connection' | 'action' | 'insight';
 
@@ -17,22 +17,16 @@ export interface CatalystBlock {
   };
 }
 
-export interface CustomBlock {
-  id: string;
-  type: 'paragraph' | 'heading' | 'quote' | 'codeBlock' | 'bulletListItem' | 'numberedListItem' | 'checkListItem' | 'table' | 'file' | 'image' | 'video' | 'audio';
-  content: string;
-}
-
-export type NoteBlock = BlockNoteBlock | CatalystBlock;
-
 export interface Note {
   id: string;
   title: string;
-  content: NoteBlock[];
+  content: CustomBlock[];
+  plainText?: string;
   createdAt: string;
   updatedAt: string;
   userId: string;
   folderId?: string;
+  questionSetId?: string | null;
   tags?: string[];
   isArchived?: boolean;
   isPinned?: boolean;
@@ -59,4 +53,16 @@ export interface Note {
       changes: number;
     };
   };
+}
+
+export interface CreateNoteData {
+  title: string;
+  content: CustomBlock[];
+  folderId: string;
+}
+
+export interface UpdateNoteData {
+  title?: string;
+  content?: CustomBlock[];
+  folderId?: string;
 } 

@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-import type { Note } from '../types/note';
+import type { Note, CreateNoteData, UpdateNoteData } from '../types/note.types';
 
 // Get all notes for a folder
 export const getNotesForFolder = async (folderId: string): Promise<Note[]> => {
@@ -42,7 +42,7 @@ export const getNote = async (noteId: string): Promise<Note> => {
 };
 
 // Create a new note
-export const createNote = async (note: Partial<Note>): Promise<Note> => {
+export const createNote = async (note: CreateNoteData): Promise<Note> => {
   try {
     const response = await apiClient.post('/notes', note);
     return response.data;
@@ -53,7 +53,7 @@ export const createNote = async (note: Partial<Note>): Promise<Note> => {
 };
 
 // Update an existing note
-export const updateNote = async (noteId: string, updates: Partial<Note>): Promise<Note> => {
+export const updateNote = async (noteId: string, updates: UpdateNoteData): Promise<Note> => {
   try {
     const response = await apiClient.put(`/notes/${noteId}`, updates);
     return response.data;

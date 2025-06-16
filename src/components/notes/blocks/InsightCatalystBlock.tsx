@@ -4,21 +4,11 @@ import styles from "./InsightCatalyst.module.css";
 import { createReactBlockSpec } from "@blocknote/react";
 import type { CatalystType } from '../../../types/insightCatalyst.types';
 
-// Define the props that the InsightCatalyst block will accept and store.
-// These align with what we expect to pass 
-// and what the block's propSchema will define.
-interface InsightCatalystBlockProps {
-  id: string; // This is the catalyst's own unique ID from the backend
-  catalystType: CatalystType;
-  text: string;
-}
+// The props for the InsightCatalyst block are inferred from the propSchema.
+// No separate interface is needed.
 
 // The "insightCatalyst" block specification.
-export const InsightCatalystBlockSpec = createReactBlockSpec<
-  "insightCatalyst",          // Type of the block
-  InsightCatalystBlockProps,  // The props our block accepts and stores
-  "none"                      // InlineContentSchema: "none" as it doesn't have inline editable content
->(
+export const InsightCatalystBlockSpec = createReactBlockSpec(
   // BlockConfig
   {
     type: "insightCatalyst",
@@ -38,8 +28,8 @@ export const InsightCatalystBlockSpec = createReactBlockSpec<
   },
   // ReactCustomBlockImplementation
   {
-    // The render function. Props are now correctly typed based on InsightCatalystBlockProps.
-    render: (props: { block: { props: InsightCatalystBlockProps }, editor: any }) => {
+    // The render function. Props are now correctly typed based on the propSchema.
+    render: (props) => {
       const [isEditing, setIsEditing] = React.useState(false);
       const inputRef = React.useRef<HTMLInputElement>(null);
 

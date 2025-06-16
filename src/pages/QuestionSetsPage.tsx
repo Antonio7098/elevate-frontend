@@ -6,16 +6,15 @@ import {
   FiTrash2, 
   FiEdit2, 
   FiChevronRight,
-  FiLoader,
-  FiX,
+
   FiAlertCircle,
   FiArrowLeft,
   FiCpu
 } from 'react-icons/fi';
 // Auth context not needed for this component
-import { getQuestionSets, createQuestionSet, deleteQuestionSet } from '../services/questionSetService';
+import { getQuestionSets, deleteQuestionSet } from '../services/questionSetService';
 import { getFolder } from '../services/folderService';
-import type { QuestionSet, CreateQuestionSetData } from '../types/questionSet';
+import type { QuestionSet } from '../types/questionSet';
 import type { Folder } from '../types/folder';
 
 import styles from './QuestionSetsPage.module.css';

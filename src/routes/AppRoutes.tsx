@@ -19,7 +19,6 @@ import NotePage from '../pages/NotePage'; // Direct import for debugging
 const ChatPage = lazy(() => import('../pages/ChatPage'));
 const MyProgressPage = lazy(() => import('../pages/MyProgressPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
-const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 const AllContentPage = lazy(() => import('../pages/AllContentPage').then(module => ({ default: module.AllContentPage })));
 const QuestionsPage = lazy(() => import('../pages/QuestionsPage'));
 
@@ -59,7 +58,6 @@ const ProtectedRoutes = () => {
         <Route path="my-progress/folders/:folderId" element={<MyProgressPage />} />
         <Route path="my-progress/sets/:setId" element={<MyProgressPage />} />
         <Route path="settings" element={<SettingsPage />} />
-        <Route path="profile" element={<ProfilePage />} />
         <Route path="question-sets/:questionSetId" element={<QuestionsPage />} />
         <Route path="quiz/set/:setId" element={<ReviewSessionPage />} />
         <Route path="review/today" element={<ReviewSessionPage />} />

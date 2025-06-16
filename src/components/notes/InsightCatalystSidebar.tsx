@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { InsightCatalyst } from '../../types/insightCatalyst.types';
 import { getCatalystsForNote, createCatalyst } from '../../services/insightCatalystService';
+import InsightCatalystDisplay from '../insightCatalysts/InsightCatalystDisplay';
 import styles from './InsightCatalystSidebar.module.css';
 
 interface InsightCatalystSidebarProps {
@@ -10,7 +11,6 @@ interface InsightCatalystSidebarProps {
 export const InsightCatalystSidebar: React.FC<InsightCatalystSidebarProps> = ({ noteId }) => {
   const [catalysts, setCatalysts] = useState<InsightCatalyst[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCatalysts = async () => {
@@ -33,7 +33,7 @@ export const InsightCatalystSidebar: React.FC<InsightCatalystSidebarProps> = ({ 
     try {
       const newCatalyst = await createCatalyst(noteId, {
         type: 'question',
-        content: 'New catalyst...',
+        text: 'New catalyst...',
         metadata: {
           status: 'active',
           importance: 0.5
@@ -62,19 +62,13 @@ export const InsightCatalystSidebar: React.FC<InsightCatalystSidebarProps> = ({ 
       </div>
       
       <div className={styles.catalystList}>
-        {catalysts.map(catalyst => (
-          <div key={catalyst.id} className={styles.catalystItem}>
-            <div className={styles.catalystType}>{catalyst.type}</div>
-            <div className={styles.catalystContent}>{catalyst.content}</div>
-            {catalyst.metadata?.tags && (
-              <div className={styles.tags}>
-                {catalyst.metadata.tags.map(tag => (
-                  <span key={tag} className={styles.tag}>{tag}</span>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+        {catalysts.length > 0 ? (
+          catalysts.map(catalyst => (
+            <InsightCatalystDisplay key={catalyst.id} catalyst={catalyst} />
+          ))
+        ) : (
+          <p className={styles.emptyMessage}>No insight catalysts for this note yet.</p>
+        )}
       </div>
     </div>
   );

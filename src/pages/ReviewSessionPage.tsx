@@ -121,7 +121,7 @@ const ReviewSessionPage = () => {
         // UI will be shown when 'Mark/Score' is clicked.
         setEvaluation({
           isCorrect: null,
-          score: null,
+          scoreAchieved: null,
           feedback: "This question is designated for self-marking. Click 'Mark/Score' to proceed.",
           action: "self_mark", 
           error: null,
@@ -204,120 +204,108 @@ const ReviewSessionPage = () => {
   // Handle marking an answer
   const handleMarkAnswer = async () => {
     if (!userAnswer.trim()) {
-      // Don't submit empty answers
-      return;
+      return; // Don't submit empty answers
     }
-    
+
     const currentQuestion = questions[currentQuestionIndex];
     console.log('🚀 [ReviewSession] Starting answer evaluation process');
     console.log('📋 [ReviewSession] Current question:', currentQuestion);
     console.log('✏️ [ReviewSession] User answer:', userAnswer);
 
-    // If question is designated for self-mark or autoMark is false, show self-mark UI directly
-    if (currentQuestion && (currentQuestion.selfMark || !currentQuestion.autoMark)) {
-      console.log('🚦 [ReviewSession] Self-mark or manual mark required. Skipping AI evaluation.');
+    // Path 1: Explicit Self-Mark
+    if (currentQuestion && currentQuestion.selfMark) {
+      console.log('🚦 [ReviewSession] selfMark is true. Proceeding to Self-Mark UI.');
       setEvaluationStatus('self-mark-pending');
       setEvaluation({
         isCorrect: null,
         score: null,
-        feedback: currentQuestion.selfMark 
-          ? "This question is designated for self-marking. Please review the criteria and score your answer."
-          : "This question requires manual marking. Please review the criteria and score your answer.",
+        feedback: "This question is designated for self-marking. Please review the criteria and score your answer.",
         action: "self_mark",
         error: null,
       });
       setShowSelfMarkUI(true);
-      // Ensure marking criteria are available (might have been set by useEffect, but double-check)
       if (!currentMarkingCriteria || (typeof currentMarkingCriteria === 'string' && currentMarkingCriteria.startsWith('No specific'))) {
-         setCurrentMarkingCriteria(currentQuestion.markingCriteria || 'No specific marking criteria provided. Please use your best judgment.');
+        setCurrentMarkingCriteria(currentQuestion.markingCriteria || 'No specific marking criteria provided. Please use your best judgment.');
       }
-      setIsMarked(false); // Not marked until self-score is submitted
-      return; // Skip AI evaluation
+      setIsMarked(false);
+      return;
     }
-    
+
+    // Paths 2 & 3: selfMark is false, attempt AI/Auto-Evaluation
     // Reset previous evaluation for AI marking path
     setEvaluation(null);
     setEvaluationStatus('loading');
-    console.log('⏳ [ReviewSession] Evaluation status set to loading')
+    
+    if (currentQuestion && currentQuestion.autoMark) { // selfMark is false here
+      console.log('⏳ [ReviewSession] autoMark is true (selfMark is false). Attempting AI/Auto-Evaluation.');
+    } else { // selfMark is false AND autoMark is false
+      console.log('⏳ [ReviewSession] selfMark is false and autoMark is false. Attempting AI Evaluation.');
+    }
     
     try {
-      // Add question set name to the question object if available
       const enhancedQuestion = {
         ...currentQuestion,
         questionSetName: sessionTitle.replace('Quiz: ', '')
       };
       
       console.log('🔄 [ReviewSession] Calling evaluateUserAnswer function');
-      console.log('📝 [ReviewSession] Enhanced question with set name:', enhancedQuestion.questionSetName);
-      
-      // Evaluate the answer using AI
       const result = await evaluateUserAnswer(enhancedQuestion, userAnswer);
       
-      console.log('✅ [ReviewSession] Evaluation completed successfully');
+      console.log('✅ [ReviewSession] AI/Auto-Evaluation completed successfully');
       console.log('📊 [ReviewSession] Evaluation result:', result);
       
-      // Store the evaluation result
       setEvaluation(result);
       setEvaluationStatus('success');
-      setIsMarked(true); // Mark the question as evaluated
+      setIsMarked(true);
       console.log('🎯 [ReviewSession] Evaluation status set to success');
 
-      // Log the raw evaluation result
-      console.log('💡 [ReviewSession] Raw evaluation result:', JSON.parse(JSON.stringify(result)));
-
       const newOutcome: QuestionOutcome = {
-        questionId: String(currentQuestion.id), // Ensure questionId is a string
+        questionId: String(currentQuestion.id),
         userAnswer: userAnswer,
-        // Use scoreAchieved directly, defaulting to 0 if null. Max score from service is 100.
         scoreAchieved: result.scoreAchieved === null ? 0 : Math.round(result.scoreAchieved),
         uueFocus: mapNumericStageToUueFocus(result.newLearningStage),
-        //evaluationFeedback: result.feedback,
       };
       setSessionOutcomes(prevOutcomes => [...prevOutcomes, newOutcome]);
       
-      // Log detailed evaluation for debugging
-      console.log('📝 [ReviewSession] Detailed evaluation info:');
-      console.log('  Question:', currentQuestion.text);
-      console.log('  Correct Answer:', currentQuestion.answer);
-      console.log('  User Answer:', userAnswer);
-      console.log('  Evaluation Result:', JSON.stringify(result, null, 2));
-      console.log('  Question Learning Stage:', currentQuestion.learningStage);
-      console.log('  Previous User Answers:', currentQuestion.userAnswers);
-      
-      // Update session stats
-      // Removed sessionStats update
-    } catch (error: any) {
-      console.error('❌ [ReviewSession] Error evaluating answer:', error);
-      const currentQuestionForCatch = questions[currentQuestionIndex]; // Ensure currentQuestion is accessible
+      console.log('📝 [ReviewSession] Detailed evaluation info:', JSON.stringify(result, null, 2));
 
-      // Detailed error logging
+    } catch (error: any) {
+      console.error('❌ [ReviewSession] Error during AI/Auto-Evaluation:', error);
+      const currentQuestionForCatch = questions[currentQuestionIndex]; // Re-fetch for safety, though likely same
+
       if (error.response) {
-        console.error(`❌ [ReviewSession] Server responded with status: ${error.response.status}`);
-        console.error('❌ [ReviewSession] Response data:', error.response.data);
+        console.error(`❌ [ReviewSession] Server responded with status: ${error.response.status}`, error.response.data);
       } else if (error.request) {
-        console.error('❌ [ReviewSession] No response received from server');
+        console.error('❌ [ReviewSession] No response from server (AI service might be down or unreachable)');
       } else {
         console.error('❌ [ReviewSession] Error details:', error.message || 'Unknown error');
       }
 
-      if (currentQuestionForCatch && currentQuestionForCatch.selfMark) {
-        console.log('🔄 [ReviewSession] AI evaluation failed. Switching to self-mark mode.');
+      // Fallback to self-mark if AI/Auto-evaluation fails
+      if (currentQuestionForCatch) {
+        console.log('🔄 [ReviewSession] AI/Auto-Evaluation failed. Switching to self-mark mode as fallback.');
         setShowSelfMarkUI(true);
-        setCurrentMarkingCriteria(currentQuestionForCatch.markingCriteria || 'No marking criteria available.');
-        setEvaluationStatus('self-mark-pending'); // New status for self-marking
+        setCurrentMarkingCriteria(currentQuestionForCatch.markingCriteria || 'No specific marking criteria provided. Please use your best judgment.');
+        setEvaluationStatus('self-mark-pending');
         setEvaluation({
-          isCorrect: false, // Or null, as it's pending self-mark
-          scoreAchieved: 0, // Or null
-          feedback: 'AI evaluation failed. Please use the self-marking guide below.'
+          isCorrect: null,
+          scoreAchieved: null,
+          feedback: `Evaluation failed: ${error.message || 'Unknown error'}. Please self-mark your answer.`,
+          action: "self_mark", 
+          error: error.message || 'Unknown error'
         });
+        setIsMarked(false);
       } else {
-        console.log('❌ [ReviewSession] AI evaluation failed. Self-mark not available for this question.');
+        console.error('❌ [ReviewSession] AI/Auto-Evaluation failed, AND current question data is unavailable for self-mark fallback.');
         setEvaluationStatus('error');
         setEvaluation({
-          isCorrect: false,
-          scoreAchieved: 0,
-          feedback: 'Error evaluating answer. Please try again. Self-mark not available.'
+          isCorrect: null,
+          scoreAchieved: null,
+          feedback: `Evaluation failed: ${error.message || 'Unknown error'}. Question data missing. Please try again or contact support.`,
+          action: "error",
+          error: error.message || 'Unknown error'
         });
+        // Decide if setIsMarked should be true or false here
       }
     }
   };
@@ -420,14 +408,20 @@ const ReviewSessionPage = () => {
     }
 
     console.log('[ReviewSession] Validation passed. Proceeding to try API call.');
-    if (!setId) {
+    const qSetIdFromParams = setId;
+    const qSetIdFromState = location.state?.questionSetId;
+    const effectiveQuestionSetId = qSetIdFromParams || qSetIdFromState;
+
+    console.log(`[ReviewSession] setId from useParams: ${qSetIdFromParams}, questionSetId from location.state: ${qSetIdFromState}, Effective ID: ${effectiveQuestionSetId}`);
+
+    if (!effectiveQuestionSetId) {
       setError('No question set ID available for submission. Please retry or contact support.');
       setSessionComplete(true);
       return;
     }
     try {
       const payload = {
-        questionSetId: String(setId), // REQUIRED by backend, must be string
+        questionSetId: String(effectiveQuestionSetId), // REQUIRED by backend, must be string
         sessionDurationSeconds: timeSpentInSeconds,
         outcomes: sessionOutcomes.map(outcome => ({
           questionId: String(outcome.questionId), // Backend expects string
@@ -443,7 +437,7 @@ const ReviewSessionPage = () => {
       console.log('🔍 [ReviewSession] Submitting payload:', payload);
       console.log('🔍 [ReviewSession] Submitting payload (JSON):', JSON.stringify(payload, null, 2));
       
-      await apiClient.post(`/api/reviews`, payload);
+      await apiClient.post(`/reviews`, payload);
       console.log('✅ [ReviewSession] Session outcomes submitted successfully.');
       setSessionComplete(true); // Mark session as complete in UI after successful submission
 
@@ -589,29 +583,7 @@ const ReviewSessionPage = () => {
         </button>
       </div>
 
-      {/* Main Content Area based on wireframe */}
-      <div className={styles.wireframeContentArea}>
-        <h1 className={styles.sessionTitle}>{sessionTitle}</h1>
-        
-        {/* Session content conditional rendering */}
-        {currentQuestion ? (
-          <>
-            {/* Progress Text */}
-            {questions.length > 0 && (
-              <div className="mb-4">
-                <div className="text-sm text-gray-500">
-                  Question {currentQuestionIndex + 1} of {questions.length}
-                </div>
-              </div>
-
-    <div className={styles.backButtonContainer}>
-      <button onClick={() => navigate(-1)} className={styles.backButton}>
-        <FiArrowLeft style={{ marginRight: '8px' }} /> Back
-      </button>
-    </div>
-
-
-    {/* Main Content Area based on wireframe */}
+    {/* The duplicated block starting with this comment and the subsequent div should be reviewed and likely removed. For now, this fixes the immediate syntax error. */}
     <div className={styles.wireframeContentArea}>
       <h1 className={styles.sessionTitle}>{sessionTitle}</h1>
       
@@ -648,14 +620,8 @@ const ReviewSessionPage = () => {
                   {tag}
                 </span>
               ))}
-                  {currentQuestion.conceptTags.map((tag, index) => (
-                    <span key={index} className={styles.conceptTag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
+          )}
 
             {/* Answer Input Area */}
             <div className={styles.answerInputContainer}>
@@ -777,7 +743,7 @@ const ReviewSessionPage = () => {
             <p>No question loaded. This might be an error or the session is empty.</p>
           </div>
         )}
-      </div>
+    </div>
     </div>
   );
 };

@@ -23,6 +23,8 @@ export interface EvaluationResult {
   conceptsIdentified?: string[];
   pendingEvaluation?: boolean;
   newLearningStage?: number;
+  action?: string; // To track actions like 'self_mark'
+  error?: string | null; // To store any error messages during evaluation
 }
 
 // Interface for the AI service response format
@@ -73,7 +75,7 @@ export const evaluateAnswerWithAI = async (
         expectedAnswer: question.answer,
         questionType: question.questionType || determineQuestionType(question),
         options: question.options || [],
-        marksAvailable: question.marksAvailable || 1 // Pass marksAvailable to AI
+        marksAvailable: question.totalMarksAvailable || 1 // Pass marksAvailable to AI
       },
       // Include additional context that might help the AI
       context: {
@@ -97,7 +99,7 @@ export const evaluateAnswerWithAI = async (
     if (response.data.success && response.data.evaluation) {
       const aiEvalData = response.data.evaluation; // This is the object from the AI service
       console.log('📥 [AI Evaluation] Extracted AI eval data:', JSON.stringify(aiEvalData, null, 2));
-      const currentMarksAvailable = question.marksAvailable || 1;
+      const currentMarksAvailable = question.totalMarksAvailable || 1;
 
       // Construct the final EvaluationResult based on AI response
       // Ensure all necessary fields from aiEvalData are mapped
@@ -178,7 +180,7 @@ export const determineQuestionType = (question: Question): string => {
   }
   
   // Check if it's a multiple choice question by looking at the answer format (A, B, C, D)
-  if (/^[A-D]$/.test(question.answer)) {
+  if (question.answer && /^[A-D]$/.test(question.answer)) {
     console.log('🗸 [QuestionType] Detected multiple-choice question (answer is A-D)');
     return 'multiple-choice';
   }
@@ -228,7 +230,7 @@ export const determineMarkingMethod = (question: Question): 'exact-match' | 'ai-
 // Evaluate an answer locally without AI
 export const evaluateExactMatch = (question: Question, userAnswer: string): EvaluationResult => {
   const isCorrect = userAnswer.trim().toLowerCase() === question.answer.trim().toLowerCase();
-  const currentMarksAvailable = question.marksAvailable || 1; // Default to 1 if not specified
+  const currentMarksAvailable = question.totalMarksAvailable || 1; // Default to 1 if not specified
   
   return {
     isCorrect,
@@ -299,7 +301,7 @@ const FORCE_AI_EVALUATION = import.meta.env.VITE_FORCE_AI_EVALUATION === 'true';
 
 // Main evaluation function that decides between AI and exact match
 export const evaluateUserAnswer = async (question: Question, userAnswer: string): Promise<EvaluationResult> => {
-  console.log('💬 [Evaluation] Starting evaluation for question:', question.id, 'Marks Available:', question.marksAvailable);
+  console.log('💬 [Evaluation] Starting evaluation for question:', question.id, 'Marks Available:', question.totalMarksAvailable);
   
   // If forcing AI evaluation, skip cache lookup
   if (FORCE_AI_EVALUATION) {
@@ -331,7 +333,7 @@ export const evaluateUserAnswer = async (question: Question, userAnswer: string)
   console.log('🔧 [Evaluation] Selected evaluation method:', method);
   
   let evaluation: EvaluationResult;
-  const currentMarksAvailable = question.marksAvailable || 1; // Get marks available for the question
+  const currentMarksAvailable = question.totalMarksAvailable || 1; // Get marks available for the question
   
   if (method === 'exact-match') {
     console.log('🔍 [Evaluation] Using exact match evaluation');
