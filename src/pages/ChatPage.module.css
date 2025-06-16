@@ -1,162 +1,364 @@
-/* ChatPage.module.css - Modular CSS for chat UI, themed for Elevate */
+/*
+ * ChatPage.module.css
+ * Styles for a modern, Claude-inspired chat interface.
+ */
 
-.container {
+.chatPage {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 2rem 1rem;
-  background: var(--color-background);
+  height: calc(100vh - 5rem); /* Adjust based on your app's header/nav height */
+  background-color: #f9f9f9;
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-.header {
+.chatContainer {
+  flex-grow: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--color-text-on-primary);
-}
-
-.contextSelector {
-  display: flex;
-  gap: 1.5rem;
-  color: var(--color-text-muted);
-  font-size: 1rem;
+  flex-direction: column;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .messages {
-  flex: 1;
+  flex-grow: 1;
   overflow-y: auto;
-  margin-bottom: 1.5rem;
+  padding: 1.5rem 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+}
+
+/* Welcome message / Empty state */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  color: #6b7280;
+}
+
+.emptyState h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.emptyState p {
+  font-size: 1rem;
+}
+
+
+/* Individual message styling */
+.messageWrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 90%;
+}
+
+.messageWrapper.user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.messageWrapper.ai {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.messageSender {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    color: #333;
 }
 
 .message {
-  max-width: 75%;
-  padding: 1rem 1.25rem;
-  border-radius: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 1.25rem;
+  line-height: 1.6;
   font-size: 1rem;
-  color: var(--color-text-on-primary);
-  background: var(--color-surface);
-  box-shadow: 0 1px 4px 0 rgba(20,20,40,0.06);
   word-break: break-word;
-  align-self: flex-start;
-}
-.messageUser {
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
-  align-self: flex-end;
-}
-.messageAi {
-  background: var(--color-surface);
-  color: var(--color-text-on-primary);
-  align-self: flex-start;
-}
-.messageTimestamp {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  margin-top: 0.3rem;
 }
 
-.inputRow {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-end;
-}
-.input {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border-radius: 0.7rem;
-  border: 1.5px solid var(--color-input-border);
-  background: var(--color-input-bg);
-  color: var(--color-text-base);
-  font-size: 1rem;
-  transition: border 0.2s, box-shadow 0.2s;
-}
-.input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary);
-}
-.sendBtn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.7rem;
-  border: none;
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.sendBtn:disabled {
-  background: var(--color-primary-hover);
-  cursor: not-allowed;
-}
-.sendBtn:hover,
-.sendBtn:focus {
-  background: var(--color-primary-hover);
+.message.user {
+  background-color: #e2e8f0;
+  color: #1a1a1a;
+  border-bottom-right-radius: 0.25rem;
 }
 
-@media (max-width: 600px) {
-  .container {
-    padding: 1rem 0.2rem;
-  }
-  .title {
-    font-size: 1.3rem;
-  }
-  .message {
-    font-size: 0.97rem;
-    padding: 0.7rem 0.7rem;
-  }
-  .input {
-    font-size: 0.97rem;
-  }
-  .sendBtn {
-    padding: 0.6rem 1rem;
-    font-size: 0.97rem;
-  }
-}
-
-.panelContainer {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: #fff;
+.message.ai {
+  background-color: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
-  padding: 0;
+  border-bottom-left-radius: 0.25rem;
 }
 
-.messagesPanel {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  padding: 16px;
-  background: #fff;
+.message p {
+    margin: 0;
 }
 
-.headerSmall {
-  font-size: 1.1rem;
-  font-weight: 600;
-  padding: 16px 16px 8px 16px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
-  color: #23263a;
-  border-radius: 8px 8px 0 0;
+.messageTimestamp {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.5rem;
+  padding: 0 0.5rem;
 }
 
-.inputRowPanel {
+/* Input area styling */
+.inputArea {
+  padding: 1rem 0 2rem 0;
+  background-color: #f9f9f9;
+  width: 100%;
+}
+
+.inputForm {
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  border-top: 1px solid #e5e7eb;
-  background: #fff;
-  border-radius: 0 0 8px 8px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  gap: 0.5rem;
+}
+
+/* Styles for react-mentions */
+.mentions {
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.mentionsInput {
+  width: 100%;
+  min-height: 56px;
+  padding: 1rem 1.5rem 1rem 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  font-size: 1rem;
+  resize: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.mentionsInput:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+.mentions__control {
+  /* This will be the main input area */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 1rem;
+  background-color: #fff;
+}
+
+.mentions__input {
+  /* This is the actual input element inside the control */
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  font-size: 1rem;
+  background-color: transparent;
+}
+
+.mentions__suggestions {
+  /* This is the suggestions list */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  margin-top: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.mentions__suggestions__list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.mentions__suggestions__item {
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.mentions__suggestions__item--focused {
+  background-color: #f0f0f0;
+}
+
+.suggestion {
+  padding: 10px 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.suggestion.focused {
+  background-color: #f0f0f0;
+}
+
+.suggestionType {
+  margin-right: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: #ccc; /* Default color */
+}
+
+.suggestionType[data-type="folder"] {
+  background-color: #007bff; /* Blue for folders */
+}
+
+.suggestionType[data-type="questionSet"] {
+  background-color: #28a745; /* Green for question sets */
+}
+
+.suggestionType[data-type="note"] {
+  background-color: #ffc107; /* Yellow for notes */
+}
+
+.mention {
+  background-color: #e0f7fa; /* A light blue background for the mention */
+  color: #007bff; /* A blue text color */
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.sendButton {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: none;
+  background-color: #4f46e5;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: #4338ca;
+}
+
+.sendButton:disabled {
+  background-color: #a5b4fc;
+  cursor: not-allowed;
+}
+
+/* Ensure the input container takes full width */
+.mentions > div {
+  width: 100%;
+  position: relative;
+}
+
+.loadingSpinner {
+  height: 1.25rem;
+  width: 1.25rem;
+  border: 2px solid white;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Context Selectors */
+.contextHeader {
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.contextSelectors {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.contextSelector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.contextSelector select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #374151;
+}
+
+.contextSelector select:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+}
+
+.contextSelector::after {
+    content: '▼';
+    font-size: 0.6rem;
+    color: #6b7280;
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.contextIcon {
+    color: #6b7280;
+}
+
+.loadingIcon {
+    animation: spin 1s linear infinite;
+}
+
+/* System message styles */
+.messageWrapper.system {
+  align-self: center;
+  max-width: 100%;
+  margin: 8px 0;
+}
+
+.message.system {
+  background-color: #f0f4f8; /* A light, neutral blue-gray */
+  color: #5a6e8a; /* A darker, muted blue for text */
+  font-style: italic;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }

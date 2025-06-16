@@ -1,32 +1,38 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './ChatPage.module.css';
 import { FiSend, FiFolder, FiBook, FiLoader } from 'react-icons/fi';
-import { sendMessageToAI, type ChatMessage as ChatMessageType, type ChatContext } from '../services/chatService';
+import { sendMessageToAI, type ChatContext } from '../services/chatService';
 import { getFolders } from '../services/folderService';
 import { getQuestionSets } from '../services/questionSetService';
+import { getNotesForFolder } from '../services/noteService';
 import type { Folder } from '../types/folder';
 import type { QuestionSet } from '../types/questionSet';
+import type { Note } from '../types/note.types';
+import type { ChatMessage as ChatMessageType } from '../services/chatService';
+import type { SuggestionDataItem } from 'react-mentions';
+import { MentionsInput, Mention } from 'react-mentions';
 
 interface ChatMessageProps {
   message: ChatMessageType;
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => (
-  <div className={message.sender === 'user' ? styles.messageUser : styles.messageAi}>
-    <div className={styles.message}
-    >
-      <p className={styles.message}>{message.text}</p>
+  <div className={`${styles.messageWrapper} ${styles[message.sender]}`}>
+    <div className={`${styles.message} ${styles[message.sender]}`}>
+      <p>{message.text}</p>
+    </div>
+    {message.sender !== 'system' && (
       <p className={styles.messageTimestamp}>
         {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </p>
-    </div>
+    )}
   </div>
 );
 
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // State for context selection
+  const [isLoading, setIsLoading] = useState(false);
   const [context, setContext] = useState<ChatContext>({
     includeUserInfo: true,
     includeContentAnalysis: true
@@ -35,26 +41,42 @@ const ChatPage: React.FC = () => {
   const [questionSets, setQuestionSets] = useState<QuestionSet[]>([]);
   const [isLoadingFolders, setIsLoadingFolders] = useState(true);
   const [isLoadingQuestionSets, setIsLoadingQuestionSets] = useState(false);
+  const [notes, setNotes] = useState<Note[]>([]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch folders on component mount
   useEffect(() => {
-    const fetchFolders = async () => {
+    const fetchAllFolders = async () => {
       try {
+        // First fetch all folders
         const fetchedFolders = await getFolders();
-        setFolders(fetchedFolders);
+        
+        // Then fetch all subfolders for each folder
+        const foldersWithSubfolders = await Promise.all(
+          fetchedFolders.map(async (folder) => {
+            try {
+              const subfolders = await getFolders(folder.id);
+              return [folder, ...subfolders];
+            } catch (error) {
+              console.error(`Failed to fetch subfolders for folder ${folder.id}:`, error);
+              return [folder];
+            }
+          })
+        );
+        
+        // Flatten the array of arrays into a single array of folders
+        const allFolders = foldersWithSubfolders.flat();
+        setFolders(allFolders);
       } catch (error) {
         console.error('Failed to fetch folders:', error);
-        // Optionally show error to user
       } finally {
         setIsLoadingFolders(false);
       }
     };
 
-    fetchFolders();
+    fetchAllFolders();
   }, []);
 
-  // Fetch question sets when folder is selected
   const fetchQuestionSets = useCallback(async (folderId: string) => {
     if (!folderId) {
       setQuestionSets([]);
@@ -68,93 +90,190 @@ const ChatPage: React.FC = () => {
       setQuestionSets(fetchedQuestionSets);
     } catch (error) {
       console.error('Failed to fetch question sets:', error);
-      // Optionally show error to user
     } finally {
       setIsLoadingQuestionSets(false);
     }
   }, []);
 
-  // Handle folder selection change
-  const handleFolderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const folderId = e.target.value || '';
-    const newContext = {
-      ...context,
-      folderId: folderId || undefined,
-      questionSetId: undefined // Reset question set when folder changes
-    };
-    
-    // Update context state
-    setContext(newContext);
-    console.log('Updated context with folder selection:', newContext);
-    
-    if (folderId) {
-      fetchQuestionSets(folderId);
+  const fetchNotes = useCallback(async (folderId: string) => {
+    if (!folderId) {
+      setNotes([]);
+      return;
+    }
+    try {
+      const fetchedNotes = await getNotesForFolder(folderId);
+      setNotes(fetchedNotes);
+    } catch (error) {
+      console.error('Failed to fetch notes:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (context.folderId) {
+      fetchQuestionSets(context.folderId);
+      fetchNotes(context.folderId);
     } else {
       setQuestionSets([]);
+      setNotes([]);
     }
-  };
+  }, [context.folderId, fetchQuestionSets, fetchNotes]);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    // This effect is kept for potential future use
+  }, [folders, questionSets, notes]);
+
+  const searchSuggestions = useCallback((query: string, callback: (suggestions: Array<{ id: string; display: string; type: string }>) => void) => {
+    if (!query || query.trim() === '') {
+      callback([]);
+      return;
+    }
+
+    const queryLower = query.toLowerCase();
+    
+    const allSuggestions = [
+      ...folders.map(f => ({
+        id: `folder:${f.id}`,
+        display: f.parentId ? `${folders.find(pf => pf.id === f.parentId)?.name} > ${f.name}` : f.name,
+        type: 'folder'
+      })),
+      ...questionSets.map(qs => ({
+        id: `questionset:${qs.id}`,
+        display: qs.name,
+        type: 'questionSet'
+      })),
+      ...notes.map(n => ({
+        id: `note:${n.id}`,
+        display: n.title,
+        type: 'note'
+      }))
+    ];
+
+    const filtered = allSuggestions
+      .filter(item => item.display.toLowerCase().includes(queryLower))
+      .map(item => ({
+        ...item,
+        relevance: item.display.toLowerCase().indexOf(queryLower)
+      }))
+      .filter(item => item.relevance !== -1)
+      .sort((a, b) => a.relevance - b.relevance || a.display.localeCompare(b.display))
+      .slice(0, 5)
+      .map(({ id, display, type }) => ({ id, display, type }));
+
+    callback(filtered);
+  }, [folders, questionSets, notes]);
+
+  const handleFolderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const folderId = e.target.value;
+    setContext({
+      ...context,
+      folderId: folderId || undefined,
+      questionSetId: undefined,
+    });
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
+  
+    setIsLoading(true);
+  
+    const mentionRegex = /@\[(.+?)\]\((.+?)\)/g;
+    let plainText = input;
+    let match;
+    const newMessages: ChatMessageType[] = [];
+    let newContext = { ...context };
+  
+    const allSuggestions: Array<{id: string; display: string; type: string}> = [
+      ...folders.map(f => ({
+        id: `folder:${f.id}`,
+        display: f.parentId 
+          ? `${folders.find(pf => pf.id === f.parentId)?.name} > ${f.name}`
+          : f.name,
+        type: 'folder'
+      })),
+      ...questionSets.map(qs => ({
+        id: `questionset:${qs.id}`,
+        display: qs.name,
+        type: 'questionSet'
+      })),
+      ...notes.map(n => ({
+        id: `note:${n.id}`,
+        display: n.title,
+        type: 'note'
+      }))
+    ];
+    
+    // Ensure all suggestions have a type
+    const typedSuggestions = allSuggestions.map(suggestion => ({
+      id: suggestion.id,
+      display: suggestion.display,
+      type: suggestion.type
+    }));
+    
+    const suggestionMap = new Map<string, { id: string; display: string; type: string }>(typedSuggestions.map(s => [s.id, s]));
+  
+    // First pass: find context-setting mentions (folders, question sets, notes)
+    while ((match = mentionRegex.exec(input)) !== null) {
+      const [_fullMatch, _display, id] = match;
+      const suggestion = suggestionMap.get(id);
+  
+      if (suggestion) {
+        let systemMessageText = '';
+        if (suggestion.type === 'folder') {
+          newContext.folderId = suggestion.id;
+          newContext.questionSetId = undefined; // Reset question set when folder changes
+          systemMessageText = `Context set to folder: "${suggestion.display}"`;
+        } else if (suggestion.type === 'questionSet') {
+          // Ensure folder context is already set for the question set
+          const parentFolder = folders.find(f => questionSets.some(qs => qs.id === suggestion.id && qs.folderId === f.id));
+          if (parentFolder) {
+            newContext.folderId = parentFolder.id;
+            newContext.questionSetId = suggestion.id;
+            systemMessageText = `Context set to question set: "${suggestion.display}"`;
+          }
+        } else if (suggestion.type === 'note') {
+          newContext.noteId = suggestion.id;
+          systemMessageText = `Referenced note: "${suggestion.display}"`;
+        }
+
+        if (systemMessageText) {
+          newMessages.push({
+            sender: 'system',
+            text: systemMessageText,
+            timestamp: new Date(),
+          });
+        }
+      }
+    }
+    
+    // Update context state if it has changed
+    if (JSON.stringify(newContext) !== JSON.stringify(context)) {
+      setContext(newContext);
+    }
+
+    // Clean the input for display and for the AI
+    plainText = input.replace(mentionRegex, '$1');
 
     const userMessage: ChatMessageType = {
       sender: 'user',
-      text: input,
+      text: plainText,
       timestamp: new Date(),
     };
+    newMessages.push(userMessage);
 
-    // Add user message immediately
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, ...newMessages]);
     setInput('');
-    setIsLoading(true);
 
     try {
-      // Ensure we have the latest context with folder and question set IDs
-      const currentContext = {
-        ...context,
-        // Explicitly include these to ensure they're not undefined
-        folderId: context.folderId || undefined,
-        questionSetId: context.questionSetId || undefined,
-        includeUserInfo: true,
-        includeContentAnalysis: true
-      };
-      
-      console.log('Sending message with context:', currentContext);
-      
-      // Get AI response with enhanced context
-      const aiResponse = await sendMessageToAI(input, currentContext);
-      
-      // Store any updated context from the response
-      if (aiResponse.context) {
-        const updatedContext = {
-          ...context,
-          ...aiResponse.context
+      if (plainText.trim()) {
+        const aiResponse = await sendMessageToAI(plainText, newContext);
+        const aiMessage: ChatMessageType = {
+          sender: 'ai',
+          text: aiResponse.response, // Fixed: Using 'response' instead of 'text'
+          timestamp: new Date(),
         };
-        setContext(updatedContext);
-        console.log('Updated context from AI response:', updatedContext);
+        setMessages(prev => [...prev, aiMessage]);
       }
-    
-    const aiMessage: ChatMessageType = {
-      sender: 'ai',
-      text: aiResponse.response,
-      timestamp: new Date(),
-    };
-    
-    // Update context if server returned a new one
-    if (aiResponse.context) {
-      setContext(prev => ({
-        ...prev,
-        ...aiResponse.context
-      }));
-    }
-      
-      setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       const errorMessage: ChatMessageType = {
         sender: 'ai',
@@ -167,139 +286,113 @@ const ChatPage: React.FC = () => {
     }
   };
 
+  // Export the component as default to fix the unused warning
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>AI Chat</h1>
-        {/* Context Selector */}
-        <div className={styles.contextSelector}>
-          <div className={styles.contextSelector}>
-            <span>
-              {isLoadingFolders ? (
-                <span className="animate-spin">
-                  <FiLoader size={18} />
-                </span>
-              ) : (
-                <FiFolder size={18} />
-              )}
-            </span>
-            <select
-              className={styles.input}
-              value={context.folderId || ''}
-              onChange={handleFolderChange}
-              disabled={isLoadingFolders}
-            >
-              <option value="">All Folders</option>
-              {isLoadingFolders ? (
-                <option disabled>Loading folders...</option>
-              ) : (
-                folders.map(folder => (
+    <div className={styles.chatPage} data-testid="chat-page">
+      <div className={styles.chatContainer}>
+        <div className={styles.contextHeader}>
+          <div className={styles.contextSelectors}>
+            <div className={styles.contextSelector}>
+              <FiFolder size={16} className={styles.contextIcon} />
+              <select
+                value={context.folderId || ''}
+                onChange={handleFolderChange}
+                disabled={isLoadingFolders}
+              >
+                <option value="">Select a Folder</option>
+                {folders.map(folder => (
                   <option key={folder.id} value={folder.id}>
                     {folder.name}
                   </option>
-                ))
-              )}
-            </select>
-          </div>
-          <div className={styles.contextSelector}>
-            <span>
-              {isLoadingQuestionSets ? (
-                <span className="animate-spin">
-                  <FiLoader size={18} />
-                </span>
-              ) : (
-                <FiBook size={18} />
-              )}
-            </span>
-            <select
-              className={styles.input}
-              value={context.questionSetId || ''}
-              onChange={(e) => setContext(prev => ({
-                ...prev,
-                questionSetId: e.target.value || undefined
-              }))}
-              disabled={isLoadingQuestionSets || !context.folderId}
-            >
-              <option value="">All Question Sets</option>
-              {isLoadingQuestionSets ? (
-                <option disabled>Loading question sets...</option>
-              ) : (
-                questionSets.map(qs => (
+                ))}
+              </select>
+              {isLoadingFolders && <FiLoader size={16} className={`${styles.contextIcon} ${styles.loadingIcon}`} />}
+            </div>
+            <div className={styles.contextSelector}>
+              <FiBook size={16} className={styles.contextIcon} />
+              <select
+                value={context.questionSetId || ''}
+                onChange={(e) => setContext(prev => ({
+                  ...prev,
+                  questionSetId: e.target.value || undefined
+                }))}
+                disabled={isLoadingQuestionSets || !context.folderId}
+              >
+                <option value="">Select a Question Set</option>
+                {questionSets.map(qs => (
                   <option key={qs.id} value={qs.id}>
                     {qs.name}
                   </option>
-                ))
-              )}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Context Indicator */}
-      {(context.folderId || context.questionSetId) && (
-        <div className="mb-4 px-4 py-2 bg-indigo-900/30 border border-indigo-500/20 rounded-lg text-sm">
-          <div className="flex items-center text-indigo-300">
-            <span className="font-medium">AI Context:</span>
-            <div className="ml-2 flex items-center space-x-2">
-              {context.folderId && (
-                <span className="bg-indigo-500/20 px-2 py-0.5 rounded text-xs flex items-center">
-                  <span className="mr-1"><FiFolder size={12} /></span>
-                  {folders.find(f => f.id === context.folderId)?.name || 'Selected Folder'}
-                </span>
-              )}
-              {context.questionSetId && (
-                <span className="bg-indigo-500/20 px-2 py-0.5 rounded text-xs flex items-center">
-                  <span className="mr-1"><FiBook size={12} /></span>
-                  {questionSets.find(qs => qs.id === context.questionSetId)?.name || 'Selected Question Set'}
-                </span>
-              )}
+                ))}
+              </select>
+              {isLoadingQuestionSets && <FiLoader size={16} className={`${styles.contextIcon} ${styles.loadingIcon}`} />}
             </div>
           </div>
-          <p className="text-xs text-indigo-200/70 mt-1">
-            The AI will provide responses tailored to your selected learning materials.
-          </p>
         </div>
-      )}
-      
-      {/* Messages Container */}
-      <div className={styles.messages}>
-        {messages.length === 0 ? (
-          <div className={styles.messageAi}>
-            <p>Start a conversation with the AI assistant</p>
-          </div>
-        ) : (
-          messages.map((msg, index) => (
-            <ChatMessage key={index} message={msg} />
-          ))
-        )}
-        <div ref={messagesEndRef} />
-      </div>
 
-      {/* Message Input */}
-      <form onSubmit={handleSendMessage} className={styles.inputRow}>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          className={styles.input}
-          disabled={isLoading}
-        />
-        <button
-          type="submit"
-          disabled={!input.trim() || isLoading}
-          className={styles.sendBtn}
-        >
-          {isLoading ? (
-            <span className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        <div className={styles.messages}>
+          {messages.length === 0 ? (
+            <div className={styles.emptyState}>
+              <h1>AI Assistant</h1>
+              <p>Start a conversation by typing your message below.</p>
+            </div>
           ) : (
-            <>
-              <span style={{ marginRight: 8 }}>Send</span>
-              <FiSend size={18} />
-            </>
+            messages.map((msg, index) => (
+              <ChatMessage key={index} message={msg} />
+            ))
           )}
-        </button>
-      </form>
+          <div ref={messagesEndRef} />
+        </div>
+
+        <form onSubmit={handleSendMessage} className={styles.inputForm}>
+          <MentionsInput
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type a message, or use '@' to reference..."
+            className={styles.mentionsInput}
+          >
+            <Mention
+              trigger="@"
+              data={searchSuggestions}
+              markup="@[__display__](__id__)"
+              displayTransform={(id, display) => `@${display}`}
+              renderSuggestion={(suggestion: SuggestionDataItem, search: string, highlightedSearchTerm: string, index: number, focused: boolean) => {
+                const displayText = String(suggestion.display || '');
+                const searchText = String(search || '');
+                const suggestionType = (suggestion as any).type || 'unknown';
+                const escapedSearch = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const searchRegex = new RegExp(`(${escapedSearch})`, 'gi');
+                const parts = displayText.split(searchRegex);
+                return (
+                  <div className={`${styles.suggestion} ${focused ? styles.focused : ''}`} key={suggestion.id}>
+                    <span className={styles.suggestionType} data-type={suggestionType}>
+                      {suggestionType === 'folder' ? '📁' : suggestionType === 'questionSet' ? '📚' : '📝'}
+                    </span>
+                    <span>
+                      {parts.map((part, i) => 
+                        part.toLowerCase() === searchText.toLowerCase() ? (
+                          <span key={i} style={{ fontWeight: 'bold' }}>{part}</span>
+                        ) : (
+                          <span key={i}>{part}</span>
+                        )
+                      )}
+                    </span>
+                  </div>
+                );
+              }}
+              className={styles.mention}
+              appendSpaceOnAdd={true}
+            />
+          </MentionsInput>
+          <button
+            type="submit"
+            className={styles.sendButton}
+            disabled={!input.trim() || isLoading}
+          >
+            {isLoading ? <FiLoader className={styles.loadingSpinner} /> : <FiSend />}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

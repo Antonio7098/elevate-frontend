@@ -1,7 +1,7 @@
 import { apiClient } from './apiClient';
 
 export interface ChatMessage {
-  sender: 'user' | 'ai';
+  sender: 'user' | 'ai' | 'system';
   text: string;
   timestamp: Date;
 }
