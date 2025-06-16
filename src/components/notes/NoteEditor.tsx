@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/core/style.css";
@@ -12,11 +12,11 @@ interface NoteEditorProps {
   editable?: boolean;
 }
 
-export const NoteEditor: React.FC<NoteEditorProps> = ({
+export const NoteEditor = ({
   initialContent = [], // Default to empty array if undefined
   onContentChange,
   editable = true, // Default to true if not provided
-}) => {
+}: NoteEditorProps) => {
   console.log('[NoteEditor] Received initialContent:', JSON.stringify(initialContent, null, 2));
   console.log('[NoteEditor] Editable state:', editable);
 

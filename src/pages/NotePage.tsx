@@ -14,6 +14,7 @@ import type { Note, UpdateNoteData } from '../types/note.types';
 import { type CustomBlock, type FullCustomBlock } from "../lib/blocknote/schema";
 
 const NotePage: React.FC = () => {
+  console.log('NotePage rendered');
   const { noteId } = useParams<{ noteId: string }>();
   
   const [isIncatsVisible, setIncatsVisible] = useState(true);
@@ -26,6 +27,7 @@ const NotePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log(`[NotePage Effect] Note ID: ${noteId}`);
     if (!noteId || noteId === 'new') {
         setIsEditMode(true);
         setIsLoading(false);
@@ -35,9 +37,11 @@ const NotePage: React.FC = () => {
     }
 
     const fetchNote = async () => {
+      console.log(`[NotePage] Fetching note with ID: ${noteId}`);
       try {
         setIsLoading(true);
         const fetchedNote = await getNote(noteId);
+        console.log('[NotePage] Note fetched successfully:', fetchedNote);
         setNote(fetchedNote);
         setContent(fetchedNote.content || []);
         setError(null);
@@ -53,10 +57,12 @@ const NotePage: React.FC = () => {
   }, [noteId]);
 
   const handleContentChange = (newContent: FullCustomBlock[]) => {
+    console.log('[NotePage] Content changed:', newContent);
     setContent(newContent);
   };
 
   const handleSaveChanges = async () => {
+    console.log('[NotePage] Initiating save changes...');
     if (!note) return;
 
     try {
@@ -77,6 +83,7 @@ const NotePage: React.FC = () => {
       };
 
       await updateNote(note.id, updates);
+      console.log('[NotePage] Note updated successfully.');
       setIsEditMode(false);
       setError(null); // Clear error on successful save
     } catch (err) {

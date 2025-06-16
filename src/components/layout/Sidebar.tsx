@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   FiHome, 
   FiFolder, 
@@ -7,7 +7,7 @@ import {
   FiMessageSquare, 
   FiBarChart2,
   FiSettings,
-  FiUser,
+
   FiLogOut 
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
@@ -25,7 +25,7 @@ interface SidebarProps {
 import styles from './Sidebar.module.css';
 
 const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
   
   // Define a common class for icons if you want consistency
@@ -118,18 +118,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
           {/* User Profile */}
           <div className={styles.profileArea}>
             {/* User Profile Clickable Area */}
-            <Link
-              to="/profile"
-              className={styles.profileBtn}
-              title="View Profile"
-            >
-              <div className={styles.profileIcon}>
-                <FiUser className={styles.icon} />
-              </div>
+            <div className={styles.profileBtn} title={user?.name || 'User'}>
               <div className={styles.profileText}>
-                <p style={{ fontSize: '0.875rem', fontWeight: 500, color: '#fff' }}>User</p>
+                <p style={{ fontSize: '0.875rem', fontWeight: 500, color: '#fff' }}>{user?.name || 'User'}</p>
               </div>
-            </Link>
+            </div>
             
             {/* Logout Button */}
             <button

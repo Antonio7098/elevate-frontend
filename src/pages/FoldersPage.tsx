@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiAlertCircle, FiLoader, FiPlus, FiFolder, FiChevronRight, FiFileText, FiBook } from 'react-icons/fi';
 import type { Folder } from '../types/folder';
 import type { QuestionSet } from '../types/questionSet';
-import type { Note } from '../types/note';
+import type { Note } from '../types/note.types';
 import styles from './FoldersPage.module.css';
 
 console.log("🟢 [FoldersPage] Module loaded");
@@ -229,11 +229,8 @@ export function FoldersPage() {
           </div>
           <div className={styles.notesGrid}>
             {questionSets.map(set => (
-              <div key={set.id} className={styles.folderItemRow}>
-                <Link 
-                  to={`/question-sets/${set.id}`}
-                  className={styles.folderItem}
-                >
+              <div key={set.id} className={styles.questionSetCard}>
+                <Link to={`/question-sets/${set.id}`} className={styles.cardInfoLink}>
                   <div className={styles.folderInfo}>
                     <FiBook className={styles.folderIcon} />
                     <div>
@@ -244,16 +241,17 @@ export function FoldersPage() {
                     </div>
                   </div>
                 </Link>
-                <button
-                  className={styles.reviewBtn}
-                  onClick={e => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    navigate(`/review/set/${set.id}`);
-                  }}
-                >
-                  Begin Review
-                </button>
+                <div className={styles.cardActions}>
+                  <button
+                    className={styles.reviewBtn}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(`/review/set/${set.id}`);
+                    }}
+                  >
+                    Begin Review
+                  </button>
+                </div>
               </div>
             ))}
           </div>

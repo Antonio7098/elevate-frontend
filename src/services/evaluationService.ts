@@ -229,7 +229,7 @@ export const determineMarkingMethod = (question: Question): 'exact-match' | 'ai-
 
 // Evaluate an answer locally without AI
 export const evaluateExactMatch = (question: Question, userAnswer: string): EvaluationResult => {
-  const isCorrect = userAnswer.trim().toLowerCase() === question.answer.trim().toLowerCase();
+  const isCorrect = !!question.answer && userAnswer.trim().toLowerCase() === question.answer.trim().toLowerCase();
   const currentMarksAvailable = question.totalMarksAvailable || 1; // Default to 1 if not specified
   
   return {

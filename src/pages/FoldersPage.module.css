@@ -537,21 +537,49 @@
   margin-top: 1rem;
 }
 
-.folderItemRow {
+/* New styles for question set cards */
+.questionSetCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem; /* Slightly more rounded */
+  padding: 1.25rem;
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  height: 100%; /* Fill grid cell height */
+}
+
+.questionSetCard:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.cardInfoLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  flex-grow: 1;
+}
+
+.cardActions {
+  margin-top: 1.25rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.25rem;
 }
 .reviewBtn {
-  padding: 0.5rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   background: var(--color-primary, #2563eb);
   color: #fff;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  width: 100%;
+  text-align: center;
+  display: block;
 }
 .reviewBtn:hover, .reviewBtn:focus {
   background: var(--color-primary-dark, #1d4ed8);

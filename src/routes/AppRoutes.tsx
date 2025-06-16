@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AuthenticatedLayout from '../components/layout/AuthenticatedLayout';
@@ -12,13 +12,14 @@ const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 // Authenticated Pages
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const FoldersPage = lazy(() => import('../pages/FoldersPage').then(module => ({ default: module.FoldersPage })));
-const QuestionSetsPage = lazy(() => import('../pages/QuestionSetsPage'));
+
 const ReviewSessionPage = lazy(() => import('../pages/ReviewSessionPage'));
 // const NotePage = lazy(() => import('../pages/NotePage').then(module => ({ default: module.default })));
 import NotePage from '../pages/NotePage'; // Direct import for debugging
 const ChatPage = lazy(() => import('../pages/ChatPage'));
 const MyProgressPage = lazy(() => import('../pages/MyProgressPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
+const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 const AllContentPage = lazy(() => import('../pages/AllContentPage').then(module => ({ default: module.AllContentPage })));
 const QuestionsPage = lazy(() => import('../pages/QuestionsPage'));
 
@@ -58,6 +59,7 @@ const ProtectedRoutes = () => {
         <Route path="my-progress/folders/:folderId" element={<MyProgressPage />} />
         <Route path="my-progress/sets/:setId" element={<MyProgressPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="profile" element={<ProfilePage />} />
         <Route path="question-sets/:questionSetId" element={<QuestionsPage />} />
         <Route path="quiz/set/:setId" element={<ReviewSessionPage />} />
         <Route path="review/today" element={<ReviewSessionPage />} />

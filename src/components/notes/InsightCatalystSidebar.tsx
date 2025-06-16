@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { InsightCatalyst } from '../../types/insightCatalyst.types';
+import { FiPlus } from 'react-icons/fi';
 import { getCatalystsForNote, createCatalyst } from '../../services/insightCatalystService';
 import InsightCatalystDisplay from '../insightCatalysts/InsightCatalystDisplay';
 import styles from './InsightCatalystSidebar.module.css';
@@ -8,7 +9,7 @@ interface InsightCatalystSidebarProps {
   noteId: string;
 }
 
-export const InsightCatalystSidebar: React.FC<InsightCatalystSidebarProps> = ({ noteId }) => {
+export const InsightCatalystSidebar = ({ noteId }: InsightCatalystSidebarProps) => {
   const [catalysts, setCatalysts] = useState<InsightCatalyst[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -57,6 +58,7 @@ export const InsightCatalystSidebar: React.FC<InsightCatalystSidebarProps> = ({ 
           className={styles.createButton}
           onClick={handleCreateCatalyst}
         >
+          <FiPlus style={{ marginRight: '0.5rem' }} />
           Create New
         </button>
       </div>

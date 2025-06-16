@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/core/style.css';
@@ -14,7 +14,7 @@ interface NoteViewerProps {
   content: (CustomBlock | FullCustomBlock)[];
 }
 
-export const NoteViewer: React.FC<NoteViewerProps> = ({ note, content }) => {
+export const NoteViewer = ({ note, content }: NoteViewerProps) => {
   const editor = useBlockNote<BlockSchemaFromSpecs<typeof customBlockSpecs>>({
     initialContent: content,
     schema,

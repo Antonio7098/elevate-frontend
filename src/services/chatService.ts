@@ -9,6 +9,7 @@ export interface ChatMessage {
 export interface ChatContext {
   folderId?: string;
   questionSetId?: string;
+  noteId?: string;
   includeUserInfo?: boolean;
   includeContentAnalysis?: boolean;
 }
@@ -67,6 +68,8 @@ export const sendMessageToAI = async (
       ...(context?.folderId && { folderId: context.folderId }),
       // Include question set ID directly in the request payload, not nested in context
       ...(context?.questionSetId && { questionSetId: context.questionSetId }),
+      // Include note ID if provided
+      ...(context?.noteId && { noteId: context.noteId }),
       // Include other context properties
       includeUserInfo: context?.includeUserInfo ?? true,
       includeContentAnalysis: context?.includeContentAnalysis ?? true
@@ -86,9 +89,11 @@ export const sendMessageToAI = async (
   }
 };
 
-export const getChatHistory = async (): Promise<ChatMessage[]> => {
+export const getChatHistory = async (noteId?: string): Promise<ChatMessage[]> => {
   try {
-    const response = await apiClient.get<ChatMessage[]>('/ai/chat/history');
+    const response = await apiClient.get<ChatMessage[]>('/ai/chat/history', {
+      params: noteId ? { noteId } : {},
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching chat history:', error);
