@@ -167,3 +167,57 @@ Developing adaptive response systems enables the chatbot to modify its communica
 smythos.com
 
 By integrating these advanced techniques, your learning assistant chatbot can offer a more personalized, engaging, and effective learning experience, aligning with the latest developments in AI-driven education.
+
+🎨 2. Steerable Chatbots (Preference-Based Activation Steering)
+Why it matters:
+Users can dynamically adjust tone, depth, or format of explanations — e.g., "Explain it again but more visually" or "Less code, more diagrams".
+
+How to integrate:
+
+Define steerability axes:
+Depth: [Beginner ↔ Expert]
+Format: [Text ↔ Visual ↔ Code]
+Tone: [Formal ↔ Casual]
+Embed these as vectors in prompts using LoRA-style steering vectors or prompt embeddings.
+Let users toggle preferences via UI or natural language.
+Example Prompt Injection:
+
+text
+
+
+1
+[User Preference Vector]: {"depth": "beginner", "format": "visual", "tone": "casual"}
+Tools:
+
+Use libraries like PromptLayer , OpenAI’s embedding API , or custom vector steering via Llama.cpp / GGML
+
+🧭 3. Adaptive Response Systems (Dynamic Personalization)
+Why it matters:
+The chatbot adapts its style and content delivery based on real-time analysis of user behavior — e.g., repeated confusion → switch to simpler examples.
+
+How to integrate:
+
+Monitor message patterns in Recent Messages:
+Repeated questions → trigger review mode
+Long pauses → suggest summaries or visuals
+Frustrated tone → activate empathy mode
+Update userMemory.behavior_patterns accordingly
+Route queries through different prompt templates based on behavior
+Example Behavior Rule:
+
+python
+
+
+1
+2
+3
+4
+5
+6
+⌄
+⌄
+⌄
+if len(user_questions_in_last_5) > 3 and all_similar_topics:
+    route_to = "review_mode"
+elif sentiment_score < 0.4:
+    route_to = "empathy_mode"
