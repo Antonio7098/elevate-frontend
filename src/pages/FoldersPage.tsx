@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiAlertCircle, FiLoader, FiPlus, FiFolder, FiChevronRight, FiFileText, FiBook } from 'react-icons/fi';
+import { CreateFolderModal } from '../components/modals/CreateFolderModal';
+import { createFolder } from '../services/folderService';
 import type { Folder } from '../types/folder';
 import type { QuestionSet } from '../types/questionSet';
 import type { Note } from '../types/note.types';
@@ -17,6 +19,7 @@ export function FoldersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [currentFolder, setCurrentFolder] = useState<Folder | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const { folderId } = useParams<{ folderId: string }>();
   const navigate = useNavigate();
@@ -89,8 +92,17 @@ export function FoldersPage() {
   }, [folderId]);
 
   const handleNewFolder = () => {
-    // TODO: Implement new folder creation
-    console.log("📁 [FoldersPage] New folder clicked");
+    setIsModalOpen(true);
+  };
+
+  const handleCreateFolder = async (name: string, description: string) => {
+    try {
+      const newFolder = await createFolder({ name, description, parentId: folderId || null });
+      setFolders(prevFolders => [...prevFolders, newFolder]);
+      setIsModalOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to create folder'));
+    }
   };
 
   const handleNewQuestionSet = () => {
@@ -246,7 +258,7 @@ export function FoldersPage() {
                     className={styles.reviewBtn}
                     onClick={(e) => {
                       e.preventDefault();
-                      navigate(`/review/set/${set.id}`);
+                      navigate(`/review/select/${set.id}`);
                     }}
                   >
                     Begin Review
@@ -314,6 +326,12 @@ export function FoldersPage() {
           </button>
         </div>
       )}
+
+      <CreateFolderModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreate={handleCreateFolder}
+      />
     </div>
   );
 }

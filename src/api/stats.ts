@@ -66,12 +66,15 @@ export async function fetchFolders(): Promise<FolderSummary[]> {
 
 export interface FolderStatsDetails {
   id: string;
-  name: string;
+  name?: string; // Optional as it might not be in the API response
   masteryHistory: { timestamp: string; score: number }[];
-  understandScore: number;
-  useScore: number;
-  exploreScore: number;
-  questionSetSummaries: QuestionSetSummary[];
+  understandScore?: number; // Optional as it might not be in the API response
+  useScore?: number; // Optional as it might not be in the API response
+  exploreScore?: number; // Optional as it might not be in the API response
+  questionSetSummaries?: QuestionSetSummary[]; // Optional for backward compatibility
+  questionSets?: any[]; // Actual API response field
+  subfolders?: any[]; // Actual API response field
+  totalReviewSessionsInFolder?: number; // Actual API response field
 }
 
 export interface QuestionSetSummary {

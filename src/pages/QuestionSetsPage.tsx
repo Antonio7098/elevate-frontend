@@ -238,7 +238,7 @@ const QuestionSetsPage = () => {
                   <span><FiChevronRight size={16} /></span>
                 </button>
                 <button
-                  onClick={() => navigate(`/review/set/${questionSet.id}`)}
+                  onClick={() => navigate(`/review/select/${questionSet.id}`)}
                   className={styles.reviewBtn}
                 >
                   Begin Review

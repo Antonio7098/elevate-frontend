@@ -21,6 +21,11 @@ const MasteryLineChart: React.FC<MasteryLineChartProps> = ({
   areaGradientStart = 'rgba(79, 70, 229, 0.1)',
   areaGradientEnd = 'rgba(79, 70, 229, 0.0)',
 }) => {
+  console.log('[MasteryLineChart] Received data:', data);
+  console.log('[MasteryLineChart] Data length:', data?.length);
+  console.log('[MasteryLineChart] Title:', title);
+  console.log('[MasteryLineChart] First data point:', data?.[0]);
+  
   if (!data || data.length === 0) {
     return (
       <div className={styles.chartContainer}>
@@ -31,10 +36,23 @@ const MasteryLineChart: React.FC<MasteryLineChartProps> = ({
   }
 
   // Convert scores to percentages (0-100)
-  const percentData = data.map(point => ({
-    ...point,
-    score: Math.round((typeof point.score === 'number' ? point.score : 0) * 100)
-  }));
+  const percentData = data.map(point => {
+    // Handle both aggregatedScore (folders) and totalMasteryScore (question sets)
+    let score = 0;
+    if (typeof point.aggregatedScore === 'number') {
+      score = point.aggregatedScore;
+    } else if (typeof point.totalMasteryScore === 'number') {
+      score = point.totalMasteryScore;
+    }
+    
+    return {
+      ...point,
+      score: Math.round(score)
+    };
+  });
+  
+  console.log('[MasteryLineChart] Processed percentData:', percentData);
+  console.log('[MasteryLineChart] First processed point:', percentData[0]);
 
   // Format date for display
   const formatXAxis = (dateString: string) => {

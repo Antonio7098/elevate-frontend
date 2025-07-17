@@ -189,6 +189,9 @@ const MyProgress: React.FC = () => {
             <div> 
               <h3>Folder Stats: {folders.find(f => f.id === selectedFolderId)?.name}</h3>
               <p>Total Sets: {folderStats.questionSetSummaries.length}</p>
+              {folderStats.masteryHistory && (
+                (() => { console.log('[MyProgress] folderStats.masteryHistory:', folderStats.masteryHistory); return null; })()
+              )}
               {folderStats.masteryHistory && <MasteryOverTimeChart data={folderStats.masteryHistory} title="Folder Mastery Over Time" />}
               <h4>Question Set Summaries:</h4>
               {folderStats.questionSetSummaries.length > 0 ? (
@@ -216,6 +219,9 @@ const MyProgress: React.FC = () => {
               <p>Overall Mastery: {setStats.masteryHistory && setStats.masteryHistory.length > 0 && typeof setStats.masteryHistory[setStats.masteryHistory.length - 1]?.totalMasteryScore === 'number' ? setStats.masteryHistory[setStats.masteryHistory.length - 1].totalMasteryScore.toFixed(2) : 'N/A'}</p>
               <UUEScoresWidget scores={setStats.uueScores} />
               <SRStatusWidget status={setStats.srStatus} />
+              {setStats.masteryHistory && (
+                (() => { console.log('[MyProgress] setStats.masteryHistory:', setStats.masteryHistory); return null; })()
+              )}
               {setStats.masteryHistory && <MasteryOverTimeChart data={setStats.masteryHistory} title="Question Set Mastery Over Time" />}
             </div>
           </div>

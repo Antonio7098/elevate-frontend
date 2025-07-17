@@ -10,7 +10,7 @@ import type { QuestionSet } from '../types/questionSet';
 import type { EvaluationResult } from '../services/evaluationService';
 
 // Define question types for the review session
-interface ReviewQuestion extends Question {
+interface ReviewQuestion extends Omit<Question, 'questionType' | 'options' | 'uueFocus'> {
   questionType?: 'SHORT_ANSWER' | 'TRUE_FALSE' | 'MULTIPLE_CHOICE';
   options?: string[]; // For multiple choice questions
   marksAvailable?: number; // Marks available for the question
@@ -218,7 +218,7 @@ const ReviewSessionPage = () => {
       setEvaluationStatus('self-mark-pending');
       setEvaluation({
         isCorrect: null,
-        score: null,
+        scoreAchieved: null,
         feedback: "This question is designated for self-marking. Please review the criteria and score your answer.",
         action: "self_mark",
         error: null,
@@ -245,11 +245,12 @@ const ReviewSessionPage = () => {
     try {
       const enhancedQuestion = {
         ...currentQuestion,
-        questionSetName: sessionTitle.replace('Quiz: ', '')
+        questionSetName: sessionTitle.replace('Quiz: ', ''),
+        questionType: currentQuestion.questionType || 'SHORT_ANSWER'
       };
       
       console.log('🔄 [ReviewSession] Calling evaluateUserAnswer function');
-      const result = await evaluateUserAnswer(enhancedQuestion, userAnswer);
+      const result = await evaluateUserAnswer(enhancedQuestion as Question, userAnswer);
       
       console.log('✅ [ReviewSession] AI/Auto-Evaluation completed successfully');
       console.log('📊 [ReviewSession] Evaluation result:', result);
@@ -364,6 +365,37 @@ const ReviewSessionPage = () => {
     }
   };
 
+  // Handle "Review Again" - navigate to ReviewPage with questions that didn't get 100% selected
+  const handleReviewAgain = () => {
+    // Find questions that didn't get 100% score
+    const questionsToReview = sessionOutcomes
+      .filter(outcome => {
+        const question = questions.find(q => String(q.id) === outcome.questionId);
+        const maxMarks = question?.totalMarksAvailable || 1;
+        return outcome.scoreAchieved < maxMarks;
+      })
+      .map(outcome => {
+        const question = questions.find(q => String(q.id) === outcome.questionId);
+        return question;
+      })
+      .filter(Boolean) as ReviewQuestion[];
+
+    if (questionsToReview.length === 0) {
+      alert('Congratulations! You got 100% on all questions. No questions need review.');
+      return;
+    }
+
+    // Navigate to ReviewPage with the questions that need review
+    navigate('/review', {
+      state: {
+        reviewAgain: true,
+        questionsToReview: questionsToReview,
+        originalSessionOutcomes: sessionOutcomes,
+        originalQuestions: questions
+      }
+    });
+  };
+
   // Handle submitting all session outcomes to the backend
   const handleCompleteSession = async () => {
     // No longer require setId for session submission, as questionSetId is not top-level in payload
@@ -410,9 +442,10 @@ const ReviewSessionPage = () => {
     console.log('[ReviewSession] Validation passed. Proceeding to try API call.');
     const qSetIdFromParams = setId;
     const qSetIdFromState = location.state?.questionSetId;
+    const isMultiSet = location.state?.isMultiSet;
     const effectiveQuestionSetId = qSetIdFromParams || qSetIdFromState;
 
-    console.log(`[ReviewSession] setId from useParams: ${qSetIdFromParams}, questionSetId from location.state: ${qSetIdFromState}, Effective ID: ${effectiveQuestionSetId}`);
+    console.log(`[ReviewSession] setId from useParams: ${qSetIdFromParams}, questionSetId from location.state: ${qSetIdFromState}, isMultiSet: ${isMultiSet}, Effective ID: ${effectiveQuestionSetId}`);
 
     if (!effectiveQuestionSetId) {
       setError('No question set ID available for submission. Please retry or contact support.');
@@ -436,9 +469,12 @@ const ReviewSessionPage = () => {
 
       console.log('🔍 [ReviewSession] Submitting payload:', payload);
       console.log('🔍 [ReviewSession] Submitting payload (JSON):', JSON.stringify(payload, null, 2));
+      console.log('🔍 [ReviewSession] Session outcomes count:', sessionOutcomes.length);
+      console.log('🔍 [ReviewSession] Question set ID:', effectiveQuestionSetId);
       
-      await apiClient.post(`/reviews`, payload);
+      const response = await apiClient.post(`/reviews`, payload);
       console.log('✅ [ReviewSession] Session outcomes submitted successfully.');
+      console.log('✅ [ReviewSession] Response:', response.data);
       setSessionComplete(true); // Mark session as complete in UI after successful submission
 
     } catch (err: any) {
@@ -534,10 +570,24 @@ const ReviewSessionPage = () => {
 
         <div style={{textAlign: 'center', marginTop: '2rem'}}>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/my-progress?refresh=true')}
             className={styles.markBtn}
           >
+            View Updated Progress
+          </button>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className={styles.markBtn}
+            style={{ marginLeft: '1rem' }}
+          >
             Back to Dashboard
+          </button>
+          <button
+            onClick={() => handleReviewAgain()}
+            className={styles.markBtn}
+            style={{ marginLeft: '1rem', backgroundColor: '#059669' }}
+          >
+            Review Again
           </button>
         </div>
       </div>
@@ -700,12 +750,10 @@ const ReviewSessionPage = () => {
                       status={evaluationStatus} 
                     />
                   ) : (
-                    <div className={styles.feedbackPlaceholder}>
-                      {evaluationStatus === 'loading' && <FiLoader className="animate-spin mr-2" />} 
-                      {evaluationStatus === 'loading' ? 'Evaluating...' : 
-                       evaluation?.feedback && evaluationStatus !== 'self-mark-pending' ? evaluation.feedback : 
-                       'Submit an answer to see feedback.'}
-                    </div>
+                                      <div className={styles.feedbackPlaceholder}>
+                    {evaluationStatus === 'loading' && <FiLoader className="animate-spin mr-2" />} 
+                    {evaluationStatus === 'loading' ? 'Evaluating...' : 'Submit an answer to see feedback.'}
+                  </div>
                   )}
                 </>
               )}

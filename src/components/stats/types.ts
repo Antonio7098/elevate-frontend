@@ -1,6 +1,8 @@
 export interface DataPoint {
   timestamp: string;
-  score: number;
+  score?: number;
+  aggregatedScore?: number; // The actual score field used in the data
+  totalMasteryScore?: number; // Used by question sets
 }
 
 export interface MasteryLineChartProps {

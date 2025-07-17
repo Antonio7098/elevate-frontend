@@ -18,22 +18,34 @@ interface MasteryOverTimeChartProps {
 }
 
 const MasteryOverTimeChart: React.FC<MasteryOverTimeChartProps> = ({ data, title }) => {
+  console.log('[MasteryOverTimeChart] Incoming data:', data);
+  console.log('[MasteryOverTimeChart] Data type:', typeof data);
+  console.log('[MasteryOverTimeChart] Data length:', data?.length);
+  console.log('[MasteryOverTimeChart] First data point:', data?.[0]);
+  
   if (!data || data.length === 0) {
     return <p>No mastery history data available to display chart.</p>;
   }
 
+  // Check if any data point is missing aggregatedScore
+  const missingAggregatedScore = data.some(point => typeof point.aggregatedScore !== 'number');
+
   // Format data for the chart, especially the timestamp for the XAxis
-  const chartData = data.map(point => ({
-    ...point,
-    // Format timestamp for display on X-axis, e.g., 'MM/DD'
-    // Recharts can also handle Date objects directly if preferred
-    formattedTimestamp: new Date(point.timestamp).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    }),
-    // Ensure score is a number, map to null if not
-    score: isNaN(Number(point.totalMasteryScore)) ? null : Number(point.totalMasteryScore) * 100,
-  }));
+  const chartData = data.map(point => {
+    return {
+      ...point,
+      formattedTimestamp: new Date(point.timestamp).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }),
+      score: typeof point.aggregatedScore === 'number' ? point.aggregatedScore : null,
+    };
+  });
+  console.log('[MasteryOverTimeChart] Formatted chartData:', chartData);
+
+  if (missingAggregatedScore) {
+    return <p style={{ color: 'red' }}>Some mastery history points are missing <b>aggregatedScore</b>. Please check your backend/data seed.</p>;
+  }
 
   return (
     <div className={styles.chartContainer}>

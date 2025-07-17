@@ -51,7 +51,7 @@ const QuestionSetProgressView: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <button
           className={styles.reviewBtn}
-          onClick={() => navigate(`/review/set/${setId}`)}
+          onClick={() => navigate(`/review/select/${setId}`)}
         >
           Begin Review
         </button>

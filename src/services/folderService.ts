@@ -14,33 +14,140 @@ const safeStringify = (obj: any): string => {
 export const getFolders = async (parentId?: string | null): Promise<Folder[]> => {
   console.log('🔍 [folderService] getFolders called with parentId:', parentId);
   try {
-    const response = await apiClient.get('/folders', {
-      params: { parentId }
-    });
-    
-    console.log('📦 [folderService] Raw response:', safeStringify(response.data));
-    
-    // Transform the response to avoid circular references
-    const folders = response.data.map((folder: any) => {
-      console.log('📁 [folderService] Processing folder:', safeStringify(folder));
-      return {
-        id: folder.id,
-        name: folder.name,
-        description: folder.description,
-        parentId: folder.parentId,
-        children: [], // Initialize empty children array
-        questionSetCount: folder.questionSetCount,
-        masteryScore: folder.masteryScore,
-        createdAt: folder.createdAt,
-        updatedAt: folder.updatedAt,
-        userId: folder.userId
-      };
-    });
-    
-    console.log('✅ [folderService] getFolders response:', safeStringify(folders));
-    return folders;
-  } catch (error) {
+          // If no parentId is specified, get all folders and build the tree
+      if (parentId === undefined || parentId === null) {
+                console.log('📡 [folderService] Making API call to /folders');
+        // Try different approaches to get the tree structure
+        let response;
+        try {
+          // First try the tree endpoint
+          console.log('📡 [folderService] Trying /folders/tree endpoint');
+          response = await apiClient.get('/folders/tree');
+        } catch (error) {
+          console.log('📡 [folderService] Tree endpoint failed, trying with tree parameter');
+          try {
+            response = await apiClient.get('/folders', {
+              params: { tree: true }
+            });
+          } catch (error2) {
+            console.log('📡 [folderService] Tree parameter failed, trying includeChildren');
+            try {
+              response = await apiClient.get('/folders', {
+                params: { includeChildren: true }
+              });
+            } catch (error3) {
+              console.log('📡 [folderService] includeChildren failed, trying basic call');
+              response = await apiClient.get('/folders');
+            }
+          }
+        }
+        console.log('📡 [folderService] API call completed');
+        
+        console.log('📦 [folderService] Raw response:', safeStringify(response.data));
+        console.log('📦 [folderService] Response type:', typeof response.data);
+        console.log('📦 [folderService] Response length:', Array.isArray(response.data) ? response.data.length : 'not an array');
+        
+        // Debug: Check if any folder has children
+        if (Array.isArray(response.data)) {
+          response.data.forEach((folder: any, index: number) => {
+            console.log(`📁 [folderService] Folder ${index}:`, {
+              id: folder.id,
+              name: folder.name,
+              parentId: folder.parentId,
+              hasChildren: !!folder.children,
+              childrenLength: folder.children?.length || 0,
+              childrenType: typeof folder.children
+            });
+          });
+        }
+      
+      // Transform the response and preserve the existing tree structure
+      const allFolders = response.data.map((folder: any) => {
+        console.log('📁 [folderService] Processing folder:', safeStringify(folder));
+        return {
+          id: folder.id,
+          name: folder.name,
+          description: folder.description,
+          parentId: folder.parentId,
+          children: folder.children || [], // Use children from API response
+          questionSetCount: folder.questionSetCount,
+          masteryScore: folder.masteryScore,
+          createdAt: folder.createdAt,
+          updatedAt: folder.updatedAt,
+          userId: folder.userId,
+          isPinned: folder.isPinned || false
+        };
+      });
+      
+      // If the API didn't return nested structure, build it ourselves
+      if (allFolders.length > 0 && allFolders.every((folder: Folder) => !folder.children || folder.children.length === 0)) {
+        console.log('🔧 [folderService] API returned flat structure, building tree manually');
+        
+        // Create a map for quick lookup
+        const folderMap = new Map<string, Folder>();
+        allFolders.forEach((folder: Folder) => {
+          folderMap.set(folder.id, { ...folder, children: [] });
+        });
+        
+        // Build the tree structure
+        const topLevelFolders: Folder[] = [];
+        allFolders.forEach((folder: Folder) => {
+          if (folder.parentId) {
+            const parent = folderMap.get(folder.parentId);
+            if (parent) {
+              parent.children.push(folderMap.get(folder.id)!);
+            }
+          } else {
+            topLevelFolders.push(folderMap.get(folder.id)!);
+          }
+        });
+        
+        console.log('✅ [folderService] Built tree structure manually:', safeStringify(topLevelFolders));
+        return topLevelFolders;
+      }
+      
+      // Return only top-level folders (those without parents)
+      const topLevelFolders = allFolders.filter((folder: Folder) => !folder.parentId);
+      
+      console.log('✅ [folderService] getFolders response (tree):', safeStringify(topLevelFolders));
+      console.log('✅ [folderService] Returning topLevelFolders, count:', topLevelFolders.length);
+      return topLevelFolders;
+    } else {
+      // If parentId is specified, get children of that specific folder
+      const response = await apiClient.get('/folders', {
+        params: { parentId }
+      });
+      
+      console.log('📦 [folderService] Raw response for parentId:', parentId, safeStringify(response.data));
+      
+      const folders = response.data.map((folder: any) => {
+        console.log('📁 [folderService] Processing folder:', safeStringify(folder));
+        return {
+          id: folder.id,
+          name: folder.name,
+          description: folder.description,
+          parentId: folder.parentId,
+          children: folder.children || [], // Use actual children from API response
+          questionSetCount: folder.questionSetCount,
+          masteryScore: folder.masteryScore,
+          createdAt: folder.createdAt,
+          updatedAt: folder.updatedAt,
+          userId: folder.userId,
+          isPinned: folder.isPinned || false
+        };
+      });
+      
+      console.log('✅ [folderService] getFolders response (children):', safeStringify(folders));
+      return folders;
+    }
+  } catch (error: any) {
     console.error('❌ [folderService] getFolders error:', error);
+    console.error('❌ [folderService] Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    });
     throw error;
   }
 };
@@ -58,12 +165,13 @@ export const getFolder = async (folderId: string): Promise<Folder> => {
       name: response.data.name,
       description: response.data.description,
       parentId: response.data.parentId,
-      children: [], // Initialize empty children array
+      children: response.data.children || [], // Use actual children from API response
       questionSetCount: response.data.questionSetCount,
       masteryScore: response.data.masteryScore,
       createdAt: response.data.createdAt,
       updatedAt: response.data.updatedAt,
-      userId: response.data.userId
+      userId: response.data.userId,
+      isPinned: response.data.isPinned || false
     };
     
     console.log('✅ [folderService] getFolder response:', safeStringify(folder));

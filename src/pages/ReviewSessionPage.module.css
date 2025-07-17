@@ -1,6 +1,23 @@
 /* ReviewSessionPage.module.css
    Modular CSS for ReviewSessionPage, matching dashboard design system. */
 
+.conceptTagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.conceptTag {
+  background: var(--color-primary-light, #e0e7ff);
+  color: var(--color-primary, #6366f1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--color-primary-light, #e0e7ff);
+}
+
 .reviewSessionPageContainer {
   display: flex;
   flex-direction: column;

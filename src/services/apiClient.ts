@@ -81,7 +81,14 @@ apiClient.interceptors.response.use(
           console.error(`⚠️ [apiClient] ${error.response.status} Error:`, error.message);
       }
     } else if (error.request) {
-      console.error('❌ [apiClient] No response received:', error.request);
+      console.error('❌ [apiClient] No response received. This could be a network error or the server might be down.', {
+        request: error.request,
+        message: error.message,
+      });
+      // Add a more user-friendly tip for the most common cause of this error.
+      if (error.message === 'Network Error') {
+        console.error('💡 Tip: Please check if your backend server is running on http://localhost:3000 and that there are no network connectivity issues.');
+      }
     } else {
       console.error('❌ [apiClient] Request setup error:', error.message);
     }

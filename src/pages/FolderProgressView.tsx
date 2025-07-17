@@ -54,9 +54,9 @@ const FolderProgressView: React.FC = () => {
         </div>
         <div className={styles.uuBarBox}>
           <UUESegmentedProgressBar
-            understandScore={folderStats.understandScore}
-            useScore={folderStats.useScore}
-            exploreScore={folderStats.exploreScore}
+            understandScore={folderStats.understandScore || 0}
+            useScore={folderStats.useScore || 0}
+            exploreScore={folderStats.exploreScore || 0}
             height={12}
             showLabels={true}
             showValues={true}
@@ -65,7 +65,7 @@ const FolderProgressView: React.FC = () => {
       </div>
       <h2 className={styles.sectionTitle}>Question Sets</h2>
       <div className={styles.setsGrid}>
-        {folderStats.questionSetSummaries.map((set) => (
+        {(folderStats.questionSetSummaries || []).map((set) => (
           <div
             key={set.id}
             className={styles.setCard}
@@ -83,15 +83,15 @@ const FolderProgressView: React.FC = () => {
             <div className={styles.setInfo}>
               <span className={styles.setName}>{set.name}</span>
               <span className={styles.setCount}>{set.questionCount} questions</span>
-              <button
-                className={styles.reviewBtn}
-                onClick={e => {
-                  e.stopPropagation();
-                  navigate(`/review/set/${set.id}`);
-                }}
-              >
-                Begin Review
-              </button>
+                              <button
+                  className={styles.reviewBtn}
+                  onClick={e => {
+                    e.stopPropagation();
+                    navigate(`/review/select/${set.id}`);
+                  }}
+                >
+                  Begin Review
+                </button>
             </div>
           </div>
         ))}

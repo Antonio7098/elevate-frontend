@@ -81,15 +81,15 @@ const AnswerEvaluation: React.FC<AnswerEvaluationProps> = ({ evaluation, status 
       </div>
 
       {/* Feedback */}
-      <div className="mb-3">
-        <h4 className="text-sm font-medium text-gray-700 mb-1">Feedback:</h4>
-        <p className="text-gray-800">{evaluation.feedback}</p>
+      <div className="mb-4">
+        <h4 className="text-sm font-medium text-gray-700 mb-2">Your Score:</h4>
+        <p className="text-lg font-semibold text-gray-800">{evaluation.feedback}</p>
       </div>
 
-      {/* Explanation (if available) */}
+      {/* Model Answer (if available) */}
       {evaluation.explanation && (
         <div className="mb-3">
-          <h4 className="text-sm font-medium text-gray-700 mb-1">Explanation:</h4>
+          <h4 className="text-sm font-medium text-gray-700 mb-1">Model Answer:</h4>
           <p className="text-gray-800">{evaluation.explanation}</p>
         </div>
       )}

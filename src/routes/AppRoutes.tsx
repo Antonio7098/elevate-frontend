@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AuthenticatedLayout from '../components/layout/AuthenticatedLayout';
 import styles from './AppRoutes.module.css';
+import LearningBlueprintPage from '../pages/LearningBlueprintPage';
+const CreateHubPage = lazy(() => import('../pages/CreateHubPage'));
 
 // --- Lazy-loaded Page Components ---
 // Public Pages
@@ -14,12 +16,20 @@ const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const FoldersPage = lazy(() => import('../pages/FoldersPage').then(module => ({ default: module.FoldersPage })));
 
 const ReviewSessionPage = lazy(() => import('../pages/ReviewSessionPage'));
+const QuestionSelectionPage = lazy(() => import('../pages/QuestionSelectionPage'));
+const ReviewPage = lazy(() => import('../pages/ReviewPage'));
 // const NotePage = lazy(() => import('../pages/NotePage').then(module => ({ default: module.default })));
 import NotePage from '../pages/NotePage'; // Direct import for debugging
 const ChatPage = lazy(() => import('../pages/ChatPage'));
 const MyProgressPage = lazy(() => import('../pages/MyProgressPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage'));
+const CreateQuestionSetPage = lazy(() => import('../pages/CreateQuestionSetPage'));
+const CreateManualQuestionSetPage = lazy(() => import('../pages/CreateManualQuestionSetPage'));
+const CreateFromBlueprintPage = lazy(() => import('../pages/CreateFromBlueprintPage'));
+const GenerateQuestionsFromBlueprintPage = lazy(() => import('../pages/GenerateQuestionsFromBlueprintPage'));
+const BlueprintsPage = lazy(() => import('../pages/BlueprintsPage'));
+const BlueprintDetailPage = lazy(() => import('../pages/BlueprintDetailPage'));
 const AllContentPage = lazy(() => import('../pages/AllContentPage').then(module => ({ default: module.AllContentPage })));
 const QuestionsPage = lazy(() => import('../pages/QuestionsPage'));
 
@@ -65,7 +75,18 @@ const ProtectedRoutes = () => {
         <Route path="review/today" element={<ReviewSessionPage />} />
         <Route path="notes/new" element={<NotePage />} />
         <Route path="notes/:noteId" element={<NotePage />} />
+        <Route path="review" element={<ReviewPage />} />
+        <Route path="review/select/:setId" element={<QuestionSelectionPage />} />
+        <Route path="review/set" element={<ReviewSessionPage />} />
         <Route path="review/set/:setId" element={<ReviewSessionPage />} />
+        <Route path="create" element={<CreateHubPage />} />
+        <Route path="create/blueprint-from-source" element={<LearningBlueprintPage />} />
+        <Route path="create-questions-from-scratch" element={<CreateManualQuestionSetPage />} />
+        <Route path="create-questions-from-blueprint" element={<CreateFromBlueprintPage />} />
+        <Route path="create-questions-from-blueprint/:blueprintId" element={<GenerateQuestionsFromBlueprintPage />} />
+        <Route path="folders/:folderId/create-set" element={<CreateQuestionSetPage />} />
+        <Route path="blueprints" element={<BlueprintsPage />} />
+        <Route path="blueprints/:blueprintId" element={<BlueprintDetailPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthenticatedLayout>

@@ -2,10 +2,11 @@
 
 export interface MasteryHistoryPoint {
   timestamp: string; // ISO date string
-  useScore: number;
-  exploreScore: number;
-  understandScore: number;
-  totalMasteryScore: number;
+  useScore?: number;
+  exploreScore?: number;
+  understandScore?: number;
+  totalMasteryScore?: number; // Optional since it can be calculated from UUE scores
+  aggregatedScore?: number; // The actual score field used in the data
 }
 
 export interface UUEScores {
