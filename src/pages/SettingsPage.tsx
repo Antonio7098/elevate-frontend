@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './SettingsPage.module.css';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/useTheme';
 
 
 const SettingsPage: React.FC = () => {
@@ -33,7 +33,7 @@ const SettingsPage: React.FC = () => {
 
 
   return (
-    <div className={styles.container}>
+    <div className="card">
       <h1 className={styles.header}>Settings</h1>
 
       {/* Profile Section */}
@@ -50,17 +50,17 @@ const SettingsPage: React.FC = () => {
         <div className={styles.sectionTitle}>Theme</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span className={styles.label} id="theme-desc">
-            {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+            {theme === 'slate' ? '🌑 Slate Theme' : '📜 Parchment Theme'}
           </span>
           <button
             type="button"
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            aria-label={`Switch to ${theme === 'slate' ? 'parchment' : 'slate'} theme`}
             aria-describedby="theme-desc"
             className={styles.button}
             style={{ minWidth: 120 }}
             onClick={toggleTheme}
           >
-            Switch to {theme === 'dark' ? 'Light' : 'Dark'}
+            Switch to {theme === 'slate' ? 'Parchment' : 'Slate'}
           </button>
         </div>
       </div>

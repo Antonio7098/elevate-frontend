@@ -3,8 +3,7 @@ import type { FormEvent } from 'react';
 import { 
   FiFolder, 
   FiAlertCircle, 
-  FiLoader,
-  FiCpu
+  FiLoader
 } from 'react-icons/fi';
 import { generateAiPoweredSet } from '../services/aiService';
 import { getFolders } from '../services/folderService';
@@ -20,10 +19,18 @@ const FOCUS_OPTIONS = [
   { value: 'explore', label: 'Explore (Analysis & Deeper Inquiry)' }
 ];
 
+interface QuestionSet {
+  set: {
+    id: string;
+    name: string;
+  };
+  questions: ModalQuestion[];
+}
+
 interface CreateQuestionSetModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void; // Replace 'any' with proper type
+  onSave: (data: QuestionSet) => void;
   folders?: Folder[];
   preselectedFolderId?: string;
 }
@@ -70,7 +77,7 @@ const CreateQuestionSetModal: React.FC<CreateQuestionSetModalProps> = ({
         if (!preselectedFolderId && data.length > 0 && !folderId) {
           setFolderId(data[0].id);
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load folders. Please try again.');
       } finally {
         setIsFetchingFolders(false);
@@ -118,14 +125,14 @@ const CreateQuestionSetModal: React.FC<CreateQuestionSetModalProps> = ({
       // Support both result as array or result.questions as array
       if (Array.isArray(result)) {
         setQuestions(result);
-      } else if (result && typeof result === 'object' && Array.isArray((result as any).questions)) {
-        setQuestions((result as any).questions);
+      } else if (result && typeof result === 'object' && Array.isArray((result as { questions: ModalQuestion[] }).questions)) {
+        setQuestions((result as { questions: ModalQuestion[] }).questions);
       } else {
         setQuestions([]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err.response?.data?.message ||
+        ((err as { response?: { data?: { message?: string } } }).response?.data?.message) ||
         'Failed to generate questions. Please try again.'
       );
     } finally {
@@ -139,7 +146,7 @@ const CreateQuestionSetModal: React.FC<CreateQuestionSetModalProps> = ({
   };
 
   // Add a manually created question
-  const handleAddQuestion = (question: any) => {
+  const handleAddQuestion = (question: ModalQuestion) => {
     setQuestions((prev) => [...prev, question]);
     setIsAddQuestionOpen(false);
   };
@@ -160,7 +167,7 @@ const CreateQuestionSetModal: React.FC<CreateQuestionSetModalProps> = ({
         });
       }
       onSave({ set, questions });
-    } catch (err: any) {
+    } catch {
       setError('Failed to save question set and questions.');
     } finally {
       setIsSaving(false);

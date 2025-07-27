@@ -12,7 +12,7 @@ const UUEScoresWidget: React.FC<UUEScoresWidgetProps> = ({ scores }) => {
   }
 
   return (
-    <div className={styles.widgetContainer}>
+    <div className="card">
       <h4 className={styles.widgetTitle}>UUE Scores</h4>
       <ul className={styles.scoresList}>
         <li className={styles.scoreItem}>

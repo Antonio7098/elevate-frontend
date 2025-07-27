@@ -9,13 +9,13 @@
 }
 
 .conceptTag {
-  background: var(--color-primary-light, #e0e7ff);
-  color: var(--color-primary, #6366f1);
+  background: var(--color-primary-lightest);
+  color: var(--color-primary);
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  border: 1px solid var(--color-primary-light, #e0e7ff);
+  border: 1px solid var(--color-primary-lightest);
 }
 
 .reviewSessionPageContainer {
@@ -24,23 +24,12 @@
   align-items: center;
   justify-content: flex-start; /* Align to top, padding will handle spacing */
   min-height: 100vh;
-  background-color: var(--color-bg-app, #f0f2f5); /* Light gray background */
+  background-color: var(--color-background); /* Light gray background */
   padding: 2rem 1rem; /* Padding for the overall page */
   box-sizing: border-box;
 }
 
-.wireframeContentArea {
-  max-width: 60rem; /* Max width for the 'paper' */
-  width: 90%;       /* Responsive width */
-  background: var(--color-surface, #ffffff); /* White paper background */
-  border-radius: 1rem; /* Rounded corners for paper */
-  padding: 2.5rem; /* Padding inside the paper */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Paper shadow effect */
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-top: 2rem; /* Space from top or back button */
-}
+
 
 /* Keep .container if it's used for other specific elements, otherwise it might be removed or repurposed */
 .container {
@@ -78,15 +67,15 @@
   padding: 0.25rem 0.5rem;
 }
 .backBtn:hover, .backBtn:focus {
-  color: var(--color-text-on-primary);
-  outline: 2px solid #6366f1;
+  color: var(--color-text-base);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--color-text-on-primary);
+  color: var(--color-text-base);
   margin-bottom: 0.25rem;
 }
 .subtitle {
@@ -114,7 +103,7 @@
 .questionText {
   font-size: 1.15rem;
   font-weight: 500;
-  color: var(--color-text-on-primary);
+  color: var(--color-text-base);
   margin-bottom: 1rem;
 }
 
@@ -133,20 +122,20 @@
 .radio {
   width: 1.1rem;
   height: 1.1rem;
-  accent-color: #6366f1;
+  accent-color: var(--color-primary);
   background: var(--color-surface);
-  border: 1.5px solid #334155;
+  border: 1.5px solid var(--color-border);
   border-radius: 50%;
   transition: border 0.2s, box-shadow 0.2s;
 }
 .radio:focus {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .radioLabel {
   margin-left: 0.6rem;
-  color: var(--color-text-on-primary);
+  color: var(--color-text-base);
   font-size: 1rem;
 }
 
@@ -154,16 +143,16 @@
   width: 100%;
   padding: 0.75rem;
   margin-top: 1rem;
-  background: var(--color-surface);
-  border: 1.5px solid #334155;
+  background: var(--color-input-bg);
+  border: 1.5px solid var(--color-border);
   border-radius: 0.7rem;
-  color: var(--color-text-on-primary);
+  color: var(--color-text-base);
   font-size: 1rem;
   resize: vertical;
   transition: border 0.2s, box-shadow 0.2s;
 }
 .textarea:focus {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -190,7 +179,7 @@
   background: var(--color-primary);
 }
 .markBtn:disabled {
-  background: var(--color-border);
+  background: var(--color-primary-disabled);
   color: var(--color-text-muted);
   cursor: not-allowed;
 }
@@ -215,8 +204,8 @@
   display: flex;
   align-items: center;
   color: var(--color-danger);
-  background: #1e293b;
-  border: 1.5px solid #f87171;
+  background: var(--color-danger-light);
+  border: 1.5px solid var(--color-danger-border);
   border-radius: 0.7rem;
   padding: 0.8rem 1.2rem;
   margin-bottom: 1.5rem;

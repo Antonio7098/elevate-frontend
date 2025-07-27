@@ -20,7 +20,7 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({
 
   if (!dueToday || dueToday.length === 0) {
     return (
-      <div className={styles.widgetBox}>
+      <div className="card">
         <h3 className={styles.title}>Today's Tasks</h3>
         <p className={styles.empty}>No tasks due today! 🎉</p>
       </div>
@@ -39,7 +39,7 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({
   };
 
   return (
-    <div className={styles.widgetBox}>
+    <div className="card">
       <div className={styles.widgetHeader}>
         <h3 className={styles.title}>Today's Tasks</h3>
         {onStartTasks && (

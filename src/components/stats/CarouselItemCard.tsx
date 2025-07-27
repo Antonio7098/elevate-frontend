@@ -21,7 +21,7 @@ const CarouselItemCard: React.FC<CarouselItemCardProps> = ({
   onClick,
 }) => {
   return (
-    <div className={styles.card} onClick={onClick} role="button" tabIndex={0}>
+    <div className="card" onClick={onClick} role="button" tabIndex={0}>
       <div className={styles.header}>
         <h3 className={styles.title}>{name}</h3>
         <CircularProgress

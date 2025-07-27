@@ -14,7 +14,7 @@
 .pageTitle {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--color-text-base);
 }
 
 .pageSubtitle {
@@ -22,16 +22,10 @@
   font-size: 1.1rem;
 }
 
-.card {
-  background: color-mix(in srgb, var(--color-surface) 90%, var(--color-primary) 10%);
-  border-radius: 1.25rem;
-  border: 1.5px solid var(--color-border);
-  box-shadow: 0 2px 24px 0 color-mix(in srgb, var(--color-primary) 10%, transparent 90%);
-  overflow: hidden;
-}
+
 
 .profileHeader {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 15%, transparent 85%), color-mix(in srgb, var(--color-accent) 15%, transparent 85%));
+  background: var(--color-primary-transparent);
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -57,7 +51,7 @@
   position: absolute;
   bottom: -0.5rem;
   right: -0.5rem;
-  background: var(--color-surface-raised, var(--color-surface));
+  background: var(--color-surface-hover);
   border: 1.5px solid var(--color-border);
   border-radius: 50%;
   padding: 0.5rem;
@@ -75,7 +69,7 @@
 .profileName {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-text-base);
 }
 
 .profileEmail {
@@ -101,7 +95,7 @@
 .sectionTitle {
   font-size: 1.15rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-text-base);
   margin-bottom: 1rem;
 }
 
@@ -123,7 +117,7 @@
 }
 
 .infoValue {
-  color: var(--color-text-primary);
+  color: var(--color-text-base);
   font-size: 1.05rem;
 }
 
@@ -133,10 +127,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.9rem 1.2rem;
-  background: color-mix(in srgb, var(--color-surface) 80%, var(--color-border) 20%);
+  background: var(--color-surface-hover);
   border-radius: 0.7rem;
   border: none;
-  color: var(--color-text-primary);
+  color: var(--color-text-base);
   margin-bottom: 0.7rem;
   transition: background 0.18s;
 }
@@ -166,8 +160,8 @@
   padding: 0.75rem 1.2rem;
   border-radius: 0.6rem;
   border: 1.5px solid var(--color-border);
-  background: var(--color-surface-raised, var(--color-surface));
-  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+  color: var(--color-text-base);
   font-size: 1.05rem;
   margin-top: 0.15rem;
 }
@@ -210,7 +204,7 @@
   transition: background 0.18s;
 }
 .saveBtn:hover {
-  background: var(--color-accent);
+  background: var(--color-primary-hover);
 }
 
 @media (max-width: 600px) {

@@ -28,7 +28,7 @@ const MasteryLineChart: React.FC<MasteryLineChartProps> = ({
   
   if (!data || data.length === 0) {
     return (
-      <div className={styles.chartContainer}>
+      <div className="card">
         <h3 className={styles.chartTitle}>{title}</h3>
         <div className={styles.noData}>No data available</div>
       </div>
@@ -70,8 +70,14 @@ const MasteryLineChart: React.FC<MasteryLineChartProps> = ({
     });
   };
 
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface CustomTooltipProps {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+}
+
+// Custom tooltip
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className={styles.tooltip}>
@@ -86,7 +92,7 @@ const MasteryLineChart: React.FC<MasteryLineChartProps> = ({
   };
 
   return (
-    <div className={styles.chartContainer}>
+    <div className="card">
       <h3 className={styles.chartTitle}>{title}</h3>
       <div style={{ width, height }}>
         <ResponsiveContainer width="100%" height="100%">

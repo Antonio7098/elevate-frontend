@@ -4,9 +4,9 @@
   margin-left: auto; /* mx-auto */
   margin-right: auto;
   margin-top: 2.5rem; /* mt-10 */
-  background-color: #fef2f2; /* bg-red-100 */
-  border: 1px solid #f87171; /* border border-red-400 */
-  color: #b91c1c; /* text-red-700 */
+  background-color: var(--color-background);
+  border: 1px solid var(--color-danger-border); /* border border-red-400 */
+  color: var(--color-danger);
   border-radius: 0.5rem; /* rounded */
 }
 .fontBold {
@@ -18,18 +18,18 @@
 .retryBtn {
   margin-top: 0.5rem; /* mt-2 */
   padding: 0.5rem 1rem; /* px-4 py-2 */
-  background-color: #ef4444; /* bg-red-500 */
-  color: #fff; /* text-white */
+  background-color: var(--color-danger);
+  color: var(--color-text-on-primary);
   border-radius: 0.375rem; /* rounded */
   border: none;
   cursor: pointer;
   transition: background 0.2s;
 }
 .retryBtn:hover {
-  background-color: #dc2626; /* hover:bg-red-600 */
+  background-color: var(--color-danger);
 }
 .bg {
   min-height: 100vh; /* min-h-screen */
   width: 100%;
-  background-color: #f9fafb; /* bg-gray-50 */
+  background-color: var(--color-surface);
 }

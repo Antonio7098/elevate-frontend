@@ -8,13 +8,13 @@ export const getQuestionSets = async (folderId: string): Promise<QuestionSet[]> 
     try {
       const response = await apiClient.get<QuestionSet[]>(`/folders/${folderId}/questionsets`);
       return response.data;
-    } catch (nestedError) {
+    } catch {
       // If that fails, try the flat approach with query parameter
       console.log(`Trying alternative endpoint for folder ${folderId}`);
       const response = await apiClient.get<QuestionSet[]>(`/questionsets?folderId=${folderId}`);
       return response.data;
     }
-  } catch (error) {
+  } catch {
     console.log(`All attempts to fetch question sets for folder ${folderId} failed, returning empty array`);
     // Return empty array instead of throwing to handle the case where no sets exist yet
     // or the endpoint isn't implemented yet
@@ -28,7 +28,7 @@ export const getQuestionSet = async (folderId: string, questionSetId: string): P
     try {
       const response = await apiClient.get<QuestionSet>(`/folders/${folderId}/questionsets/${questionSetId}`);
       return response.data;
-    } catch (nestedError) {
+    } catch {
       // If that fails, try the direct approach
       console.log(`Trying alternative endpoint for question set ${questionSetId}`);
       const response = await apiClient.get<QuestionSet>(`/questionsets/${questionSetId}`);
@@ -55,7 +55,7 @@ export const createQuestionSet = async (folderId: string, data: CreateQuestionSe
         // No need to include folderId in the body since it's in the URL
       });
       return response.data;
-    } catch (nestedError) {
+    } catch {
       // If that fails, try the flat approach with folderId in the body
       console.log(`Trying alternative endpoint for creating question set in folder ${folderId}`);
       const response = await apiClient.post<QuestionSet>(`/questionsets`, {
@@ -75,7 +75,7 @@ export const deleteQuestionSet = async (folderId: string, questionSetId: string)
     // First try the nested route approach
     try {
       await apiClient.delete(`/folders/${folderId}/questionsets/${questionSetId}`);
-    } catch (nestedError) {
+    } catch {
       // If that fails, try the direct approach
       console.log(`Trying alternative endpoint for deleting question set ${questionSetId}`);
       await apiClient.delete(`/questionsets/${questionSetId}`);

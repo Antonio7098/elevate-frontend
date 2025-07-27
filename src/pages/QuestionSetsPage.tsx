@@ -176,7 +176,7 @@ const QuestionSetsPage = () => {
           {questionSets.map((questionSet) => (
             <div
               key={questionSet.id}
-              className={styles.setCard}
+              className="card"
               tabIndex={0}
             >
               <div className={styles.setRow}>

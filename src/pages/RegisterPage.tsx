@@ -3,7 +3,7 @@ import styles from './RegisterPage.module.css';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { register } from '../services/authService';
 import type { RegisterCredentials } from '../services/authService';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { RegistrationSuccess } from '../components/RegistrationSuccess';
 
 const RegisterPage = () => {
@@ -88,7 +88,7 @@ const RegisterPage = () => {
         navigate(from, { replace: true });
       }, 3000);
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration error:', error);
       
       // Handle specific error cases
@@ -106,7 +106,7 @@ const RegisterPage = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
+      <div className="card">
         {registrationSuccess && registeredEmail && (
           <RegistrationSuccess 
             email={registeredEmail} 

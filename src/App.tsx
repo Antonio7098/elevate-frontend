@@ -1,8 +1,8 @@
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { AuthProvider } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthProvider';
+import { ThemeProvider } from './context/ThemeProvider';
 import AppRoutes from './routes/AppRoutes';
 import { ErrorBoundary } from 'react-error-boundary';
 import { StrictMode } from 'react';
@@ -46,7 +46,7 @@ function App() {
           >
             <ThemeProvider>
               <AuthProvider>
-                <div className={styles.bg}>
+                <div className={styles.bg} style={{ fontFamily: 'OPTICookeSans' }}>
                   <AppRoutes />
                 </div>
               </AuthProvider>

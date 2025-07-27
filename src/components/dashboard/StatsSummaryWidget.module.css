@@ -1,24 +1,16 @@
-.widgetBox {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 20px 0 rgba(0,0,0,0.10);
-  border: 1px solid #f0f2f7;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  min-width: 260px;
-}
+
 
 
 .title {
   font-size: 1.18rem;
   font-weight: 700;
   margin-bottom: 1.1rem;
-  color: #1a237e;
+  color: var(--color-primary);
 }
 
 
 .empty {
-  color: #888;
+  color: var(--color-text-muted);
   text-align: center;
   margin: 1.5rem 0;
 }
@@ -43,18 +35,18 @@
 
 .statItem {
   flex: 1 1 100px;
-  background: #f5f7fb;
+  background: var(--color-background);
   border-radius: 12px;
   padding: 1.15rem 1.25rem;
   text-align: center;
-  box-shadow: 0 1px 4px 0 rgba(60,60,180,0.07);
-  border: 1.5px solid #e3eafc;
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--color-border);
 }
 
 
 .statLabel {
   font-size: 0.97rem;
-  color: #3b3b3b;
+  color: var(--color-text-base);
   margin-bottom: 0.5rem;
   font-weight: 500;
 }
@@ -63,7 +55,7 @@
 .statValue {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--color-primary);
 }
 
 .statsFooter {
@@ -72,7 +64,7 @@
 }
 
 .viewStatsLink {
-  color: #1976d2;
+  color: var(--color-primary);
   font-weight: 600;
   text-decoration: underline;
   border-radius: 6px;
@@ -82,7 +74,7 @@
 }
 
 .viewStatsLink:hover, .viewStatsLink:focus {
-  color: #0d47a1;
-  background: #e3eafc;
-  outline: 2px solid #1976d2;
+  color: var(--color-primary-hover);
+  background: var(--color-primary-transparent);
+  outline: 2px solid var(--color-primary);
 }

@@ -38,7 +38,7 @@ const GenerateQuestionsFromBlueprintPage: React.FC = () => {
           setSelectedFolderId(foldersData[0].id);
         }
         setQuestionSetName(`Questions for blueprint from ${new Date(blueprintData.createdAt).toLocaleDateString()}`);
-      } catch (err) {
+      } catch {
         setError('Failed to load data.');
       } finally {
         setIsLoading(false);
@@ -61,7 +61,7 @@ const GenerateQuestionsFromBlueprintPage: React.FC = () => {
         folderId: selectedFolderId,
       });
       navigate(`/question-sets/${result.questionSet.id}`);
-    } catch (err) {
+    } catch {
       setError('Failed to generate questions.');
     } finally {
       setIsGenerating(false);

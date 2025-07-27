@@ -159,7 +159,7 @@ const QuestionSelectionPage: React.FC = () => {
         {questions.map((question, index) => (
           <div 
             key={question.id} 
-            className={`${styles.questionItem} ${selectedQuestions.has(question.id) ? styles.selected : ''}`}
+            className={`card ${selectedQuestions.has(question.id) ? styles.selected : ''}`}
             onClick={() => handleQuestionToggle(question.id)}
           >
             <div className={styles.questionCheckbox}>

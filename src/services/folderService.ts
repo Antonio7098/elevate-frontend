@@ -2,7 +2,7 @@ import { apiClient } from './apiClient';
 import type { Folder, CreateFolderData, UpdateFolderData } from '../types/folder';
 
 // Helper function to safely stringify objects
-const safeStringify = (obj: any): string => {
+const safeStringify = (obj: unknown): string => {
   try {
     return JSON.stringify(obj);
   } catch (error) {
@@ -23,19 +23,19 @@ export const getFolders = async (parentId?: string | null): Promise<Folder[]> =>
           // First try the tree endpoint
           console.log('📡 [folderService] Trying /folders/tree endpoint');
           response = await apiClient.get('/folders/tree');
-        } catch (error) {
+        } catch {
           console.log('📡 [folderService] Tree endpoint failed, trying with tree parameter');
           try {
             response = await apiClient.get('/folders', {
               params: { tree: true }
             });
-          } catch (error2) {
+          } catch {
             console.log('📡 [folderService] Tree parameter failed, trying includeChildren');
             try {
               response = await apiClient.get('/folders', {
                 params: { includeChildren: true }
               });
-            } catch (error3) {
+            } catch {
               console.log('📡 [folderService] includeChildren failed, trying basic call');
               response = await apiClient.get('/folders');
             }
@@ -49,7 +49,7 @@ export const getFolders = async (parentId?: string | null): Promise<Folder[]> =>
         
         // Debug: Check if any folder has children
         if (Array.isArray(response.data)) {
-          response.data.forEach((folder: any, index: number) => {
+          response.data.forEach((folder: Folder, index: number) => {
             console.log(`📁 [folderService] Folder ${index}:`, {
               id: folder.id,
               name: folder.name,
@@ -62,7 +62,7 @@ export const getFolders = async (parentId?: string | null): Promise<Folder[]> =>
         }
       
       // Transform the response and preserve the existing tree structure
-      const allFolders = response.data.map((folder: any) => {
+      const allFolders = response.data.map((folder: Folder) => {
         console.log('📁 [folderService] Processing folder:', safeStringify(folder));
         return {
           id: folder.id,
@@ -120,7 +120,7 @@ export const getFolders = async (parentId?: string | null): Promise<Folder[]> =>
       
       console.log('📦 [folderService] Raw response for parentId:', parentId, safeStringify(response.data));
       
-      const folders = response.data.map((folder: any) => {
+      const folders = response.data.map((folder: Folder) => {
         console.log('📁 [folderService] Processing folder:', safeStringify(folder));
         return {
           id: folder.id,
@@ -140,13 +140,13 @@ export const getFolders = async (parentId?: string | null): Promise<Folder[]> =>
       console.log('✅ [folderService] getFolders response (children):', safeStringify(folders));
       return folders;
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ [folderService] getFolders error:', error);
     console.error('❌ [folderService] Error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      url: error.config?.url
+      message: (error as Error).message,
+      response: (error as { response?: { data?: unknown } }).response?.data,
+      status: (error as { response?: { status?: number } }).response?.status,
+      url: (error as { config?: { url?: string } }).config?.url
     });
     throw error;
   }

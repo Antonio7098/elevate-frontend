@@ -1,28 +1,19 @@
-.widgetBox {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #eaeef2;
-  padding: 1.5rem;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-}
+
 
 .title {
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 1.5rem 0;
-  color: #1a1a1a;
+  color: var(--color-text-base);
   letter-spacing: -0.01em;
 }
 
 .empty {
-  color: #6b7280;
+  color: var(--color-text-muted);
   text-align: center;
   padding: 1.5rem 1rem;
   font-size: 1rem;
-  background: #f9fafb;
+  background: var(--color-background);
   border-radius: 8px;
   margin: 0.5rem 0;
 }
@@ -55,7 +46,7 @@
 .setName {
   font-weight: 600;
   font-size: 1rem;
-  color: #1f2937;
+  color: var(--color-text-base);
   line-height: 1.4;
   letter-spacing: -0.01em;
   margin: 0;
@@ -77,22 +68,22 @@
 }
 
 .mastery-high {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
 }
 
 .mastery-medium {
-  background: #fef9c3;
-  color: #854d0e;
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
 }
 
 .mastery-low {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
 }
 
 .reviewedAt {
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-size: 0.85rem;
   font-weight: 500;
 }

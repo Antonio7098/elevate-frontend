@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './LoginPage.module.css';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { login as apiLogin } from '../services/authService';
 import type { LoginCredentials } from '../services/authService';
 
@@ -173,7 +173,7 @@ const LoginPage = () => {
         loginAttempted: true
       });
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ [LoginPage] ❌ Login error:', error);
       
       // Extract error message from response if available
@@ -196,7 +196,7 @@ const LoginPage = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
+      <div className="card">
         <div>
           <h2 className={styles.title}>Sign in to your account</h2>
           <p className={styles.subtitle}>

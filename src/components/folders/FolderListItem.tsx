@@ -25,7 +25,7 @@ export const FolderListItem: React.FC<FolderListItemProps> = ({
   };
 
   return (
-    <Link to={`/folders/${folder.id}`} className={styles.folderItem}>
+    <Link to={`/folders/${folder.id}`} className="card">
       <div className={styles.folderInfo}>
         <div className={styles.folderIcon}>
           <FiFolder />

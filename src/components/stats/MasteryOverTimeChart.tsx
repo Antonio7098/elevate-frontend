@@ -48,7 +48,7 @@ const MasteryOverTimeChart: React.FC<MasteryOverTimeChartProps> = ({ data, title
   }
 
   return (
-    <div className={styles.chartContainer}>
+    <div className="card">
       {title && <h4 className={styles.chartTitle}>{title}</h4>}
       {!title && <h4 className={styles.chartTitle}>Mastery Over Time</h4>} {/* Default title if not provided */}
       {/* Adjusted height as padding is now in chartContainer */}
@@ -66,7 +66,7 @@ const MasteryOverTimeChart: React.FC<MasteryOverTimeChartProps> = ({ data, title
           <XAxis dataKey="formattedTimestamp" padding={{ left: 20, right: 20 }} />
           <YAxis domain={[0, 100]} label={{ value: 'Mastery Score (%)', angle: -90, position: 'insideLeft' }} />
           <Tooltip
-            formatter={(value: any) => { // Use 'any' here to bypass overly strict Recharts ValueType, or be more specific if needed
+            formatter={(value: number | string) => { // Use 'any' here to bypass overly strict Recharts ValueType, or be more specific if needed
             if (typeof value === 'number') {
               return [`${value.toFixed(2)}%`, 'Mastery'];
             }

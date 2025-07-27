@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 
+interface Question {
+  text: string;
+  answer: string;
+  type: string;
+  marks: string;
+  markingScheme: string;
+  focus: string;
+}
+
 interface AddQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (question: any) => void; // Replace 'any' with proper type
+  onAdd: (question: Question) => void;
 }
 
 const FOCUS_OPTIONS = [

@@ -49,7 +49,7 @@ const DashboardPage: React.FC = () => {
         }
       });
       console.log('[Dashboard] navigate called to /review/today with questions:', sessionQuestions);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[Dashboard] Error in handleBeginTodaysTasks:', err);
       if (err?.response?.status === 401) {
         setTasksError('Session expired. Please log in again.');
@@ -96,7 +96,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className={styles.pageContainer}>
-      <div className={styles.welcomeSection}>
+      <div className="card">
         <h1 className={styles.welcome}>Welcome back, Antonio!</h1>
         <p className={styles.welcomeMessage}>
           Your hard work is really paying off! I've noticed you've recently pushed the mastery on your "Advanced Calculus" set up to 85% – that's fantastic progress on a tough subject.

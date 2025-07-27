@@ -22,7 +22,7 @@ export function CreateFolderModal({ isOpen, onClose, onCreate }: CreateFolderMod
 
   return (
     <div className={styles.overlay}>
-      <div className={styles.modal}>
+      <div className="card">
         <h2>Create New Folder</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>

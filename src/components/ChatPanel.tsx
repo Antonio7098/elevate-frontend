@@ -41,7 +41,7 @@ const ChatPanel: React.FC = () => {
       try {
         const fetchedFolders = await getFolders();
         setFolders(fetchedFolders);
-      } catch (error) {
+      } catch {
         console.error('Failed to fetch folders:', error);
       } finally {
         setIsLoadingFolders(false);
@@ -60,7 +60,7 @@ const ChatPanel: React.FC = () => {
     try {
       const fetchedQuestionSets = await getQuestionSets(folderId);
       setQuestionSets(fetchedQuestionSets);
-    } catch (error) {
+    } catch {
       console.error('Failed to fetch question sets:', error);
     } finally {
       setIsLoadingQuestionSets(false);
@@ -119,7 +119,7 @@ const ChatPanel: React.FC = () => {
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
+    } catch {
       const errorMessage: ChatMessageType = {
         sender: 'ai',
         text: 'Sorry, I encountered an error. Please try again.',

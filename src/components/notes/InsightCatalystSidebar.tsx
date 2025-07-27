@@ -18,7 +18,7 @@ export const InsightCatalystSidebar = ({ noteId }: InsightCatalystSidebarProps) 
       try {
         const data = await getCatalystsForNote(noteId);
         setCatalysts(data);
-      } catch (err) {
+      } catch {
         // If the endpoint doesn't exist, just show an empty list
         setCatalysts([]);
         console.warn('Insight catalysts endpoint not available yet');
@@ -41,7 +41,7 @@ export const InsightCatalystSidebar = ({ noteId }: InsightCatalystSidebarProps) 
         }
       });
       setCatalysts(prev => [...prev, newCatalyst]);
-    } catch (err) {
+    } catch {
       console.warn('Cannot create catalyst: endpoint not available yet');
     }
   };

@@ -108,7 +108,7 @@ const CreateAiQuestionSetPage = () => {
       
       // Navigate to the newly created question set
       navigate(`/question-sets/${result.id}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error generating questions:', err);
       setError(
         err.response?.data?.message || 
@@ -120,7 +120,7 @@ const CreateAiQuestionSetPage = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className="card">
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
         <button

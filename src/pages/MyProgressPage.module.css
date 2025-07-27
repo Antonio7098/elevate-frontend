@@ -30,7 +30,7 @@
   min-width: 340px;
   background: var(--color-surface);
   border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
   padding: 1.5rem 1.5rem 1rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -47,24 +47,24 @@
 }
 
 .setsMissedBox {
-  background: #fff5f5;
+  background: var(--color-danger-light);
   border-radius: 8px;
   padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .setsMissedLabel {
-  color: #c026d3;
+  color: var(--color-danger-dark);
   font-size: 0.95rem;
   font-weight: 500;
   margin-bottom: 0.25rem;
 }
 
 .setsMissedValue {
-  color: #be185d;
+  color: var(--color-danger-dark);
   font-size: 2.2rem;
   font-weight: 700;
   letter-spacing: -1px;
@@ -74,7 +74,7 @@
   background: var(--color-surface);
   border-radius: 8px;
   padding: 1.25rem 1rem 1rem 1rem;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .sectionTitle {
@@ -93,7 +93,7 @@
 .folderCard {
   background: var(--color-surface);
   border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
   padding: 1.5rem 1rem 1rem 1rem;
   display: flex;
   flex-direction: column;
@@ -103,7 +103,7 @@
 }
 
 .folderCard:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px) scale(1.03);
 }
 
@@ -162,22 +162,7 @@
   gap: 1.25rem;
 }
 
-.setCard { /* Card for individual question set in folder view */
-  background: var(--color-surface);
-  border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  padding: 1.25rem 0.75rem 1rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: box-shadow 0.18s, transform 0.15s;
-}
 
-.setCard:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-  transform: translateY(-2px) scale(1.03);
-}
 
 .setInfo { /* Info section within a setCard */
   margin-top: 0.65rem;
@@ -253,7 +238,7 @@
 .summaryBox {
   background: var(--color-surface);
   border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
   padding: 1.5rem 1.5rem 1rem 1.5rem;
   margin-bottom: 2rem;
   display: flex;
@@ -272,7 +257,7 @@
 .pinnedCard {
   background: var(--color-surface);
   border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
   padding: 1.25rem 1rem 1rem 1rem;
   display: flex;
   flex-direction: column;
@@ -282,7 +267,7 @@
   transition: box-shadow 0.18s, transform 0.15s;
 }
 .pinnedCard:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px) scale(1.03);
 }
 
@@ -293,7 +278,7 @@
   padding-bottom: 1rem;
   margin-bottom: 2rem;
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
+  scrollbar-color: var(--color-border) var(--color-surface);
 }
 .carousel > * {
   flex: 0 0 auto;
@@ -316,7 +301,7 @@
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
 }
 
 .weeklyProgressTitle {
@@ -365,7 +350,7 @@
   background: var(--color-surface);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
   position: relative;
 }
 
@@ -383,7 +368,7 @@
 }
 
 .unpinButton:hover {
-  background-color: var(--color-background-hover);
+  background-color: var(--color-surface-hover);
   color: var(--color-text-base);
 }
 
@@ -420,7 +405,7 @@
   background: var(--color-surface);
   border-radius: 12px;
   padding: 1.25rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
   transition: transform 0.2s;
 }
 
@@ -441,7 +426,7 @@
 }
 
 .pinButton:hover {
-  background-color: var(--color-background-hover);
+  background-color: var(--color-surface-hover);
   border-color: var(--color-text-base);
 }
 
@@ -454,7 +439,7 @@
 }
 
 .errorState {
-  color: var(--color-error);
+  color: var(--color-danger);
 }
 
 /* Responsive Adjustments */
@@ -479,8 +464,8 @@
 .reviewBtn {
   margin-top: 0.75rem;
   padding: 0.5rem 1.25rem;
-  background: var(--color-primary, #2563eb);
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
   border: none;
   border-radius: 6px;
   font-size: 1rem;
@@ -489,8 +474,8 @@
   transition: background 0.2s, color 0.2s;
 }
 .reviewBtn:hover, .reviewBtn:focus {
-  background: var(--color-primary-dark, #1d4ed8);
-  color: #fff;
+  background: var(--color-primary-hover);
+  color: var(--color-text-on-primary);
 }
 
 /* Folder Tree Styles */
@@ -505,10 +490,10 @@
 }
 
 .folderTreeItem {
-  border: 1px solid var(--color-border, #e5e7eb);
+  border: 1px solid var(--color-border);
   border-radius: 0.75rem;
   padding: 1rem;
-  background: var(--color-surface, #ffffff);
+  background: var(--color-surface);
 }
 
 .folderHeader {
@@ -531,7 +516,7 @@
 .folderChildren {
   margin-top: 1rem;
   padding-left: 1rem;
-  border-left: 2px solid var(--color-border, #e5e7eb);
+  border-left: 2px solid var(--color-border);
 }
 
 .questionSetItem {
@@ -541,7 +526,7 @@
   margin-top: 0.5rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  background: var(--color-bg-app, #f9fafb);
+  background: var(--color-background);
 }
 
 .questionSetCard {
@@ -579,7 +564,7 @@
 .dropdownButton:hover {
   background: var(--color-surface-hover);
   color: var(--color-text-base);
-  border-color: var(--color-border-hover);
+  border-color: var(--color-border);
 }
 
 .dropdownButton:focus {
@@ -606,7 +591,7 @@
 .pinButton:hover {
   background: var(--color-surface-hover);
   color: var(--color-text-base);
-  border-color: var(--color-border-hover);
+  border-color: var(--color-border);
 }
 
 .pinButton:focus {

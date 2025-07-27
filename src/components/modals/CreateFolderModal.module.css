@@ -4,21 +4,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-backdrop);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
 
-.modal {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
+
 
 .modal h2 {
   margin-top: 0;
@@ -37,7 +30,7 @@
 .formGroup textarea {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
 }
 
@@ -57,10 +50,10 @@
 }
 
 .cancelButton {
-  background-color: #eee;
+  background-color: var(--color-surface-hover);
 }
 
 .createButton {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--color-text-on-primary);
 }

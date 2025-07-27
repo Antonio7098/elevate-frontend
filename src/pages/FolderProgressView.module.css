@@ -26,7 +26,7 @@
   min-width: 340px;
   background: var(--color-surface);
   border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
   padding: 1.5rem 1.5rem 1rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -40,7 +40,7 @@
   align-items: center;
   background: var(--color-surface);
   border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-sm);
   padding: 1.25rem 1rem 1rem 1rem;
   height: fit-content;
 }
@@ -58,22 +58,7 @@
   gap: 1.25rem;
 }
 
-.setCard {
-  background: var(--color-surface);
-  border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  padding: 1.25rem 0.75rem 1rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: box-shadow 0.18s, transform 0.15s;
-}
 
-.setCard:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-  transform: translateY(-2px) scale(1.03);
-}
 
 .setInfo {
   margin-top: 0.65rem;
@@ -104,8 +89,8 @@
 .reviewBtn {
   margin-top: 0.75rem;
   padding: 0.5rem 1.25rem;
-  background: var(--color-primary, #2563eb);
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
   border: none;
   border-radius: 6px;
   font-size: 1rem;
@@ -114,8 +99,8 @@
   transition: background 0.2s, color 0.2s;
 }
 .reviewBtn:hover, .reviewBtn:focus {
-  background: var(--color-primary-dark, #1d4ed8);
-  color: #fff;
+  background: var(--color-primary-hover);
+  color: var(--color-text-on-primary);
 }
 
 /* Responsive styles */

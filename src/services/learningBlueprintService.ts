@@ -24,7 +24,7 @@ export const getLearningBlueprintById = async (id: string): Promise<LearningBlue
 export const generateQuestionsFromBlueprint = async (
   blueprintId: string, 
   data: GenerateQuestionsData
-): Promise<{ questionSet: QuestionSet; questions: any[] }> => {
+): Promise<{ questionSet: QuestionSet; questions: unknown[] }> => {
   const response = await apiClient.post(`/ai-rag/learning-blueprints/${blueprintId}/question-sets`, data);
   return response.data;
 }; 

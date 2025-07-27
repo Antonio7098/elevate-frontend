@@ -1,29 +1,48 @@
 /*
  * ELEVATE THEME - GLOBAL DESIGN TOKENS
  * This file defines all CSS Custom Properties (Variables) for the application.
- * It is the single source of truth for theming.
+ * It is the single source of truth for theming, based on "Parchment" and "Slate" themes.
 */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;700&display=swap');
+
+@font-face {
+  font-family: 'OPTICookeSans';
+  src: url('assets/fonts/OPTICookeSans.otf') format('opentype');
+}
 
 :root {
   /* ======================================== */
-  /* LIGHT THEME (DEFAULT)           */
+  /* PARCHMENT THEME (DEFAULT)                */
   /* ======================================== */
 
-  /* Color Palette */
-  --color-primary: #ffffff; 
-  --color-primary-hover: #ffffff; 
-  --color-secondary: #ffffff; 
-  --color-danger: #ffffff; 
-  
-  --color-text-base: #000000; 
-  --color-text-muted: #473c3c; 
-  --color-text-on-primary: #000000; 
+  /* Typography */
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-serif: 'Lora', 'Georgia', serif;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-sm: 0.875rem;
 
-  --color-background: #777b80;
-  --color-surface: #ffffff; 
-  --color-border: #000000; 
-  --color-input-bg: #ffffff;
-  --color-input-border: #d1d5db; 
+  /* Color Palette */
+  --color-background: #f5f4f4; /* More subtle warm off-white */
+  --color-surface: #f3eeea;    /* Slightly different off-white for cards */
+  --color-text-base: #5D4037;  /* Dark, rich sepia or charcoal brown */
+  --color-text-muted: #7c7875; /* Lighter, muted brown */
+  --color-text-on-primary: #FFFFFF;
+
+  --color-primary: #94665a;      /* A deep, rich brown */
+  --color-primary-hover: #A86450;/* Lighter version of primary */
+  --color-secondary: #C38154;    /* A complementary color */
+  --color-danger: #D32F2F;       /* A standard red */
+  
+  --color-input-bg: #fdfcf9;
+
+  /* Borders & Shadows */
+  --color-border: rgba(93, 64, 55, 0.15); /* Softer version of text-base */
+  --color-input-border: rgba(93, 64, 55, 0.2);
+  --shadow-sm: 0 1px 2px 0 rgba(93, 64, 55, 0.05);
+  --shadow-md: 0 4px 8px -2px rgba(93, 64, 55, 0.1), 0 2px 4px -2px rgba(93, 64, 55, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(93, 64, 55, 0.1), 0 4px 6px -2px rgba(93, 64, 55, 0.05);
 
   /* Spacing & Radius */
   --space-xs: 0.25rem;
@@ -34,30 +53,59 @@
   --radius-md: 0.75rem;
   --radius-lg: 1.25rem;
 
-  /* Font */
-  --font-family: 'Inter', system-ui, sans-serif;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.25rem;
-  --font-size-sm: 0.875rem;
+  /* Noise Texture */
+  --noise-color-1: rgba(0, 0, 0, 0.8);
+  --noise-color-2: rgba(255, 255, 255, 0.8);
 }
 
-[data-theme="dark"] {
+[data-theme="slate"] {
   /* ======================================== */
-  /* DARK THEME OVERRIDES            */
+  /* SLATE THEME OVERRIDES                    */
   /* ======================================== */
 
-  --color-primary: #f8f8fa; /* Indigo 500 */
-  --color-primary-hover: #f8ffdd; /* Indigo 600 */
-  --color-secondary: #34d399; /* Emerald 400 */
-  --color-danger: #f87171; /* Red 400 */
+  /* Typography */
+  /* In Slate, we use sans-serif for a modern feel, even for headings */
+  --font-family-serif: 'Inter', system-ui, sans-serif;
 
-  --color-text-base: #f3f4f6; /* Gray 100 */
-  --color-text-muted: #ffffff; /* Zinc 400 */
-  --color-text-on-primary: #ffffff; /* White */
+  /* Color Palette */
+  --color-background: #1A202C; /* Deep, textured charcoal or near-black */
+  --color-surface: #1f2937;    /* Slightly lighter dark gray for cards */
+  --color-text-base: #E2E8F0;    /* Soft off-white */
+  --color-text-muted: #94A3B8;    /* Lighter, muted gray */
+  --color-text-on-primary: #FFFFFF;
 
-  --color-background: #181e29; /* Slate 900 */
-  --color-surface: #232946; /* Card/Surface */
-  --color-border: #313244; /* Slate 700 */
-  --color-input-bg: #232946; /* Card/Surface */
-  --color-input-border: #334155; /* Slate 600 */
+  --color-primary: #8B5CF6;      /* Vibrant brand purple */
+  --color-primary-hover: #7C3AED;  /* Slightly darker/richer purple */
+  --color-secondary: #34d399;    /* Emerald 400 */
+  --color-danger: #f87171;       /* Red 400 */
+
+  --color-input-bg: #1f2937;
+
+  /* Borders & Shadows */
+  --color-border: rgba(226, 232, 240, 0.1); /* Softer version of text-base */
+  --color-input-border: rgba(226, 232, 240, 0.15);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+  /* Noise Texture */
+  --noise-color-1: rgba(255, 255, 255, 0.8);
+  --noise-color-2: rgba(0, 0, 0, 0.8);
+}
+
+body {
+  background-color: var(--color-background);
+  font-family: var(--font-family-sans);
+  color: var(--color-text-base);
+  line-height: 1.5;
+  margin: 0;
+  min-height: 100vh;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(255, 255, 255, 1) 1%,
+    transparent 1%
+  );
+  background-size: 4px 4px;
+  background-blend-mode: overlay;
 }

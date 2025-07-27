@@ -23,7 +23,7 @@ const BlueprintDetailPage: React.FC = () => {
         setIsLoading(true);
         const data = await getLearningBlueprintById(blueprintId);
         setBlueprint(data);
-      } catch (err) {
+      } catch {
         setError('Failed to load learning blueprint.');
       } finally {
         setIsLoading(false);

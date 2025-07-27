@@ -10,7 +10,7 @@ import styles from './FoldersPage.module.css';
 
 console.log("🟢 [FoldersPage] Module loaded");
 
-export function FoldersPage() {
+export default function FoldersPage() {
   console.log("🟢 [FoldersPage] Component initialized");
   
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -241,7 +241,7 @@ export function FoldersPage() {
           </div>
           <div className={styles.notesGrid}>
             {questionSets.map(set => (
-              <div key={set.id} className={styles.questionSetCard}>
+              <div key={set.id} className="card">
                 <Link to={`/question-sets/${set.id}`} className={styles.cardInfoLink}>
                   <div className={styles.folderInfo}>
                     <FiBook className={styles.folderIcon} />

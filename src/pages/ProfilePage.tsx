@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './ProfilePage.module.css';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { FiEdit2, FiSave, FiUser, FiMail, FiCalendar, FiClock } from 'react-icons/fi';
 
 const ProfilePage: React.FC = () => {
@@ -58,7 +58,7 @@ const ProfilePage: React.FC = () => {
         )}
       </div>
 
-      <div className={styles.card}>
+      <div className="card">
         {/* Profile Header */}
         <div className={styles.profileHeader}>
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">

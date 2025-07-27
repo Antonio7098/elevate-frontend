@@ -58,7 +58,7 @@ const QuestionSetProgressView: React.FC = () => {
       </div>
       <h1 className={styles.pageTitle}>{stats.name} - Set Progress</h1>
       <div className={styles.topSection}>
-        <div className={styles.chartCard}>
+        <div className="card">
           <MasteryLineChart
             data={stats.masteryHistory}
             title={`${stats.name} Mastery Over Time`}

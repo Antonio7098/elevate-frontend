@@ -40,7 +40,7 @@ const CreateManualQuestionSetPage: React.FC = () => {
         if (!preselectedFolderId && data.length > 0) {
           setFolderId(data[0].id);
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load folders.');
       } finally {
         setIsFetchingFolders(false);
@@ -83,7 +83,7 @@ const CreateManualQuestionSetPage: React.FC = () => {
         await createQuestion(folderId, newSet.id, { ...q, questionSetId: newSet.id });
       }
       navigate(`/question-sets/${newSet.id}`);
-    } catch (err) {
+    } catch {
       setError('Failed to save the question set. Please try again.');
     } finally {
       setIsSaving(false);

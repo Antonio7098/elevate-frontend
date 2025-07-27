@@ -62,7 +62,7 @@ const CreateQuestionSetPage = () => {
         if (!preselectedFolderId && data.length > 0 && !folderId) {
           setFolderId(data[0].id);
         }
-      } catch (err) {
+      } catch {
         console.error('Failed to load folders:', err);
         setError('Failed to load folders. Please try again.');
       } finally {
@@ -117,14 +117,14 @@ const CreateQuestionSetPage = () => {
       // Support both result as array or result.questions as array
       if (Array.isArray(result)) {
         setQuestions(result);
-      } else if (result && typeof result === 'object' && Array.isArray((result as any).questions)) {
-        setQuestions((result as any).questions);
+      } else if (result && typeof result === 'object' && Array.isArray((result as { questions: ModalQuestion[] }).questions)) {
+        setQuestions((result as { questions: ModalQuestion[] }).questions);
       } else {
         setQuestions([]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err.response?.data?.message ||
+        ((err as { response?: { data?: { message?: string } } }).response?.data?.message) ||
         'Failed to generate questions. Please try again.'
       );
     } finally {
@@ -152,7 +152,7 @@ const CreateQuestionSetPage = () => {
         });
       }
       navigate(`/folders/${folderId}`);
-    } catch (err: any) {
+    } catch {
       setError('Failed to save question set and questions.');
     } finally {
       setIsSaving(false);

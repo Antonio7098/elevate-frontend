@@ -17,7 +17,7 @@ const CreateFromBlueprintPage: React.FC = () => {
         setIsLoading(true);
         const data = await getLearningBlueprints();
         setBlueprints(data);
-      } catch (err) {
+      } catch {
         setError('Failed to load learning blueprints.');
       } finally {
         setIsLoading(false);
@@ -61,7 +61,7 @@ const CreateFromBlueprintPage: React.FC = () => {
             <p className={styles.centeredMessage}>No learning blueprints found.</p>
           ) : (
             blueprints.map(bp => (
-              <div key={bp.id} className={styles.card}>
+              <div key={bp.id} className="card">
                 <h2 className={styles.cardTitle}>Blueprint from {new Date(bp.createdAt).toLocaleDateString()}</h2>
                 <p className={styles.cardSnippet}>"{bp.sourceText.substring(0, 100)}..."</p>
                 <button onClick={() => handleSelectBlueprint(bp.id)} className={styles.selectButton}>

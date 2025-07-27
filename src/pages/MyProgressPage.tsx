@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { fetchOverallStats, fetchFolders, fetchFolderStats, fetchQuestionSetStats, fetchQuestionSetQuestions } from '../api/stats';
-import type { OverallStats, FolderSummary, FolderStatsDetails, QuestionSetStatsDetails, QuestionStat } from '../api/stats';
+import type { OverallStats, FolderStatsDetails, QuestionSetStatsDetails, QuestionStat } from '../api/stats';
 import MasteryLineChart from '../components/stats/MasteryLineChart';
 import CircularProgress from '../components/stats/CircularProgress';
 import { UUESegmentedProgressBar } from '../components/stats/SegmentedProgressBar';
@@ -21,9 +21,8 @@ const FolderTree: React.FC<{
   folders: Folder[];
   questionSets: QuestionSet[];
   onPin: (item: ProgressItem) => void;
-  onUnpin: (item: ProgressItem) => void;
   navigate: (path: string) => void;
-}> = ({ folders, questionSets, onPin, onUnpin, navigate }) => {
+}> = ({ folders, questionSets, onPin, navigate }) => {
   console.log('🌳 [FolderTree] Rendering with:', { folders, questionSets });
   console.log('🌳 [FolderTree] folders length:', folders.length);
   console.log('🌳 [FolderTree] questionSets length:', questionSets.length);
@@ -63,7 +62,7 @@ const FolderTree: React.FC<{
             tabIndex={0}
             role="button"
             aria-label={`View progress for ${folder.name}`}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/my-progress/folders/${folder.id}`); }}
+            onKeyDown={() => navigate(`/my-progress/folders/${folder.id}`)}
           >
             <CarouselItemCard
               name={folder.name}
@@ -146,11 +145,11 @@ const FolderTree: React.FC<{
 };
 
 const SubfolderList: React.FC<{
-  subfolders: any[];
+  subfolders: Folder[];
   navigate: (path: string) => void;
 }> = ({ subfolders, navigate }) => {
   const [expanded, setExpanded] = useState<{ [id: string]: boolean }>({});
-  const [subfolderData, setSubfolderData] = useState<{ [id: string]: any }>({});
+  const [subfolderData, setSubfolderData] = useState<{ [id: string]: Folder }>({});
   const [loading, setLoading] = useState<{ [id: string]: boolean }>({});
 
   const handleToggle = async (id: string) => {
@@ -160,7 +159,7 @@ const SubfolderList: React.FC<{
       try {
         const data = await getFolder(id);
         setSubfolderData(prev => ({ ...prev, [id]: data }));
-      } catch (e) {
+      } catch (_e) {
         // Optionally handle error
       } finally {
         setLoading(prev => ({ ...prev, [id]: false }));
@@ -187,7 +186,7 @@ const SubfolderList: React.FC<{
               tabIndex={0}
               role="button"
               aria-label={`View progress for ${sub.name}`}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/my-progress/folders/${sub.id}`); }}
+              onKeyDown={() => navigate(`/my-progress/folders/${sub.id}`)}
             >
               {sub.name}
             </span>
@@ -216,7 +215,6 @@ const MyProgressPage: React.FC = () => {
 
   // Overall stats
   const [overallStats, setOverallStats] = useState<OverallStats | null>(null);
-  const [topFolders, setTopFolders] = useState<FolderSummary[]>([]);
   const [loadingOverall, setLoadingOverall] = useState(true);
   const [errorOverall, setErrorOverall] = useState<string | null>(null);
 
@@ -235,10 +233,9 @@ const MyProgressPage: React.FC = () => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [questionSets, setQuestionSets] = useState<QuestionSet[]>([]);
   const [pinnedItems, setPinnedItems] = useState<ProgressItem[]>([]);
-  const [unpinnedItems, setUnpinnedItems] = useState<ProgressItem[]>([]);
 
   // State for weekly progress
-  const [weeklyProgress, setWeeklyProgress] = useState({
+  const [weeklyProgress] = useState({
     itemsReviewed: 0,
     masteryGained: 0,
     streakDays: 0
@@ -249,7 +246,6 @@ const MyProgressPage: React.FC = () => {
     console.log('[MyProgressPage] Checking token before loadData:', localStorage.getItem('token'));
     let isMounted = true;
     const controller = new AbortController();
-    const signal = controller.signal;
 
     const loadData = async () => {
       setLoadingOverall(true);
@@ -258,12 +254,12 @@ const MyProgressPage: React.FC = () => {
       try {
         console.log('Fetching overall stats and folders...');
         const [statsRes, foldersRes] = await Promise.all([
-          fetchOverallStats().catch(err => {
-            console.error('Error in fetchOverallStats:', err);
-            throw new Error(`Failed to load stats: ${err.message}`);
+          fetchOverallStats().catch(() => {
+            console.error('Error in fetchOverallStats:');
+            throw new Error(`Failed to load stats:`);
           }),
-          fetchFolders().catch(err => {
-            console.error('Error in fetchFolders:', err);
+          fetchFolders().catch(() => {
+            console.error('Error in fetchFolders:');
             // Don't fail the whole load if folders fail
             return [];
           }),
@@ -284,7 +280,7 @@ const MyProgressPage: React.FC = () => {
           console.warn('Expected folders to be an array, got:', foldersRes);
           setTopFolders([]);
         }
-      } catch (err) {
+      } catch {
         if (isMounted) {
           console.error('Error loading data:', err);
           setErrorOverall(err instanceof Error ? err.message : 'Failed to load data. Please try again later.');
@@ -346,13 +342,13 @@ const MyProgressPage: React.FC = () => {
             console.log(`🧪 [MyProgressPage] Question set stats:`, questionSetStats);
             console.log(`🧪 [MyProgressPage] Question set mastery history length:`, questionSetStats.masteryHistory?.length || 0);
             console.log(`🧪 [MyProgressPage] Question set mastery history:`, questionSetStats.masteryHistory);
-          } catch (err) {
-            console.log(`🧪 [MyProgressPage] Failed to fetch question set stats:`, err);
+          } catch {
+            console.log(`🧪 [MyProgressPage] Failed to fetch question set stats:`);
           }
         }
         
         setFolderDetails(data);
-      } catch (err) {
+      } catch {
         if (isMounted) {
           console.error('Error loading folder details:', err);
           setErrorFolder(err instanceof Error ? err.message : 'Failed to load folder details.');
@@ -371,7 +367,7 @@ const MyProgressPage: React.FC = () => {
       isMounted = false;
       controller.abort();
     };
-  }, [folderId, location.search]);
+  }, [folderId, location.search, folders]);
 
   // Fetch Set-Specific Stats when setId changes
   useEffect(() => {
@@ -393,12 +389,12 @@ const MyProgressPage: React.FC = () => {
       try {
         console.log(`Fetching question set details for setId: ${setId}`);
         const [statsRes, questionsRes] = await Promise.all([
-          fetchQuestionSetStats(setId).catch(err => {
-            console.error('Error fetching set stats:', err);
-            throw new Error(`Failed to load set stats: ${err.message}`);
+          fetchQuestionSetStats(setId).catch(() => {
+            console.error('Error fetching set stats:');
+            throw new Error(`Failed to load set stats:`);
           }),
-          fetchQuestionSetQuestions(setId).catch(err => {
-            console.error('Error fetching set questions:', err);
+          fetchQuestionSetQuestions(setId).catch(() => {
+            console.error('Error fetching set questions:');
             return []; // Return empty array if questions fail to load
           })
         ]);
@@ -414,7 +410,7 @@ const MyProgressPage: React.FC = () => {
         
         setSetDetails(statsRes);
         setSetQuestions(Array.isArray(questionsRes) ? questionsRes : []);
-      } catch (err) {
+      } catch {
         if (isMounted) {
           console.error('Error loading set details:', err);
           setErrorSet(err instanceof Error ? err.message : 'Failed to load question set details.');
@@ -458,12 +454,12 @@ const MyProgressPage: React.FC = () => {
         const [foldersRes, setsRes, statsRes, foldersStatsRes] = await Promise.all([
           getFolders(),
           getQuestionSets('all'),
-          fetchOverallStats().catch(err => {
-            console.error('Error in fetchOverallStats:', err);
+          fetchOverallStats().catch(() => {
+            console.error('Error in fetchOverallStats:');
             return null;
           }),
-          fetchFolders().catch(err => {
-            console.error('Error in fetchFolders:', err);
+          fetchFolders().catch(() => {
+            console.error('Error in fetchFolders:');
             return [];
           })
         ]);
@@ -506,8 +502,8 @@ const MyProgressPage: React.FC = () => {
           console.log('🔄 [MyProgressPage] Data refreshed successfully, clearing URL parameter');
           navigate(location.pathname, { replace: true });
         }
-      } catch (err) {
-        console.error('❌ [MyProgressPage] fetchAllItems error:', err);
+      } catch {
+        console.error('❌ [MyProgressPage] fetchAllItems error:');
         if (!isMounted) return;
         setErrorOverall('Failed to load items. Please try again.');
         setLoadingOverall(false);
@@ -515,7 +511,7 @@ const MyProgressPage: React.FC = () => {
     };
     fetchAllItems();
     return () => { isMounted = false; };
-  }, [location.search, navigate]);
+  }, [location.search, navigate, location.pathname]);
 
   // Pin/Unpin handlers
   const handlePin = async (item: ProgressItem) => {
@@ -531,7 +527,7 @@ const MyProgressPage: React.FC = () => {
         // It's a QuestionSet
         await pinQuestionSet(item.folderId, item.id, true);
       }
-    } catch (err) {
+    } catch {
       // Revert UI on error
       setPinnedItems(prev => prev.filter(i => i.id !== item.id));
       setUnpinnedItems(prev => [...prev, { ...item, isPinned: false }]);
@@ -552,7 +548,7 @@ const MyProgressPage: React.FC = () => {
         // It's a QuestionSet
         await pinQuestionSet(item.folderId, item.id, false);
       }
-    } catch (err) {
+    } catch {
       // Revert UI on error
       setUnpinnedItems(prev => prev.filter(i => i.id !== item.id));
       setPinnedItems(prev => [...prev, { ...item, isPinned: true }]);
@@ -662,12 +658,12 @@ const MyProgressPage: React.FC = () => {
               questionSetSummaries.map((set) => (
                 <div
                   key={set.id}
-                  className={styles.setCard} 
+                  className="card" 
                   onClick={() => navigate(`/my-progress/sets/${set.id}`)}
                   tabIndex={0}
                   role="button"
                   aria-label={`View progress for ${set.name}`}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/my-progress/sets/${set.id}`); }}
+                                onKeyDown={() => navigate(`/my-progress/sets/${set.id}`)}
                 >
                   <CircularProgress
                     percentage={set.currentMasteryScore || set.masteryScore} // Fallback to masteryScore if currentMasteryScore is not available
@@ -730,7 +726,7 @@ const MyProgressPage: React.FC = () => {
                 setUnpinnedItems(allItems.filter(item => !item.isPinned));
                 
                 console.log('✅ [MyProgressPage] Manual refresh completed successfully');
-              } catch (err) {
+              } catch {
                 console.error('❌ [MyProgressPage] Manual refresh error:', err);
                 setErrorOverall('Failed to refresh data. Please try again.');
               } finally {

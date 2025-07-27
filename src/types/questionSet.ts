@@ -57,7 +57,7 @@ export interface EnhancedQuestionSet {
 export interface LearningBlueprint {
   id: string;
   sourceText: string;
-  blueprintJson: any; // The parsed blueprint from AI
+  blueprintJson: unknown; // The parsed blueprint from AI
   folderId?: string;
   createdAt: string;
   updatedAt: string;

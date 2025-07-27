@@ -12,7 +12,7 @@ const SRStatusWidget: React.FC<SRStatusWidgetProps> = ({ status }) => {
   }
 
   return (
-    <div className={styles.widgetContainer}>
+    <div className="card">
       <h4 className={styles.widgetTitle}>Spaced Repetition Status</h4>
       <ul className={styles.statusList}>
         <li className={styles.statusItem}>

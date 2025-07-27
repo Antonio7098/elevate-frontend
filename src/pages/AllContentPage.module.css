@@ -2,7 +2,7 @@
   max-width: 96rem;
   margin: 0 auto;
   padding: 2rem 1rem;
-  background: white;
+  background: var(--color-background);
 }
 
 .header {
@@ -15,11 +15,11 @@
 .title {
   font-size: 2rem;
   font-weight: bold;
-  color: #1a1a1a;
+  color: var(--color-text-base);
 }
 
 .subtitle {
-  color: #666;
+  color: var(--color-text-muted);
   margin-top: 0.25rem;
 }
 
@@ -41,18 +41,18 @@
 .breadcrumbSeparator {
   width: 1rem;
   height: 1rem;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .breadcrumbLink {
-  color: #666;
+  color: var(--color-text-muted);
   text-decoration: none;
   font-size: 0.875rem;
   transition: color 0.2s;
 }
 
 .breadcrumbLink:hover {
-  color: #1a1a1a;
+  color: var(--color-text-base);
 }
 
 /* Loading State */
@@ -62,7 +62,7 @@
   justify-content: center;
   gap: 1rem;
   padding: 2rem;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .spinner {
@@ -82,9 +82,9 @@
 
 /* Error State */
 .error {
-  background: #fee2e2;
-  border: 1px solid #ef4444;
-  color: #dc2626;
+  background: var(--color-danger-light);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger-dark);
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
@@ -101,8 +101,8 @@
 }
 
 .folderSection {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   padding: 1.5rem;
 }
@@ -110,10 +110,10 @@
 .folderName {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-text-base);
   margin: 0 0 1rem 0;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .contentGrid {
@@ -122,20 +122,7 @@
   gap: 1rem;
 }
 
-.contentItem {
-  text-decoration: none;
-  color: inherit;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
 
-.contentItem:hover {
-  border-color: #2563eb;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
 
 .contentInfo {
   display: flex;
@@ -145,14 +132,14 @@
 .contentIcon {
   width: 1.5rem;
   height: 1.5rem;
-  color: #2563eb;
+  color: var(--color-primary);
   flex-shrink: 0;
 }
 
 .contentTitle {
   font-size: 1rem;
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--color-text-base);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -162,13 +149,13 @@
 
 .questionSetName {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--color-text-muted);
   margin: 0.25rem 0 0 0;
 }
 
 .contentPreview {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--color-text-muted);
   margin: 0.25rem 0 0 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;

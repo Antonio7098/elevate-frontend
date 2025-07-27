@@ -6,7 +6,7 @@ console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
 // Ensure baseURL doesn't end with a slash
 const getBaseUrl = () => {
   const baseURL = (() => {
-    let url = import.meta.env.VITE_API_URL;
+    const url = import.meta.env.VITE_API_URL;
     if (url === '/api' || url === '/api/') {
       // If VITE_API_URL is '/api' (often a misconfiguration for proxy setups where paths already include /api),
       // set baseURL to '' so that paths like '/api/xyz' resolve correctly to 'http://host/api/xyz'.

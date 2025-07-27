@@ -14,25 +14,4 @@
   gap: 2rem;
 }
 
-.optionCard {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
 
-.optionCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.optionCard h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.optionCard p {
-  font-size: 1rem;
-  color: #666;
-}

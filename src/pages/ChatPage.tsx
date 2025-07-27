@@ -45,6 +45,47 @@ const ChatPage: React.FC = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // This is the correct way to style the react-mentions input
+  const mentionsInputStyle = {
+    control: {
+      backgroundColor: 'var(--color-surface)',
+      fontSize: '1rem',
+      fontWeight: '400',
+      borderRadius: '1.25rem', // Soft, rounded corners
+      border: '1px solid var(--color-border)', // Re-add a subtle border
+      boxShadow: 'var(--shadow-sm)', // Keep a subtle shadow
+    },
+    '&multiLine': {
+      control: {
+        fontFamily: 'inherit',
+        minHeight: '70px', // Increase the height
+      },
+      highlighter: {
+        padding: '1.2rem 1.5rem',
+        border: 'none',
+      },
+      input: {
+        padding: '1.2rem 1.5rem',
+        color: 'var(--color-text-base)',
+        outline: 'none',
+      },
+    },
+    suggestions: {
+      list: {
+        backgroundColor: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: 'var(--shadow-lg)',
+      },
+      item: {
+        padding: '10px 15px',
+        '&focused': {
+          backgroundColor: 'var(--color-surface-hover)',
+        },
+      },
+    },
+  };
+
   useEffect(() => {
     const fetchAllFolders = async () => {
       try {
@@ -181,7 +222,7 @@ const ChatPage: React.FC = () => {
     let plainText = input;
     let match;
     const newMessages: ChatMessageType[] = [];
-    let newContext = { ...context };
+    const newContext = { ...context };
   
     const allSuggestions: Array<{id: string; display: string; type: string}> = [
       ...folders.map(f => ({
@@ -214,7 +255,7 @@ const ChatPage: React.FC = () => {
   
     // First pass: find context-setting mentions (folders, question sets, notes)
     while ((match = mentionRegex.exec(input)) !== null) {
-      const [_fullMatch, _display, id] = match;
+      const [, , id] = match;
       const suggestion = suggestionMap.get(id);
   
       if (suggestion) {
@@ -274,7 +315,7 @@ const ChatPage: React.FC = () => {
         };
         setMessages(prev => [...prev, aiMessage]);
       }
-    } catch (error) {
+    } catch (_error) {
       const errorMessage: ChatMessageType = {
         sender: 'ai',
         text: 'Sorry, I encountered an error. Please try again.',
@@ -349,7 +390,7 @@ const ChatPage: React.FC = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type a message, or use '@' to reference..."
-            className={styles.mentionsInput}
+            style={mentionsInputStyle}
           >
             <Mention
               trigger="@"
@@ -359,7 +400,7 @@ const ChatPage: React.FC = () => {
               renderSuggestion={(suggestion: SuggestionDataItem, search: string, highlightedSearchTerm: string, index: number, focused: boolean) => {
                 const displayText = String(suggestion.display || '');
                 const searchText = String(search || '');
-                const suggestionType = (suggestion as any).type || 'unknown';
+                const suggestionType = (suggestion as { type?: string }).type || 'unknown';
                 const escapedSearch = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const searchRegex = new RegExp(`(${escapedSearch})`, 'gi');
                 const parts = displayText.split(searchRegex);

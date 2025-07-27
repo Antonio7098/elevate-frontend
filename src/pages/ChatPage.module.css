@@ -7,9 +7,9 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 5rem); /* Adjust based on your app's header/nav height */
-  background-color: #f9f9f9;
-  color: #1a1a1a;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-base);
+  font-family: var(--font-family-sans);
 }
 
 .chatContainer {
@@ -39,7 +39,7 @@
   justify-content: center;
   text-align: center;
   height: 100%;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .emptyState h1 {
@@ -74,7 +74,7 @@
     font-weight: 600;
     font-size: 0.9rem;
     margin-bottom: 0.25rem;
-    color: #333;
+    color: var(--color-text-base);
 }
 
 .message {
@@ -86,14 +86,14 @@
 }
 
 .message.user {
-  background-color: #e2e8f0;
-  color: #1a1a1a;
+  background-color: var(--color-primary-lightest);
+  color: var(--color-text-base);
   border-bottom-right-radius: 0.25rem;
 }
 
 .message.ai {
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-bottom-left-radius: 0.25rem;
 }
 
@@ -103,7 +103,7 @@
 
 .messageTimestamp {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   margin-top: 0.5rem;
   padding: 0 0.5rem;
 }
@@ -111,7 +111,7 @@
 /* Input area styling */
 .inputArea {
   padding: 1rem 0 2rem 0;
-  background-color: #f9f9f9;
+  background-color: var(--color-background);
   width: 100%;
 }
 
@@ -125,78 +125,26 @@
   gap: 0.5rem;
 }
 
-/* Styles for react-mentions */
-.mentions {
+/* A dedicated wrapper for the chat input component to control layout */
+.chatInputWrapper {
   width: 100%;
-  min-height: 56px;
-  display: flex;
-  flex-direction: column;
   position: relative;
 }
 
+/*
+  Use scoped global selectors to override the library's internal styles.
+  This targets the visible input area and the textarea inside it.
+*/
 .mentionsInput {
   width: 100%;
-  min-height: 56px;
-  padding: 1rem 1.5rem 1rem 1.5rem;
-  border-radius: 1.5rem;
-  border: 1px solid #d1d5db;
-  background-color: #ffffff;
-  color: #1a1a1a;
-  font-size: 1rem;
-  resize: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
+  position: relative;
 }
 
-.mentionsInput:focus {
-  outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
-}
-
-.mentions__control {
-  /* This will be the main input area */
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 10px;
-  font-size: 1rem;
-  background-color: #fff;
-}
-
-.mentions__input {
-  /* This is the actual input element inside the control */
-  border: none;
-  outline: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  font-size: 1rem;
-  background-color: transparent;
-}
-
-.mentions__suggestions {
-  /* This is the suggestions list */
-  border: 1px solid #ddd;
-  background-color: #fff;
-  border-radius: 4px;
-  margin-top: 5px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.mentions__suggestions__list {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.mentions__suggestions__item {
+.suggestion {
   padding: 10px 15px;
   cursor: pointer;
-}
-
-.mentions__suggestions__item--focused {
-  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
 }
 
 .suggestion {
@@ -207,7 +155,7 @@
 }
 
 .suggestion.focused {
-  background-color: #f0f0f0;
+  background-color: var(--color-surface-hover);
 }
 
 .suggestionType {
@@ -233,8 +181,8 @@
 }
 
 .mention {
-  background-color: #e0f7fa; /* A light blue background for the mention */
-  color: #007bff; /* A blue text color */
+  background-color: var(--color-primary-lightest);
+  color: var(--color-primary);
   padding: 2px 4px;
   border-radius: 4px;
 }
@@ -251,7 +199,7 @@
   height: 2.5rem;
   border-radius: 50%;
   border: none;
-  background-color: #4f46e5;
+  background-color: var(--color-primary);
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -259,11 +207,11 @@
 }
 
 .sendButton:hover:not(:disabled) {
-  background-color: #4338ca;
+  background-color: var(--color-primary-hover);
 }
 
 .sendButton:disabled {
-  background-color: #a5b4fc;
+  background-color: var(--color-primary-disabled);
   cursor: not-allowed;
 }
 
@@ -291,7 +239,7 @@
 /* Context Selectors */
 .contextHeader {
   padding: 1rem 0;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: 1rem;
 }
 
@@ -312,24 +260,24 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-color: #fff;
-    border: 1px solid #d1d5db;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: 0.5rem;
     padding: 0.5rem 2rem 0.5rem 0.75rem;
     font-size: 0.9rem;
     cursor: pointer;
-    color: #374151;
+    color: var(--color-text-muted);
 }
 
 .contextSelector select:disabled {
-    background-color: #f3f4f6;
+    background-color: var(--color-background);
     cursor: not-allowed;
 }
 
 .contextSelector::after {
     content: '▼';
     font-size: 0.6rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     position: absolute;
     right: 0.75rem;
     top: 50%;
@@ -338,7 +286,7 @@
 }
 
 .contextIcon {
-    color: #6b7280;
+    color: var(--color-text-muted);
 }
 
 .loadingIcon {
@@ -353,8 +301,8 @@
 }
 
 .message.system {
-  background-color: #f0f4f8; /* A light, neutral blue-gray */
-  color: #5a6e8a; /* A darker, muted blue for text */
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-muted);
   font-style: italic;
   border-radius: 12px;
   padding: 8px 16px;

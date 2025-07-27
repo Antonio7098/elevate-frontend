@@ -8,14 +8,14 @@ console.log("🟢 [NoteCard] Module loaded");
 export function NoteCard({ note }: { note: Note }) {
   console.log('🟢 [NoteCard] Component rendered with note ID:', note.id);
   
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = () => {
     console.log('📝 [NoteCard] Note clicked:', note.id);
   };
 
   return (
     <Link 
       to={`/notes/${String(note.id)}`} 
-      className={styles.card}
+      className="card"
       onClick={handleClick}
     >
       <div className={styles.iconContainer}>

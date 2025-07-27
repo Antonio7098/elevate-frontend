@@ -93,7 +93,7 @@ export const evaluateAnswerWithAI = async (
         newLearningStage: question.learningStage || 0,
       };
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ [AI Evaluation] Error evaluating answer with AI:', error);
     
     // More detailed error logging

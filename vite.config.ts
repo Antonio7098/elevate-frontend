@@ -20,14 +20,14 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: true,
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
             console.log('[PROXY ERROR]', err);
           });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
             console.log('[PROXY REQUEST]', req.method, req.url);
           });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
+          proxy.on('proxyRes', (proxyRes, req) => {
             console.log('[PROXY RESPONSE]', req.method, req.url, '->', proxyRes.statusCode);
           });
         }

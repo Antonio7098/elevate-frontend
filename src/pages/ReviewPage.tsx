@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { apiClient } from '../services/apiClient';
 import type { Question } from '../types/question';
@@ -23,7 +23,7 @@ const ReviewPage: React.FC = () => {
   
   // Check if this is a "Review Again" session
   const isReviewAgain = location.state?.reviewAgain;
-  const questionsToReview = location.state?.questionsToReview || [];
+  const questionsToReview = useMemo(() => location.state?.questionsToReview || [], [location.state?.questionsToReview]);
 
   // Filter question sets based on search term
   const getFilteredQuestionSets = () => {
@@ -80,7 +80,7 @@ const ReviewPage: React.FC = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [isReviewAgain, questionsToReview]);
 
   const handleQuestionSetToggle = (questionSet: EnhancedQuestionSet) => {
     const questionSetId = questionSet.id;
@@ -257,7 +257,7 @@ const ReviewPage: React.FC = () => {
           {filteredQuestionSets
             .filter(questionSet => !selectedQuestionSets.has(questionSet.id))
             .map((questionSet) => (
-              <div key={questionSet.id} className={styles.questionSetItem}>
+              <div key={questionSet.id} className="card">
                 <div 
                   className={styles.questionSetHeader}
                   onClick={() => handleQuestionSetToggle(questionSet)}
@@ -304,7 +304,7 @@ const ReviewPage: React.FC = () => {
               const questionSet = selectedSet.questionSet;
               
               return (
-                <div key={questionSet.id} className={styles.questionSetItem}>
+                <div key={questionSet.id} className="card">
                   <div 
                     className={`${styles.questionSetHeader} ${styles.selected}`}
                     onClick={() => handleQuestionSetToggle(questionSet)}

@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import AuthenticatedLayout from '../components/layout/AuthenticatedLayout';
 import styles from './AppRoutes.module.css';
 import LearningBlueprintPage from '../pages/LearningBlueprintPage';
@@ -13,7 +13,7 @@ const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 
 // Authenticated Pages
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
-const FoldersPage = lazy(() => import('../pages/FoldersPage').then(module => ({ default: module.FoldersPage })));
+const FoldersPage = lazy(() => import('../pages/FoldersPage'));
 
 const ReviewSessionPage = lazy(() => import('../pages/ReviewSessionPage'));
 const QuestionSelectionPage = lazy(() => import('../pages/QuestionSelectionPage'));

@@ -1,11 +1,68 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
 import styles from "./InsightCatalyst.module.css";
 import { createReactBlockSpec } from "@blocknote/react";
 import type { CatalystType } from '../../../types/insightCatalyst.types';
+import type { BlockNoteEditor } from "@blocknote/core";
+import type { FC } from "react";
 
 // The props for the InsightCatalyst block are inferred from the propSchema.
 // No separate interface is needed.
+
+const InsightCatalystBlock: FC<{
+  block: { props: { text: string } };
+  editor: BlockNoteEditor<unknown>;
+}> = ({ block, editor }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const updateText = (newText: string) => {
+    editor.updateBlock(block, {
+      props: { ...block.props, text: newText },
+    });
+  };
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    setIsEditing(false);
+    updateText(event.target.value);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      updateText(event.currentTarget.value);
+      setIsEditing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [isEditing]);
+
+  return (
+    <div className={styles.insightCatalyst} onDoubleClick={handleDoubleClick}>
+      <RiSparkling2Fill className={styles.icon} />
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          type="text"
+          defaultValue={block.props.text}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          className={styles.input}
+        />
+      ) : (
+        <p className={styles.text}>{block.props.text}</p>
+      )}
+    </div>
+  );
+};
 
 // The "insightCatalyst" block specification.
 export const InsightCatalystBlockSpec = createReactBlockSpec(
@@ -29,56 +86,6 @@ export const InsightCatalystBlockSpec = createReactBlockSpec(
   // ReactCustomBlockImplementation
   {
     // The render function. Props are now correctly typed based on the propSchema.
-    render: (props) => {
-      const [isEditing, setIsEditing] = React.useState(false);
-      const inputRef = React.useRef<HTMLInputElement>(null);
-
-      const handleDoubleClick = () => {
-        setIsEditing(true);
-      };
-
-      const updateText = (newText: string) => {
-        props.editor.updateBlock(props.block, {
-          props: { ...props.block.props, text: newText },
-        });
-      };
-
-      const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-        setIsEditing(false);
-        updateText(event.target.value);
-      };
-
-      const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "Enter") {
-          updateText(event.currentTarget.value);
-          setIsEditing(false);
-        }
-      };
-
-      React.useEffect(() => {
-        if (isEditing) {
-          inputRef.current?.focus();
-          inputRef.current?.select();
-        }
-      }, [isEditing]);
-
-      return (
-        <div className={styles.insightCatalyst} onDoubleClick={handleDoubleClick}>
-          <RiSparkling2Fill className={styles.icon} />
-          {isEditing ? (
-            <input
-              ref={inputRef}
-              type="text"
-              defaultValue={props.block.props.text}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-              className={styles.input}
-            />
-          ) : (
-            <p className={styles.text}>{props.block.props.text}</p>
-          )}
-        </div>
-      );
-    },
+    render: (props) => <InsightCatalystBlock {...props} />,
   }
 ); 

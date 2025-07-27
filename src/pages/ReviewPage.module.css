@@ -3,7 +3,7 @@
   margin: 0 auto;
   padding: 2rem 1rem;
   min-height: 100vh;
-  background: var(--color-background, #f8fafc);
+  background: var(--color-background);
 }
 
 .loadingContainer,
@@ -18,17 +18,17 @@
 
 .loader {
   font-size: 1.2rem;
-  color: var(--color-text-muted, #64748b);
+  color: var(--color-text-muted);
   margin-bottom: 1rem;
 }
 
 .errorContainer h2 {
-  color: var(--color-text-on-primary, #1e293b);
+  color: var(--color-text-base);
   margin-bottom: 0.5rem;
 }
 
 .errorContainer p {
-  color: var(--color-text-muted, #64748b);
+  color: var(--color-text-muted);
   margin-bottom: 1.5rem;
 }
 
@@ -40,13 +40,13 @@
 .title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--color-text-on-primary, #1e293b);
+  color: var(--color-text-base);
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
   font-size: 1.1rem;
-  color: var(--color-text-muted, #64748b);
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -62,38 +62,38 @@
   flex: 1;
   min-width: 300px;
   padding: 0.75rem 1rem;
-  border: 1px solid var(--color-border, #e2e8f0);
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   font-size: 1rem;
-  background: white;
+  background: var(--color-surface);
   transition: border-color 0.2s;
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--color-primary, #6366f1);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-transparent);
 }
 
 .searchResults {
   font-size: 0.875rem;
-  color: var(--color-text-muted, #64748b);
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
 .summary {
   margin-bottom: 2rem;
   padding: 1rem;
-  background: white;
+  background: var(--color-surface);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   text-align: center;
 }
 
 .summaryText {
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--color-text-on-primary, #1e293b);
+  color: var(--color-text-base);
 }
 
 .content {
@@ -103,7 +103,7 @@
 .sectionTitle {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--color-text-on-primary, #1e293b);
+  color: var(--color-text-base);
   margin-bottom: 1.5rem;
 }
 
@@ -113,18 +113,7 @@
   gap: 1rem;
 }
 
-.questionSetItem {
-  background: white;
-  border: 2px solid var(--color-border, #e2e8f0);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  transition: all 0.2s;
-}
 
-.questionSetItem:hover {
-  border-color: var(--color-primary, #6366f1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
 
 .questionSetHeader {
   display: flex;
@@ -136,20 +125,20 @@
 }
 
 .questionSetHeader:hover {
-  background: var(--color-surface, #f1f5f9);
+  background: var(--color-surface-hover);
 }
 
 .questionSetHeader.selected {
-  background: var(--color-primary-light, #f0f4ff);
-  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-primary-lightest);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* Selected section styling */
 .content:has(.questionSetHeader.selected) {
-  border: 2px solid var(--color-primary, #6366f1);
+  border: 2px solid var(--color-primary);
   border-radius: 0.75rem;
   padding: 1rem;
-  background: var(--color-primary-light, #f0f4ff);
+  background: var(--color-primary-lightest);
   margin-bottom: 2rem;
   animation: slideIn 0.3s ease-out;
 }
@@ -166,13 +155,13 @@
 }
 
 .content:has(.questionSetHeader.selected) .sectionTitle {
-  color: var(--color-primary, #6366f1);
+  color: var(--color-primary);
 }
 
 .checkbox {
   width: 1.25rem;
   height: 1.25rem;
-  accent-color: var(--color-primary, #6366f1);
+  accent-color: var(--color-primary);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -185,26 +174,26 @@
 .questionSetName {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-text-on-primary, #1e293b);
+  color: var(--color-text-base);
   margin: 0 0 0.25rem 0;
 }
 
 .questionSetFolder {
   font-size: 0.875rem;
-  color: var(--color-text-muted, #64748b);
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 .recentNote {
   font-size: 0.8rem;
-  color: var(--color-primary, #6366f1);
+  color: var(--color-primary);
   margin: 0.25rem 0 0 0;
   font-style: italic;
 }
 
 .questionsSection {
   padding: 1rem 1.5rem;
-  background: var(--color-surface, #f8fafc);
+  background: var(--color-surface);
 }
 
 .questionsList {
@@ -218,21 +207,21 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem;
-  background: white;
-  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .questionItem:hover {
-  border-color: var(--color-primary, #6366f1);
-  background: var(--color-primary-light, #f0f4ff);
+  border-color: var(--color-primary);
+  background: var(--color-primary-lightest);
 }
 
 .questionItem.selected {
-  border-color: var(--color-primary, #6366f1);
-  background: var(--color-primary-light, #f0f4ff);
+  border-color: var(--color-primary);
+  background: var(--color-primary-lightest);
 }
 
 .questionContent {
@@ -244,15 +233,15 @@
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-primary, #6366f1);
-  background: var(--color-primary-light, #f0f4ff);
+  color: var(--color-primary);
+  background: var(--color-primary-lightest);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   margin-bottom: 0.5rem;
 }
 
 .questionText {
-  color: var(--color-text-on-primary, #1e293b);
+  color: var(--color-text-base);
   line-height: 1.5;
   margin: 0;
   word-wrap: break-word;
@@ -262,8 +251,8 @@
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--color-success, #059669);
-  background: var(--color-success-light, #ecfdf5);
+  color: var(--color-success-dark);
+  background: var(--color-success-light);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   margin-top: 0.5rem;
@@ -272,7 +261,7 @@
 .emptyState {
   text-align: center;
   padding: 3rem 1rem;
-  color: var(--color-text-muted, #64748b);
+  color: var(--color-text-muted);
   font-size: 1.1rem;
 }
 
@@ -282,14 +271,14 @@
   align-items: center;
   gap: 1rem;
   padding-top: 2rem;
-  border-top: 1px solid var(--color-border, #e2e8f0);
+  border-top: 1px solid var(--color-border);
 }
 
 .cancelButton {
   padding: 0.75rem 1.5rem;
-  background: var(--color-surface, #f1f5f9);
-  color: var(--color-text-on-primary, #1e293b);
-  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-surface);
+  color: var(--color-text-base);
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   font-size: 1rem;
   font-weight: 500;
@@ -298,14 +287,14 @@
 }
 
 .cancelButton:hover {
-  background: var(--color-surface-hover, #e2e8f0);
-  border-color: var(--color-border-hover, #cbd5e1);
+  background: var(--color-surface-hover);
+  border-color: var(--color-border);
 }
 
 .startButton {
   padding: 0.75rem 1.5rem;
-  background: var(--color-primary, #6366f1);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
   border: none;
   border-radius: 0.5rem;
   font-size: 1rem;
@@ -315,9 +304,9 @@
 }
 
 .startButton:hover:not(:disabled) {
-  background: var(--color-primary-hover, #5855eb);
+  background: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .startButton:disabled {

@@ -138,7 +138,7 @@ const ReviewSessionPage = () => {
   // State for self-marking fallback
   const [showSelfMarkUI, setShowSelfMarkUI] = useState<boolean>(false);
   const [selfMarkScore, setSelfMarkScore] = useState<number | string>('');
-  const [currentMarkingCriteria, setCurrentMarkingCriteria] = useState<any | null>(null);
+  const [currentMarkingCriteria, setCurrentMarkingCriteria] = useState<unknown | null>(null);
 
   // Define types for component props and state
   interface QuestionOutcome {
@@ -270,7 +270,7 @@ const ReviewSessionPage = () => {
       
       console.log('📝 [ReviewSession] Detailed evaluation info:', JSON.stringify(result, null, 2));
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ [ReviewSession] Error during AI/Auto-Evaluation:', error);
       const currentQuestionForCatch = questions[currentQuestionIndex]; // Re-fetch for safety, though likely same
 
@@ -477,7 +477,7 @@ const ReviewSessionPage = () => {
       console.log('✅ [ReviewSession] Response:', response.data);
       setSessionComplete(true); // Mark session as complete in UI after successful submission
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('❌ [ReviewSession] Error submitting session outcomes:', err);
       let errorMessage = 'Failed to save session results. Please try again.';
       if (err.response) {
@@ -634,7 +634,7 @@ const ReviewSessionPage = () => {
       </div>
 
     {/* The duplicated block starting with this comment and the subsequent div should be reviewed and likely removed. For now, this fixes the immediate syntax error. */}
-    <div className={styles.wireframeContentArea}>
+    <div className="card">
       <h1 className={styles.sessionTitle}>{sessionTitle}</h1>
       
       {/* Session content conditional rendering */}

@@ -120,7 +120,7 @@ const LearningBlueprintPage: React.FC = () => {
       
       setBlueprint(result);
       setCurrentStep('review');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating blueprint:', err);
       setError(
         err.response?.data?.message || 
@@ -151,7 +151,7 @@ const LearningBlueprintPage: React.FC = () => {
       
       setGeneratedQuestionSet(result.questionSet);
       setCurrentStep('complete');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error generating questions:', err);
       setError(
         err.response?.data?.message || 

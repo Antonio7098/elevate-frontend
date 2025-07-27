@@ -1,7 +1,8 @@
+import type { AxiosError, AxiosResponse } from 'axios';
 import api from './api';
 
 // Helper function to handle API responses
-const handleResponse = async (response: any) => {
+const handleResponse = async (response: AxiosResponse) => {
   if (!response.data) {
     throw new Error('No data received from server');
   }
@@ -9,14 +10,14 @@ const handleResponse = async (response: any) => {
 };
 
 // Helper function to handle API errors
-const handleError = (error: any, defaultMessage: string) => {
+const handleError = (error: AxiosError, defaultMessage: string) => {
   console.error('API Error:', {
     message: error.message,
     response: error.response?.data,
     status: error.response?.status,
     url: error.config?.url,
   });
-  throw new Error(error.response?.data?.message || defaultMessage);
+  throw new Error((error.response?.data as { message: string })?.message || defaultMessage);
 };
 
 export interface MasteryHistoryPoint {
@@ -50,8 +51,8 @@ export async function fetchOverallStats(): Promise<OverallStats> {
   try {
     const response = await api.get('/api/reviews/stats');
     return handleResponse(response);
-  } catch (error: any) {
-    return handleError(error, 'Failed to fetch overall stats');
+  } catch (error: unknown) {
+    return handleError(error as AxiosError, 'Failed to fetch overall stats');
   }
 }
 
@@ -59,8 +60,8 @@ export async function fetchFolders(): Promise<FolderSummary[]> {
   try {
     const response = await api.get('/api/folders');
     return handleResponse(response) || [];
-  } catch (error: any) {
-    return handleError(error, 'Failed to fetch folders');
+  } catch (error: unknown) {
+    return handleError(error as AxiosError, 'Failed to fetch folders');
   }
 }
 
@@ -72,8 +73,8 @@ export interface FolderStatsDetails {
   useScore?: number; // Optional as it might not be in the API response
   exploreScore?: number; // Optional as it might not be in the API response
   questionSetSummaries?: QuestionSetSummary[]; // Optional for backward compatibility
-  questionSets?: any[]; // Actual API response field
-  subfolders?: any[]; // Actual API response field
+  questionSets?: unknown[]; // Actual API response field
+  subfolders?: unknown[]; // Actual API response field
   totalReviewSessionsInFolder?: number; // Actual API response field
 }
 

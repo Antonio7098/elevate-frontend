@@ -1,0 +1,1 @@
+Fron docs/sprints, finish s18, then move on to s14, s15. Make sure to update the sprint documents as you go.

@@ -9,7 +9,7 @@ interface StatsSummaryWidgetProps {
 const StatsSummaryWidget: React.FC<StatsSummaryWidgetProps> = ({ overallStats }) => {
   if (!overallStats) {
     return (
-      <div className={styles.widgetBox}>
+      <div className="card">
         <h3 className={styles.title}>Stats Summary</h3>
         <p className={styles.empty}>No stats available yet.</p>
       </div>
@@ -17,7 +17,7 @@ const StatsSummaryWidget: React.FC<StatsSummaryWidgetProps> = ({ overallStats })
   }
 
   return (
-    <div className={styles.widgetBox}>
+    <div className="card">
       <h3 className={styles.title}>Stats Summary</h3>
       <div className={styles.statsGrid}>
         <div className={styles.statItem}>

@@ -11,7 +11,7 @@ import type { NoteBlock, CatalystBlock, CustomBlock as NoteCustomBlock } from '.
 const customSchema = {
   ...defaultBlockSpecs,
   insightCatalyst: InsightCatalystBlockSpec,
-} as any;
+} as unknown;
 
 // Define a type for our editor based on our custom schema
 export type CustomEditor = CoreBlockNoteEditor<typeof customSchema>;
@@ -28,7 +28,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
     super(props);
     this.state = { hasError: false };
   }
-  static getDerivedStateFromError(_: Error) { return { hasError: true }; }
+  static getDerivedStateFromError() { return { hasError: true }; }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("BlockNoteEditor error:", error, errorInfo);
   }
@@ -187,7 +187,7 @@ export const BlockNoteEditor: React.FC<BlockNoteEditorProps> = ({
 
   return (
     <div
-      className={styles.editorContainer}
+      className="card"
       ref={editorRef}
       tabIndex={0}
       onKeyDown={handleKeyDown}

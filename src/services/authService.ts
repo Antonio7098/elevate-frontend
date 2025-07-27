@@ -58,22 +58,22 @@ export const register = async (credentials: RegisterCredentials): Promise<AuthRe
       }
     };
     
-  } catch (error: any) {
-    const errorMessage = error.response?.data?.message || 
-                      error.message || 
+  } catch (error: unknown) {
+    const errorMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message || 
+                      (error as Error).message || 
                       'Registration failed. Please try again.';
     
     console.error('❌ [authService] Registration failed:', errorMessage, {
-      status: error.response?.status,
-      data: error.response?.data,
-      url: error.config?.url
+      status: (error as { response?: { status?: number } }).response?.status,
+      data: (error as { response?: { data?: unknown } }).response?.data,
+      url: (error as { config?: { url?: string } }).config?.url
     });
     
     const registrationError = new Error(errorMessage);
     registrationError.name = 'RegistrationError';
     
-    if (error.response?.status) {
-      (registrationError as any).status = error.response.status;
+    if ((error as { response?: { status?: number } }).response?.status) {
+      (registrationError as { status?: number }).status = (error as { response: { status: number } }).response.status;
     }
     
     throw registrationError;
@@ -99,15 +99,15 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     console.log('✅ [authService] Login successful');
     return response.data;
     
-  } catch (error: any) {
-    const errorMessage = error.response?.data?.message || 
-                      error.message || 
+  } catch (error: unknown) {
+    const errorMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message || 
+                      (error as Error).message || 
                       'Login failed. Please try again.';
     
     console.error('❌ [authService] Login failed:', errorMessage, {
-      status: error.response?.status,
-      data: error.response?.data,
-      url: error.config?.url
+      status: (error as { response?: { status?: number } }).response?.status,
+      data: (error as { response?: { data?: unknown } }).response?.data,
+      url: (error as { config?: { url?: string } }).config?.url
     });
     
     // Create a new error with the server message or default message
@@ -115,8 +115,8 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     loginError.name = 'LoginError';
     
     // Attach the status code if available
-    if (error.response?.status) {
-      (loginError as any).status = error.response.status;
+    if ((error as { response?: { status?: number } }).response?.status) {
+      (loginError as { status?: number }).status = (error as { response: { status: number } }).response.status;
     }
     
     throw loginError;
@@ -159,15 +159,15 @@ export const verifyToken = async (): Promise<boolean> => {
     await apiClient.get('/api/auth/verify-token');
     console.log('✅ [authService] Token is valid');
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ [authService] Token verification failed:', {
-      status: error.response?.status,
-      message: error.message,
-      url: error.config?.url
+      status: (error as { response?: { status?: number } }).response?.status,
+      message: (error as Error).message,
+      url: (error as { config?: { url?: string } }).config?.url
     });
     
     // Clear invalid token
-    if (error.response?.status === 401) {
+    if ((error as { response?: { status?: number } }).response?.status === 401) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('userData');
     }

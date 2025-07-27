@@ -1,18 +1,18 @@
 .container { padding: 2rem; max-width: 1200px; margin: 0 auto; }
 .header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
 .title { font-size: 1.8rem; font-weight: 600; }
-.backButton { background: none; border: 1px solid #ccc; border-radius: 50%; padding: 0.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.backButton { background: none; border: 1px solid var(--color-border); border-radius: 50%; padding: 0.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .content { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
-.blueprintPreview { background: #f9f9f9; border-radius: 8px; padding: 1.5rem; border: 1px solid #eee; }
+.blueprintPreview { background: var(--color-surface); border-radius: 8px; padding: 1.5rem; border: 1px solid var(--color-border); }
 .blueprintPreview h3 { margin-top: 0; }
-.form { background: #fff; border-radius: 8px; padding: 1.5rem; border: 1px solid #e0e0e0; }
+.form { background: var(--color-surface); border-radius: 8px; padding: 1.5rem; border: 1px solid var(--color-border); }
 .form h3 { margin-top: 0; }
 .formGroup { margin-bottom: 1rem; }
 .formGroup label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-.formGroup input, .formGroup select { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; }
-.generateButton { width: 100%; padding: 0.8rem; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-.generateButton:disabled { background-color: #aaa; }
-.centeredMessage { text-align: center; padding: 3rem; color: #666; font-size: 1.1rem; }
+.formGroup input, .formGroup select { width: 100%; padding: 0.75rem; border: 1px solid var(--color-border); border-radius: 4px; }
+.generateButton { width: 100%; padding: 0.8rem; background-color: var(--color-primary); color: var(--color-text-on-primary); border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.generateButton:disabled { background-color: var(--color-primary-disabled); }
+.centeredMessage { text-align: center; padding: 3rem; color: var(--color-text-muted); font-size: 1.1rem; }
 .spinner { animation: spin 1s linear infinite; }
-.error { color: #dc3545; }
+.error { color: var(--color-danger); }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

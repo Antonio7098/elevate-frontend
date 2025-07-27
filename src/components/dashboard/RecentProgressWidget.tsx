@@ -9,7 +9,7 @@ interface RecentProgressWidgetProps {
 const RecentProgressWidget: React.FC<RecentProgressWidgetProps> = ({ recentProgress }) => {
   if (!recentProgress || recentProgress.length === 0) {
     return (
-      <div className={styles.widgetBox}>
+      <div className="card">
         <h3 className={styles.title}>Recent Progress</h3>
         <p className={styles.empty}>No recent progress yet.</p>
       </div>
@@ -33,7 +33,7 @@ const RecentProgressWidget: React.FC<RecentProgressWidgetProps> = ({ recentProgr
   };
 
   return (
-    <div className={styles.widgetBox}>
+    <div className="card">
       <h3 className={styles.title}>Recent Progress</h3>
       <ul className={styles.list}>
         {recentProgress.map((item) => {

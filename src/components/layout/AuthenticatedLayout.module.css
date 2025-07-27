@@ -19,7 +19,7 @@
   .sidebar {
     transform: translateX(-100%);
     width: 280px !important;
-    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
   }
   
   .sidebarOpen {
@@ -36,7 +36,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.35);
+    background: var(--color-backdrop);
     z-index: 1000;
     opacity: 1;
     transition: opacity 0.2s;
@@ -47,10 +47,10 @@
     top: 1rem;
     left: 1rem;
     z-index: 1100;
-    background: #fff;
+    background: var(--color-surface);
     border: none;
     border-radius: 8px;
-    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+    box-shadow: var(--shadow-md);
     width: 44px;
     height: 44px;
     display: flex;
@@ -62,9 +62,9 @@
   }
   .menuButton:active,
   .menuButton:focus {
-    box-shadow: 0 4px 16px 0 rgba(44,44,44,0.13);
-    outline: 2px solid #1976d2;
-    background: #f0f4ff;
+    box-shadow: var(--shadow-lg);
+    outline: 2px solid var(--color-primary);
+    background: var(--color-primary-lightest);
   }
   .main {
     padding: 0.5rem;
@@ -96,5 +96,5 @@
 .content {
   width: 100%;
   max-width: 80rem; /* max-w-5xl */
-  background: #fff;
+  background: var(--color-surface);
 }

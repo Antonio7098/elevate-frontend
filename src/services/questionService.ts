@@ -10,7 +10,7 @@ export const getQuestions = async (questionSetId: string, folderId?: string): Pr
         console.log(`Trying to fetch questions using nested folder route: /folders/${folderId}/questionsets/${questionSetId}/questions`);
         const response = await apiClient.get<Question[]>(`/folders/${folderId}/questionsets/${questionSetId}/questions`);
         return response.data;
-      } catch (folderError) {
+      } catch {
         console.log(`Folder-nested route failed, trying alternative endpoints`);
         // Continue to try other approaches if this fails
       }
@@ -21,7 +21,7 @@ export const getQuestions = async (questionSetId: string, folderId?: string): Pr
       console.log(`Trying to fetch questions using direct route: /questionsets/${questionSetId}/questions`);
       const response = await apiClient.get<Question[]>(`/questionsets/${questionSetId}/questions`);
       return response.data;
-    } catch (directError) {
+    } catch {
       // If that fails, try the query parameter approach
       console.log(`Direct route failed, trying query parameter approach`);
       const response = await apiClient.get<Question[]>(`/questions?questionSetId=${questionSetId}`);
@@ -41,7 +41,7 @@ export const getQuestion = async (questionSetId: string, questionId: string): Pr
     try {
       const response = await apiClient.get<Question>(`/questionsets/${questionSetId}/questions/${questionId}`);
       return response.data;
-    } catch (nestedError) {
+    } catch {
       // If that fails, try the direct approach
       console.log(`Trying alternative endpoint for question ${questionId}`);
       const response = await apiClient.get<Question>(`/questions/${questionId}`);
@@ -74,7 +74,7 @@ export const updateQuestion = async (questionSetId: string, questionId: string, 
     try {
       const response = await apiClient.put<Question>(`/questionsets/${questionSetId}/questions/${questionId}`, data);
       return response.data;
-    } catch (nestedError) {
+    } catch {
       // If that fails, try the direct approach
       console.log(`Trying alternative endpoint for updating question ${questionId}`);
       const response = await apiClient.put<Question>(`/questions/${questionId}`, data);
@@ -92,7 +92,7 @@ export const deleteQuestion = async (questionSetId: string, questionId: string):
     // Try the nested route approach
     try {
       await apiClient.delete(`/api/questionsets/${questionSetId}/questions/${questionId}`);
-    } catch (nestedError) {
+    } catch {
       // If that fails, try the direct approach
       console.log(`Trying alternative endpoint for deleting question ${questionId}`);
       await apiClient.delete(`/api/questions/${questionId}`);

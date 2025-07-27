@@ -1,8 +1,8 @@
 .sidebar {
   width: 320px; /* or make it flexible */
   height: 100%;
-  background-color: var(--background-secondary);
-  border-left: 1px solid var(--border-color);
+  background-color: var(--color-surface);
+  border-left: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -10,14 +10,14 @@
 
 .header {
   padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
 .header h2 {
   margin: 0;
   font-size: 1.2rem;
-  color: var(--text-primary);
+  color: var(--color-text-base);
 }
 
 .messagesContainer {
@@ -34,7 +34,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--text-secondary);
+  color: var(--color-text-muted);
   text-align: center;
   font-size: 0.9rem;
 }
@@ -67,7 +67,7 @@
 
 .aiMessage .messageContent {
   background-color: var(--color-surface);
-  color: var(--text-primary);
+  color: var(--color-text-base);
   border-bottom-left-radius: 0.2rem;
 }
 
@@ -86,13 +86,13 @@
 }
 
 .userMessage .timestamp {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-on-primary-muted);
 }
 
 .inputForm {
   display: flex;
   padding: 0.75rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
   gap: 0.5rem;
   align-items: center;
 }
@@ -103,7 +103,7 @@
   border-radius: 0.5rem;
   border: 1px solid var(--color-input-border);
   background-color: var(--color-input-bg);
-  color: var(--text-primary);
+  color: var(--color-text-base);
   font-size: 0.9rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }

@@ -9,7 +9,7 @@
   width: 5rem;
   height: 100vh;
   background: var(--color-surface);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
   transition: width 0.2s ease-in-out;
   overflow: hidden;
 }
@@ -39,18 +39,19 @@
   height: 2.5rem;
   width: 2.5rem;
   border-radius: 0.75rem;
-  background: var(--color-primary);
+  background: transparent; /* Removed solid background */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-on-primary);
+  color: var(--color-primary); /* Use accent color for the letter */
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.5rem; /* Slightly larger font for visibility */
   transition: all 0.2s ease;
+  border: 2px solid var(--color-primary); /* Add a border instead of background */
 }
 
 .logoText {
-  color: var(--color-text-on-primary);
+  color: var(--color-text-base); /* Use base text color */
   font-weight: 700;
   font-size: 1.375rem;
   opacity: 0;
@@ -87,17 +88,18 @@
 
 .navLink:hover {
   background: var(--color-surface-hover);
-  color: var(--color-text-on-primary);
+  color: var(--color-text-base); /* Darker text on hover */
 }
 
 .navLinkActive {
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
+  background: var(--color-primary-lightest); /* Use a very light accent color */
+  color: var(--color-primary); /* Use the main accent color for text/icon */
   font-weight: 600;
 }
 
 .navLinkActive:hover {
-  background: var(--color-primary-dark);
+  background: var(--color-primary-transparent); /* Slightly darker on hover */
+  color: var(--color-primary);
 }
 .icon {
   flex-shrink: 0;
@@ -128,7 +130,7 @@
   border: none;
 }
 .createBtn:hover {
-  background: var(--color-surface);
+  background: var(--color-surface-hover);
   color: var(--color-text-on-primary);
 }
 .bottom {
@@ -166,7 +168,7 @@
   width: 100%;
 }
 .profileBtn:hover {
-  background: var(--color-surface);
+  background: var(--color-surface-hover);
 }
 .profileIcon {
   height: 2.5rem;

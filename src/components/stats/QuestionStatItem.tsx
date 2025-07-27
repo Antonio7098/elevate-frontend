@@ -8,7 +8,7 @@ interface Props {
 
 const QuestionStatItem: React.FC<Props> = ({ question }) => {
   return (
-    <div className={styles.item}>
+    <div className="card">
       <div className={styles.text}>{question.text}</div>
       <div className={styles.score}>{question.score} / {question.total}</div>
     </div>

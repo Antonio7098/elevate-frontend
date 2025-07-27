@@ -244,7 +244,7 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
           {questions.map((question) => (
             <div
               key={question.id}
-              className={styles.card}
+              className="card"
             >
               <div className={styles.cardRow}>
                 <div className={styles.cardInfo}>

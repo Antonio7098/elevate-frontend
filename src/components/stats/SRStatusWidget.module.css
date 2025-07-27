@@ -1,15 +1,9 @@
-.widgetContainer {
-  padding: 1.5rem;
-  background-color: var(--color-surface-raised, #ffffff);
-  border-radius: 0.5rem;
-  box-shadow: var(--elevation-1, 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24));
-  margin-bottom: 1.5rem; /* Space below the widget */
-}
+
 
 .widgetTitle {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-text-base);
   margin-top: 0;
   margin-bottom: 1rem;
   text-align: left;
@@ -29,17 +23,17 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.95rem;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 
 .statusLabel {
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: var(--color-text-base);
 }
 
 .statusValue {
   font-weight: 600;
-  color: var(--color-text-secondary); /* Slightly different from UUE for variety, or could be same */
+  color: var(--color-text-muted); /* Slightly different from UUE for variety, or could be same */
   /* Consider if a badge-like style is needed for certain values */
 }
 

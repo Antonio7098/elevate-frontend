@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { RegisterPage } from './RegisterPage';
 import * as authService from '../services/authService';
 import { MemoryRouter } from 'react-router-dom';
-import { AuthProvider } from '../context/AuthContext';
+import { AuthProvider } from '../context/AuthProvider';
 
 // Mock the authService
 jest.mock('../services/authService');

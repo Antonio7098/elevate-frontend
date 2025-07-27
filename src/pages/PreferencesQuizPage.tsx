@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { preferenceQuizData } from '../data/preferenceQuiz';
 
 // Stub for the API call
-async function updateUserPreferences(preferences: any) {
+async function updateUserPreferences() {
   // Replace with actual API call
   return new Promise((resolve) => setTimeout(resolve, 1000));
 }
@@ -38,10 +38,10 @@ const PreferencesQuizPage: React.FC = () => {
         const sorted = Object.entries(tally).sort((a, b) => b[1] - a[1]);
         const mainPreference = sorted.length > 0 ? sorted[0][0] : null;
         // Call the API (stub)
-        await updateUserPreferences({ mainPreference, all: tally });
+        await updateUserPreferences();
         setResults({ mainPreference, all: tally });
         setSubmitted(true);
-      } catch (e) {
+      } catch {
         setError('Failed to save your preferences. Please try again.');
       } finally {
         setIsSubmitting(false);

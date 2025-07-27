@@ -68,7 +68,7 @@ const FolderProgressView: React.FC = () => {
         {(folderStats.questionSetSummaries || []).map((set) => (
           <div
             key={set.id}
-            className={styles.setCard}
+            className="card"
             onClick={() => navigate(`/my-progress/sets/${set.id}`)}
             tabIndex={0}
             role="button"

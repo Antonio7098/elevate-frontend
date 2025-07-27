@@ -19,7 +19,7 @@ export interface Question {
   options: string[]; // From Prisma model, not optional (empty array if not applicable)
   learningStage?: number; // 0-5 representing spaced repetition stage - assuming this is frontend specific or maps to uueFocus/mastery
   totalMarksAvailable: number; // From Prisma: marksAvailable, aliased, default 1
-  markingCriteria: any | null; // From Prisma model, JSON, can be null
+  markingCriteria: unknown | null; // From Prisma model, JSON, can be null
   conceptTags: string[]; // From Prisma model, not optional
   userAnswers?: UserAnswer[]; // History of user answers to this question
   uueFocus: string; // From Prisma model, default "Understand"

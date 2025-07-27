@@ -27,8 +27,8 @@ export const checkApiHealth = async (): Promise<boolean> => {
     const response = await apiClient.get('health');
     console.log(`🩺 [HealthCheck] API health check response: ${response.status}`);
     return response.status === 200;
-  } catch (error: any) {
-    console.error('❌ [HealthCheck] API health check failed:', error.message);
+  } catch (error: unknown) {
+    console.error('❌ [HealthCheck] API health check failed:', (error as Error).message);
     return false;
   }
 };
@@ -45,7 +45,7 @@ export const checkAiServiceHealth = async (): Promise<boolean> => {
       const response = await aiServiceClient.get('/api/health');
       console.log(`🩺 [HealthCheck] AI service health check response: ${response.status}`);
       return response.status === 200;
-    } catch (healthError) {
+    } catch {
       console.warn('⚠️ [HealthCheck] AI service health check failed, trying alternative endpoint');
       // Try the root endpoint as a fallback
       try {
@@ -57,8 +57,8 @@ export const checkAiServiceHealth = async (): Promise<boolean> => {
         return false;
       }
     }
-  } catch (error: any) {
-    console.error('❌ [HealthCheck] AI service health check failed:', error.message);
+  } catch (error: unknown) {
+    console.error('❌ [HealthCheck] AI service health check failed:', (error as Error).message);
     return false;
   }
 };

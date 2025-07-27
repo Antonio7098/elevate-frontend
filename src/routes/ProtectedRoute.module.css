@@ -9,8 +9,8 @@
   border-radius: 9999px;
   height: 3rem;
   width: 3rem;
-  border-top: 2px solid #6366f1; /* border-indigo-500 */
-  border-bottom: 2px solid #6366f1;
+  border-top: 2px solid var(--color-primary); /* border-indigo-500 */
+  border-bottom: 2px solid var(--color-primary);
   border-left: 2px solid transparent;
   border-right: 2px solid transparent;
 }

@@ -1,0 +1,19 @@
+/* src/index.css */
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-md);
+  transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.card:hover {
+  border-color: rgba(93, 64, 55, 0.25); /* A bit darker on hover for parchment */
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="slate"] .card:hover {
+    border-color: rgba(226, 232, 240, 0.2); /* A bit lighter on hover for slate */
+}

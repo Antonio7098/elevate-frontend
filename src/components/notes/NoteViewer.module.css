@@ -2,12 +2,12 @@
   flex: 1;
   overflow-y: auto;
   padding: 2rem;
-  background-color: var(--background-primary);
+  background-color: var(--color-background);
 }
 
 .title {
   font-size: 2rem;
-  color: var(--text-primary);
+  color: var(--color-text-base);
   margin-bottom: 2rem;
 }
 
@@ -22,18 +22,18 @@
 
 .block p {
   line-height: 1.6;
-  color: var(--text-primary);
+  color: var(--color-text-base);
 }
 
 .block h2 {
   font-size: 1.5rem;
-  color: var(--text-primary);
+  color: var(--color-text-base);
   margin-bottom: 1rem;
 }
 
 .catalyst {
-  background-color: var(--background-secondary);
-  border: 1px solid var(--border-color);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   padding: 1rem;
   margin: 1rem 0;
@@ -44,8 +44,8 @@
   position: absolute;
   top: -0.5rem;
   left: 1rem;
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
   padding: 0.2rem 0.5rem;
   border-radius: 12px;
   font-size: 0.8rem;
@@ -62,9 +62,9 @@
 .tag {
   font-size: 0.8rem;
   padding: 0.2rem 0.5rem;
-  background-color: var(--background-primary);
+  background-color: var(--color-background);
   border-radius: 12px;
-  color: var(--text-secondary);
+  color: var(--color-text-muted);
 }
 
 /* Responsive styles */

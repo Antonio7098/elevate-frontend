@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { FiAlertCircle, FiLoader, FiFolder, FiChevronRight, FiFileText, FiBook } from 'react-icons/fi';
+import { useParams, Link } from 'react-router-dom';
+import { FiAlertCircle, FiLoader, FiChevronRight, FiFileText, FiBook } from 'react-icons/fi';
 import styles from './AllContentPage.module.css';
 
 interface Question {
@@ -31,7 +31,6 @@ export function AllContentPage() {
   const [currentFolder, setCurrentFolder] = useState<FolderWithContent | null>(null);
   
   const { folderId } = useParams<{ folderId: string }>();
-  const navigate = useNavigate();
   const isQuestionsView = window.location.pathname.includes('/all-questions');
 
   useEffect(() => {
@@ -90,7 +89,7 @@ export function AllContentPage() {
                 <Link
                   key={question.id}
                   to={`/question-sets/${question.questionSetId}`}
-                  className={styles.contentItem}
+                  className="card"
                 >
                   <div className={styles.contentInfo}>
                     <FiBook className={styles.contentIcon} />
@@ -111,7 +110,7 @@ export function AllContentPage() {
                 <Link
                   key={note.id}
                   to={`/notes/${note.id}`}
-                  className={styles.contentItem}
+                  className="card"
                 >
                   <div className={styles.contentInfo}>
                     <FiFileText className={styles.contentIcon} />

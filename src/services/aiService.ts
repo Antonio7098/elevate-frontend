@@ -39,8 +39,8 @@ export const generateAiPoweredSet = async (data: GenerateAiQuestionSetData): Pro
       // First try the AI-specific endpoint
       const response = await apiClient.post<QuestionSet>('/ai/generate-from-source', requestData);
       return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      if ((error as { response?: { status?: number } }).response?.status === 404) {
         console.log('AI endpoint not found, trying enhanced question set endpoint');
         // If AI endpoint doesn't exist, try the enhanced question set endpoint
         const response = await apiClient.post<QuestionSet>('/questionsets', {
@@ -51,7 +51,7 @@ export const generateAiPoweredSet = async (data: GenerateAiQuestionSetData): Pro
       }
       throw error;
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to generate AI-powered question set:', error);
     
     // Provide more detailed error information
@@ -172,7 +172,7 @@ function extractTopics(sourceText: string): string[] {
   
   // Add phrases that appear more than once
   Object.entries(phrases)
-    .filter(([_, count]) => count > 1)
+    .filter(([, count]) => count > 1)
     .forEach(([phrase, count]) => {
       allTopics.push({ term: phrase, score: count * 2 }); // Weight phrases higher
     });
@@ -184,7 +184,7 @@ function extractTopics(sourceText: string): string[] {
   
   // Add frequent words
   Object.entries(wordFrequency)
-    .filter(([_, count]) => count > 2) // Only words that appear more than twice
+    .filter(([, count]) => count > 2) // Only words that appear more than twice
     .forEach(([word, count]) => {
       allTopics.push({ term: word, score: count });
     });
