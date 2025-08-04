@@ -46,7 +46,7 @@ function App() {
           >
             <ThemeProvider>
               <AuthProvider>
-                <div className={styles.bg} style={{ fontFamily: 'OPTICookeSans' }}>
+                <div className={styles.bg}>
                   <AppRoutes />
                 </div>
               </AuthProvider>

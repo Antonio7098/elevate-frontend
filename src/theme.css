@@ -6,10 +6,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;700&display=swap');
 
-@font-face {
-  font-family: 'OPTICookeSans';
-  src: url('assets/fonts/OPTICookeSans.otf') format('opentype');
-}
+
 
 :root {
   /* ======================================== */
@@ -26,32 +23,123 @@
   /* Color Palette */
   --color-background: #f5f4f4; /* More subtle warm off-white */
   --color-surface: #f3eeea;    /* Slightly different off-white for cards */
+  --color-surface-white: #ffffff; /* Pure white for input containers */
   --color-text-base: #5D4037;  /* Dark, rich sepia or charcoal brown */
   --color-text-muted: #7c7875; /* Lighter, muted brown */
   --color-text-on-primary: #FFFFFF;
 
   --color-primary: #94665a;      /* A deep, rich brown */
   --color-primary-hover: #A86450;/* Lighter version of primary */
+  --color-primary-lightest: rgba(148, 102, 90, 0.1); /* Very light primary for selections */
   --color-secondary: #C38154;    /* A complementary color */
   --color-danger: #D32F2F;       /* A standard red */
   
-  --color-input-bg: #fdfcf9;
+  --color-input-bg: #ffffff;    /* Pure white for input fields */
 
   /* Borders & Shadows */
   --color-border: rgba(93, 64, 55, 0.15); /* Softer version of text-base */
+  --color-border-hover: rgba(93, 64, 55, 0.25);
   --color-input-border: rgba(93, 64, 55, 0.2);
   --shadow-sm: 0 1px 2px 0 rgba(93, 64, 55, 0.05);
   --shadow-md: 0 4px 8px -2px rgba(93, 64, 55, 0.1), 0 2px 4px -2px rgba(93, 64, 55, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(93, 64, 55, 0.1), 0 4px 6px -2px rgba(93, 64, 55, 0.05);
+  --shadow-elevated: 0 4px 12px rgba(93, 64, 55, 0.15), 0 2px 4px rgba(93, 64, 55, 0.1);
+  --shadow-elevated-hover: 0 6px 16px rgba(93, 64, 55, 0.2), 0 3px 6px rgba(93, 64, 55, 0.15);
+  --shadow-elevated-focus: 0 8px 20px rgba(148, 102, 90, 0.25), 0 4px 8px rgba(148, 102, 90, 0.15);
+  --shadow-inset: inset 0 1px 3px rgba(93, 64, 55, 0.1);
+  --shadow-message: 0 1px 2px rgba(0, 0, 0, 0.1);
 
   /* Spacing & Radius */
-  --space-xs: 0.25rem;
+  --space-xs: 0.2rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 2rem;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1.25rem;
+  
+  /* Border Radius */
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  
+  /* Component Specific Colors */
+  --color-surface-tint: rgba(93, 64, 55, 0.02);
+  --color-surface-tint-hover: rgba(93, 64, 55, 0.05);
+  --color-surface-hover: rgba(93, 64, 55, 0.08);
+  --color-accepted-bg: rgba(148, 102, 90, 0.05);
+  --color-accepted-badge: rgba(148, 102, 90, 0.1);
+  --color-rejected-bg: rgba(124, 120, 117, 0.05);
+  --color-rejected-badge: rgba(124, 120, 117, 0.1);
+  --color-input-glow: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 70%, transparent 100%);
+  
+  /* Border Widths */
+  --border-thin: 1px;
+  --border-medium: 2px;
+  --border-thick: 4px;
+  
+  /* Chat-specific Colors */
+  --color-chat-user-bg: var(--color-surface-white);
+  --color-chat-ai-bg: transparent;
+  --color-chat-input-hover-border: #9ca3af;
+  --color-chat-input-hover-shadow: rgba(156, 163, 175, 0.2);
+  --color-chat-input-hover-shadow-light: rgba(156, 163, 175, 0.15);
+  --color-suggestion-default: #ccc;
+  --color-suggestion-folder: #007bff;
+  --color-suggestion-questionset: #28a745;
+  --color-suggestion-note: #ffc107;
+  --color-loading-spinner: white;
+  --color-loading-spinner-transparent: transparent;
+  
+  /* Chat Message Shadows */
+  --shadow-chat-message: 0 4px 12px rgba(93, 64, 55, 0.1), 0 2px 4px rgba(93, 64, 55, 0.05);
+  --shadow-chat-input: 0 4px 12px rgba(93, 64, 55, 0.15), 0 2px 4px rgba(93, 64, 55, 0.1);
+  --shadow-chat-input-hover: 0 6px 16px rgba(156, 163, 175, 0.2), 0 3px 6px rgba(156, 163, 175, 0.15);
+  --shadow-chat-input-focus: 0 8px 20px rgba(148, 102, 90, 0.25), 0 4px 8px rgba(148, 102, 90, 0.15);
+  --shadow-loading-spinner: 2px solid white;
+  
+  /* Chat Border Radius */
+  --radius-chat-message: 0.375rem;
+  --radius-chat-message-corner: 0.125rem;
+  --radius-chat-input: 0.5rem;
+  --radius-chat-input-glow: 1rem;
+  --radius-send-button: 50%;
+  --radius-send-button-temp: 1rem;
+  --radius-mention: 4px;
+  --radius-suggestion-type: 4px;
+  --radius-loading-spinner: 50%;
+  
+  /* Chat Transforms */
+  --transform-input-hover: translateY(-1px);
+  --transform-input-focus: translateY(-2px);
+  
+  /* ActionBox-specific */
+  --color-actionbox-header-bg: rgba(93, 64, 55, 0.02);
+  --color-actionbox-header-hover: rgba(93, 64, 55, 0.05);
+  --color-actionbox-accepted-bg: rgba(148, 102, 90, 0.05);
+  --color-actionbox-rejected-bg: rgba(124, 120, 117, 0.05);
+  --color-actionbox-accepted-badge: rgba(148, 102, 90, 0.1);
+  --color-actionbox-rejected-badge: rgba(124, 120, 117, 0.1);
+  --color-actionbox-expand-bg: transparent;
+  --shadow-actionbox: 0 4px 12px rgba(93, 64, 55, 0.15), 0 2px 4px rgba(93, 64, 55, 0.1);
+  --radius-actionbox: 0.375rem;
+  --radius-actionbox-button: 0.375rem;
+  --radius-actionbox-badge: 0.375rem;
+  --radius-actionbox-filename: 0.25rem;
+  --radius-actionbox-expand: 0.25rem;
+  --border-actionbox-left: 4px;
+  --transform-actionbox-button-hover: scale(1.05);
+
+  /* Card Styles */
+  --card-padding: var(--space-md);
+  --card-border-radius: var(--radius-xs);
+  --card-border: var(--border-thin) solid var(--color-border);
+  --card-background: #ffff;
+  --card-shadow-hover: var(--shadow-md);
+  --card-transform-hover: translateY(-2px);
+  --card-critical-border: var(--border-thick) solid var(--color-danger);
+  --card-transition: all 0.2s ease;
 
   /* Noise Texture */
   --noise-color-1: rgba(0, 0, 0, 0.8);

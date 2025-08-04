@@ -1,25 +1,25 @@
 .pageContainer {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: var(--space-lg);
+  background-color: var(--color-background);
+  font-family: var(--font-family-sans);
 }
 
-
-
 .welcome {
-  font-size: 2rem;
-  font-weight: 800;
-  margin: 0 0 1rem 0;
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0 0 var(--space-md) 0;
   color: var(--color-text-base);
-  letter-spacing: -0.5px;
-  line-height: 1.25;
 }
 
 .welcomeMessage {
   font-size: 1.1rem;
   line-height: 1.7;
-  color: var(--color-text-muted);
-  margin: 0 0 1.25rem 0;
+  margin: 0 0 var(--space-md) 0;
+  background-color: var(--color-surface-white);
+  border: var(--border-medium) solid var(--color-border);
+  border-radius: var(--radius-chat-input);
 }
 
 .welcomeMessage:last-child {
@@ -29,87 +29,38 @@
 .dashboardContainer {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
-  margin-bottom: 3rem;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
 }
 
 .mainColumn {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--space-lg);
+  background-color: var(--color-surface-white);
+  border: var(--border-medium) solid var(--color-border);
+  border-radius: var(--radius-chat-input);
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--space-lg);
+  background-color: var(--color-surface-white);
+  border: var(--border-medium) solid var(--color-border);
+  border-radius: var(--radius-chat-input);
 }
 
-/* Desktop styles (min-width: 1024px) */
+.errorCard {
+  background-color: var(--color-surface-white);
+  border: var(--border-medium) solid var(--color-border);
+  border-radius: var(--radius-chat-input);
+}
+
+/* Desktop styles */
 @media (min-width: 1024px) {
-  .pageContainer {
-    padding: 0 2.5rem;
-  }
-  
   .dashboardContainer {
     grid-template-columns: 2fr 1fr;
-    gap: 2.5rem;
-  }
-  
-  .welcomeSection {
-    padding: 2.5rem 3rem;
-    margin: 2rem 0 2.5rem;
-  }
-  
-  .welcome {
-    font-size: 2.25rem;
-    margin-bottom: 1.25rem;
   }
 }
 
-/* Tablet styles (min-width: 768px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .pageContainer {
-    padding: 0 2rem;
-  }
-  
-  .welcomeSection {
-    padding: 2rem 2.5rem;
-  }
-  
-  .welcome {
-    font-size: 2rem;
-  }
-}
-
-/* Mobile styles (max-width: 767px) */
-@media (max-width: 767px) {
-  .pageContainer {
-    padding: 0 1.25rem;
-  }
-  
-  .welcomeSection {
-    padding: 1.5rem 1.25rem;
-    margin: 1rem 0 1.5rem;
-  }
-  
-  .welcome {
-    font-size: 1.75rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  .welcomeMessage {
-    font-size: 1rem;
-    line-height: 1.6;
-  }
-  
-  .dashboardContainer {
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-  
-  .mainColumn,
-  .sidebar {
-    gap: 1.5rem;
-  }
-}

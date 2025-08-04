@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getDashboardData } from '../services/dashboardService';
 import { getTodaysTasks } from '../services/todaysTasksService';
 import type { DashboardData } from '../types/dashboard.types';
+import { mockDashboardData } from '../data/mockDashboardData';
 import TodaysTasksWidget from '../components/dashboard/TodaysTasksWidget';
 import RecentProgressWidget from '../components/dashboard/RecentProgressWidget';
 import styles from './DashboardPage.module.css';
@@ -88,14 +89,32 @@ const DashboardPage: React.FC = () => {
 
   if (error) {
     return (
-      <div style={{ color: '#b91c1c', textAlign: 'center', marginTop: 32 }}>
-        <p>Failed to load dashboard: {error}</p>
+      <div className={`page-container ${styles.pageContainer}`}>
+        <div className={`card ${styles.errorCard}`}>
+          <h1 className={styles.welcome}>Offline Mode</h1>
+          <p className={styles.welcomeMessage}>
+            Could not connect to the server. Displaying placeholder data.
+          </p>
+        </div>
+        <div className={styles.dashboardContainer}>
+          <div className={`${styles.mainColumn} card`}>
+            <TodaysTasksWidget 
+              dueToday={mockDashboardData.dueToday} 
+              onStartTasks={() => {}}
+              isStarting={false}
+              error={null}
+            />
+          </div>
+          <div className={`${styles.sidebar} card`}>
+            <RecentProgressWidget recentProgress={mockDashboardData.recentProgress} />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.pageContainer}>
+    <div className={`page-container ${styles.pageContainer}`}>
       <div className="card">
         <h1 className={styles.welcome}>Welcome back, Antonio!</h1>
         <p className={styles.welcomeMessage}>
@@ -107,7 +126,7 @@ const DashboardPage: React.FC = () => {
       </div>
       
       <div className={styles.dashboardContainer}>
-        <div className={styles.mainColumn}>
+        <div className={`${styles.mainColumn} card`}>
           <TodaysTasksWidget 
             dueToday={dashboardData?.dueToday || []} 
             onStartTasks={handleBeginTodaysTasks}
@@ -115,7 +134,7 @@ const DashboardPage: React.FC = () => {
             error={tasksError}
           />
         </div>
-        <div className={styles.sidebar}>
+        <div className={`${styles.sidebar} card`}>
           <RecentProgressWidget recentProgress={dashboardData?.recentProgress || []} />
         </div>
       </div>

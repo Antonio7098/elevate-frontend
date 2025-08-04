@@ -20,7 +20,7 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({
 
   if (!dueToday || dueToday.length === 0) {
     return (
-      <div className="card">
+      <div>
         <h3 className={styles.title}>Today's Tasks</h3>
         <p className={styles.empty}>No tasks due today! 🎉</p>
       </div>
@@ -39,12 +39,12 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({
   };
 
   return (
-    <div className="card">
+    <div>
       <div className={styles.widgetHeader}>
         <h3 className={styles.title}>Today's Tasks</h3>
         {onStartTasks && (
           <button
-            className={styles.startButton}
+            className="button"
             onClick={onStartTasks}
             disabled={isStarting}
           >
@@ -59,7 +59,7 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({
           return (
             <div
               key={set.id}
-              className={isCritical ? styles.cardCritical : styles.cardStandard}
+              className={`${styles.card} ${isCritical ? styles.critical : ''}`}
               tabIndex={0}
               role="button"
               aria-label={`Review ${set.name}`}
@@ -67,13 +67,20 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({
               onClick={() => handleCardClick(set.folderId, set.id)}
               onKeyDown={(e) => handleKeyDown(e, set.folderId, set.id)}
             >
-              <div className={styles.setName}>{set.name}</div>
-              <div className={styles.dueInfo}>{set.dueLabel || 'Due now'}</div>
-              {set.currentTotalMasteryScore !== undefined && (
-                <div className={styles.masteryScore}>
-                  Mastery: {Math.round(set.currentTotalMasteryScore * 100)}%
+              <div className={styles.cardContent}>
+                <div className={styles.infoWrapper}>
+                  <div className={styles.setName}>{set.name}</div>
+                  <div className={styles.dueInfo}>{set.dueLabel || 'Due now'}</div>
                 </div>
-              )}
+                {set.currentTotalMasteryScore !== undefined && (
+                  <div className={styles.masteryWrapper}>
+                    <div className={styles.masteryCircle}>
+                      {Math.round(set.currentTotalMasteryScore * 100)}%
+                    </div>
+                    <div className={styles.masteryLabel}>Mastery</div>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
