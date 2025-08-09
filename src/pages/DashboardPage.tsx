@@ -100,9 +100,9 @@ const DashboardPage: React.FC = () => {
           <div className={`${styles.mainColumn} card`}>
             <TodaysTasksWidget 
               dueToday={mockDashboardData.dueToday} 
-              onStartTasks={() => {}}
-              isStarting={false}
-              error={null}
+              onStartTasks={handleBeginTodaysTasks}
+              isStarting={isStartingTasks}
+              error={tasksError}
             />
           </div>
           <div className={`${styles.sidebar} card`}>

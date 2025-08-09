@@ -14,6 +14,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .header h2 {
@@ -22,28 +23,103 @@
   color: var(--color-text-base);
 }
 
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tab {
+  padding: 0.5rem 0.9rem;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: var(--color-surface-white, #fff);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-base, #333);
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  background-color: var(--color-primary, #007bff);
+  color: var(--color-text-on-primary, #fff);
+  transform: translateY(-1px);
+}
+
+.activeTab {
+  background-color: var(--color-primary, #007bff);
+  color: var(--color-text-on-primary, #fff);
+  border-color: var(--color-primary, #007bff);
+}
+
 .createButton {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
-  background-color: transparent;
-  color: var(--color-text-base);
-  border: 1px solid var(--color-text-base);
-  border-radius: 4px;
+  padding: 0.6rem 1rem;
+  background-color: var(--color-surface-white, #fff);
+  color: var(--color-text-base, #333);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: background-color 0.2s, color 0.2s;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .createButton:hover {
-  background-color: var(--color-text-base);
-  color: var(--color-text-on-primary);
+  background-color: var(--color-primary, #007bff);
+  color: var(--color-text-on-primary, #fff);
+  transform: translateY(-1px);
 }
 
 .catalystList {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
+}
+
+.contentsList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.contentsSection {
+  margin-bottom: 1rem;
+}
+
+.contentsTitle {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.linkButton {
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-white, #fff);
+  color: var(--color-text-base, #333);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.linkButton:hover {
+  background-color: var(--color-surface-hover);
+  transform: translateY(-1px);
 }
 
 .catalystItem {

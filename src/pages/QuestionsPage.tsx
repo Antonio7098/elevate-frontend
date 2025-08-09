@@ -9,12 +9,18 @@ import {
   FiAlertCircle,
   FiArrowLeft,
   FiHelpCircle,
-  FiCheck
+  FiCheck,
+  FiSave,
+  FiEye
 } from 'react-icons/fi';
 import { getQuestions, createQuestion, updateQuestion, deleteQuestion } from '../services/questionService';
-import { getQuestionSet } from '../services/questionSetService';
+import { getQuestionSet, updateQuestionSet } from '../services/questionSetService';
+import { QuestionSetEditor } from '../components/questions/QuestionSetEditor';
+import { InsightCatalystSidebar } from '../components/notes/InsightCatalystSidebar';
+import { ChatSidebar } from '../components/chat/ChatSidebar';
 import type { Question } from '../types/question';
 import type { QuestionSet } from '../types/questionSet';
+import type { CustomBlock, FullCustomBlock } from '../lib/blocknote/schema';
 import styles from './QuestionsPage.module.css';
 
 // Skeleton loader for questions
@@ -49,6 +55,16 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
     answer: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Question Set Editor state
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [questionSetContent, setQuestionSetContent] = useState<FullCustomBlock[]>([]);
+  const [questionSetName, setQuestionSetName] = useState('');
+  const [isSavingQuestionSet, setIsSavingQuestionSet] = useState(false);
+  
+  // Sidebar visibility state
+  const [isIncatsVisible, setIsIncatsVisible] = useState(true);
+  const [isChatVisible, setIsChatVisible] = useState(true);
 
   // Load question set details
   const loadQuestionSet = useCallback(async () => {
@@ -60,6 +76,11 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
     try {
       const data = await getQuestionSet(questionSetId, questionSetId);
       setQuestionSet(data);
+      setQuestionSetName(data.name);
+      // Initialize content from question set if available
+      if (data.content) {
+        setQuestionSetContent(data.content as FullCustomBlock[]);
+      }
     } catch (err) {
       console.error('Failed to load question set:', err);
       // Create a placeholder question set with the ID
@@ -167,6 +188,36 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
     }
   };
 
+  // Handle question set editing
+  const handleSaveQuestionSet = async () => {
+    if (!questionSetId || !questionSet) return;
+    
+    try {
+      setIsSavingQuestionSet(true);
+      await updateQuestionSet(questionSetId, {
+        name: questionSetName,
+        content: questionSetContent
+      });
+      setIsEditMode(false);
+    } catch (err) {
+      console.error('Failed to save question set:', err);
+      setError('Failed to save question set. Please try again.');
+    } finally {
+      setIsSavingQuestionSet(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    // Reset to original values
+    if (questionSet) {
+      setQuestionSetName(questionSet.name);
+      if (questionSet.content) {
+        setQuestionSetContent(questionSet.content as FullCustomBlock[]);
+      }
+    }
+  };
+
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -179,9 +230,31 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div>
+      {/* Toolbar */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        padding: '12px 0',
+        borderBottom: '1px solid var(--color-border, #e5e7eb)',
+        marginBottom: '16px'
+      }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={() => setIsIncatsVisible(!isIncatsVisible)} 
+            style={{
+              padding: '8px 12px',
+              border: '1px solid var(--color-border, #e5e7eb)',
+              borderRadius: '6px',
+              backgroundColor: 'var(--color-surface, #fff)',
+              cursor: 'pointer'
+            }}
+          >
+            {isIncatsVisible ? 'Hide InCat' : 'Show InCat'}
+          </button>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
             onClick={() => navigate(-1)}
             className={styles.backBtn}
@@ -189,6 +262,93 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
             <span className="mr-1.5"><FiArrowLeft size={16} /></span>
             Back to Question Sets
           </button>
+          {isEditMode ? (
+            <>
+              <button
+                onClick={handleSaveQuestionSet}
+                disabled={isSavingQuestionSet}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: isSavingQuestionSet ? 'not-allowed' : 'pointer',
+                  opacity: isSavingQuestionSet ? 0.7 : 1
+                }}
+              >
+                <FiSave size={16} />
+                {isSavingQuestionSet ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                onClick={handleCancelEdit}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setIsEditMode(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}
+              >
+                <FiEdit2 size={16} />
+                Edit Question Set
+              </button>
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className={styles.addBtn}
+              >
+                <FiPlus size={16} className="-ml-1 mr-2" />
+                Add Question
+              </button>
+            </>
+          )}
+        </div>
+        
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={() => setIsChatVisible(!isChatVisible)} 
+            style={{
+              padding: '8px 12px',
+              border: '1px solid var(--color-border, #e5e7eb)',
+              borderRadius: '6px',
+              backgroundColor: 'var(--color-surface, #fff)',
+              cursor: 'pointer'
+            }}
+          >
+            {isChatVisible ? 'Hide Chat' : 'Show Chat'}
+          </button>
+        </div>
+      </div>
+
+      {/* Header */}
+      <div className={styles.header}>
+        <div>
           <h1 className={styles.title}>
             {loading ? 'Loading...' : questionSet?.name || 'Questions'}
           </h1>
@@ -198,13 +358,6 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
             </p>
           )}
         </div>
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className={styles.addBtn}
-        >
-          <FiPlus size={16} className="-ml-1 mr-2" />
-          Add Question
-        </button>
       </div>
 
       {/* Error message */}
@@ -215,8 +368,58 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
         </div>
       )}
 
-      {/* Loading state */}
-      {loading ? (
+      {/* Three-panel layout for edit mode */}
+      {isEditMode ? (
+        <div style={{ 
+          display: 'flex', 
+          height: 'calc(100vh - 200px)',
+          gap: '16px'
+        }}>
+          {isIncatsVisible && (
+            <div style={{ 
+              width: '300px',
+              border: '1px solid var(--color-border, #e5e7eb)',
+              borderRadius: '8px',
+              backgroundColor: 'var(--color-surface, #fff)',
+              overflow: 'hidden'
+            }}>
+              <InsightCatalystSidebar noteId={questionSetId || 'new'} />
+            </div>
+          )}
+          
+          <div style={{ 
+            flex: 1,
+            border: '1px solid var(--color-border, #e5e7eb)',
+            borderRadius: '8px',
+            backgroundColor: 'var(--color-surface, #fff)',
+            padding: '20px',
+            overflow: 'auto'
+          }}>
+            <QuestionSetEditor
+              initialContent={questionSetContent}
+              onContentChange={setQuestionSetContent}
+              editable={true}
+              questionSetName={questionSetName}
+              onNameChange={setQuestionSetName}
+            />
+          </div>
+          
+          {isChatVisible && (
+            <div style={{ 
+              width: '300px',
+              border: '1px solid var(--color-border, #e5e7eb)',
+              borderRadius: '8px',
+              backgroundColor: 'var(--color-surface, #fff)',
+              overflow: 'hidden'
+            }}>
+              <ChatSidebar noteId={questionSetId || 'new'} />
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Loading state */}
+          {loading ? (
         <div className={styles.grid}>
           {[...Array(3)].map((_, index) => (
             <QuestionSkeleton key={index} />
@@ -447,8 +650,10 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
           </div>
         </div>
       ) : null}
-</div>
-);
+        </>
+      )}
+    </div>
+  );
 };
 
 export default QuestionsPage;

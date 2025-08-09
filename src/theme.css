@@ -28,7 +28,7 @@
   --color-text-muted: #7c7875; /* Lighter, muted brown */
   --color-text-on-primary: #FFFFFF;
 
-  --color-primary: #94665a;      /* A deep, rich brown */
+  --color-primary: #e48464;      /* A deep, rich brown */
   --color-primary-hover: #A86450;/* Lighter version of primary */
   --color-primary-lightest: rgba(148, 102, 90, 0.1); /* Very light primary for selections */
   --color-secondary: #C38154;    /* A complementary color */
@@ -90,7 +90,7 @@
   --color-suggestion-questionset: #28a745;
   --color-suggestion-note: #ffc107;
   --color-loading-spinner: white;
-  --color-loading-spinner-transparent: transparent;
+  --color-loading-spinner-transsuggestionparent: transparent;
   
   /* Chat Message Shadows */
   --shadow-chat-message: 0 4px 12px rgba(93, 64, 55, 0.1), 0 2px 4px rgba(93, 64, 55, 0.05);
@@ -136,7 +136,7 @@
   --card-border-radius: var(--radius-xs);
   --card-border: var(--border-thin) solid var(--color-border);
   --card-background: #ffff;
-  --card-shadow-hover: var(--shadow-md);
+  --card-shadow-hover: var(--shadow-lg);
   --card-transform-hover: translateY(-2px);
   --card-critical-border: var(--border-thick) solid var(--color-danger);
   --card-transition: all 0.2s ease;

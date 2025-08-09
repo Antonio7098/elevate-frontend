@@ -4,6 +4,7 @@ import { useAuth } from '../context/useAuth';
 import AuthenticatedLayout from '../components/layout/AuthenticatedLayout';
 import styles from './AppRoutes.module.css';
 import LearningBlueprintPage from '../pages/LearningBlueprintPage';
+import BlueprintMindmapPage from '../pages/BlueprintMindmapPage';
 const CreateHubPage = lazy(() => import('../pages/CreateHubPage'));
 
 // --- Lazy-loaded Page Components ---
@@ -87,6 +88,7 @@ const ProtectedRoutes = () => {
         <Route path="folders/:folderId/create-set" element={<CreateQuestionSetPage />} />
         <Route path="blueprints" element={<BlueprintsPage />} />
         <Route path="blueprints/:blueprintId" element={<BlueprintDetailPage />} />
+        <Route path="blueprints/:blueprintId/mindmap" element={<BlueprintMindmapPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthenticatedLayout>

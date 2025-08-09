@@ -16,7 +16,7 @@
 .welcomeMessage {
   font-size: 1.1rem;
   line-height: 1.7;
-  margin: 0 0 var(--space-md) 0;
+  margin: 0 0 2rem 0;
   background-color: var(--color-surface-white);
   border: var(--border-medium) solid var(--color-border);
   border-radius: var(--radius-chat-input);
@@ -29,8 +29,12 @@
 .dashboardContainer {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-lg);
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+.card {
+  margin-bottom: 2rem;
 }
 
 .mainColumn {

@@ -5,10 +5,14 @@ export interface QuestionSet {
   name: string;
   description?: string;
   folderId: string;
+  // Links to the blueprint that generated this question set, if any
+  generatedFromBlueprintId?: string;
   createdAt: string;
   updatedAt: string;
   questionCount?: number;
   isPinned?: boolean;
+  // Rich content for the question set
+  content?: unknown;
 }
 
 export interface CreateQuestionSetData {
@@ -58,6 +62,7 @@ export interface LearningBlueprint {
   id: string;
   sourceText: string;
   blueprintJson: unknown; // The parsed blueprint from AI
+  // Optional folder association if supported by API
   folderId?: string;
   createdAt: string;
   updatedAt: string;

@@ -59,7 +59,7 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({
           return (
             <div
               key={set.id}
-              className={`${styles.card} ${isCritical ? styles.critical : ''}`}
+              className={styles.card}
               tabIndex={0}
               role="button"
               aria-label={`Review ${set.name}`}
@@ -70,7 +70,11 @@ const TodaysTasksWidget: React.FC<TodaysTasksWidgetProps> = ({
               <div className={styles.cardContent}>
                 <div className={styles.infoWrapper}>
                   <div className={styles.setName}>{set.name}</div>
-                  <div className={styles.dueInfo}>{set.dueLabel || 'Due now'}</div>
+                  <div className={styles.statusIndicatorWrapper}>
+                    {set.isCritical && <div className={`${styles.statusIndicator} ${styles.criticalIndicator}`} />}
+                    {set.isCore && <div className={`${styles.statusIndicator} ${styles.coreIndicator}`} />}
+                    <div className={styles.dueInfo}>{set.dueLabel || 'Due now'}</div>
+                  </div>
                 </div>
                 {set.currentTotalMasteryScore !== undefined && (
                   <div className={styles.masteryWrapper}>

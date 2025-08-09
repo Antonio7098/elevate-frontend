@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+// Development mode flag - set to true to use mock data
+const USE_MOCK_DATA = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_AUTH === 'true';
+
 console.log("🟢 [apiClient] Initializing API client");
 
 const apiClient = axios.create({
@@ -8,10 +11,19 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   transformResponse: [(data) => {
+    // Only attempt to parse JSON when the payload looks like JSON
     try {
-      return JSON.parse(data);
+      if (typeof data !== 'string') return data;
+      const trimmed = data.trim();
+      if (!trimmed) return data;
+      const looksLikeJson = trimmed.startsWith('{') || trimmed.startsWith('[');
+      if (!looksLikeJson) {
+        // Likely HTML or plain text (e.g., error pages). Return as-is.
+        return data;
+      }
+      return JSON.parse(trimmed);
     } catch (error) {
-      console.error('❌ [apiClient] Error parsing response:', error);
+      console.warn('⚠️ [apiClient] Non-JSON response received; passing through raw data');
       return data;
     }
   }]
@@ -30,7 +42,11 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
       console.log('✅ [apiClient] Token added to headers');
     } else {
-      console.warn('⚠️ [apiClient] No auth token found');
+      // Only warn for non-auth endpoints
+      const isAuthEndpoint = config.url?.includes('/auth/login') || config.url?.includes('/auth/register');
+      if (!isAuthEndpoint) {
+        console.warn('⚠️ [apiClient] No auth token found');
+      }
     }
     return config;
   },
@@ -51,28 +67,43 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      console.error(`❌ [apiClient] ${error.response.status} ${error.config?.method?.toUpperCase() || 'REQUEST'} ${error.config?.url || 'unknown'}`, {
-        data: error.response.data,
-        headers: error.response.headers
-      });
+      const suppress404 = (
+        (error.config?.headers as Record<string, string> | undefined)?.['X-Suppress-404-Log'] === 'true'
+      );
+      const status = error.response.status;
+      const method = error.config?.method?.toUpperCase() || 'REQUEST';
+      const url = error.config?.url || 'unknown';
+
+      if (status === 404 && suppress404) {
+        console.info(`ℹ️ [apiClient] 404 (suppressed) ${method} ${url}`);
+      } else {
+        console.error(`❌ [apiClient] ${status} ${method} ${url}`, {
+          data: error.response.data,
+          headers: error.response.headers
+        });
+      }
       
       // Handle specific status codes
       switch (error.response.status) {
         case 401:
           console.warn('⚠️ [apiClient] 401 Unauthorized - Invalid or missing token');
-          // Only handle 401 if we're not already on the login page
-          if (window.location.pathname !== '/login') {
+          // Only handle 401 if we're not using mock data and not already on the login page
+          if (!USE_MOCK_DATA && window.location.pathname !== '/login') {
             console.log('🔐 [apiClient] Redirecting to login...');
             localStorage.removeItem('authToken');
             // Use window.location to force a full page reload and reset app state
             window.location.href = '/login';
+          } else if (USE_MOCK_DATA) {
+            console.log('🎭 [apiClient] Ignoring 401 error in mock mode');
           }
           break;
         case 403:
           console.error('🔒 [apiClient] 403 Forbidden - Insufficient permissions');
           break;
         case 404:
-          console.error('🔍 [apiClient] 404 Not Found - Resource does not exist');
+          if (!suppress404) {
+            console.error('🔍 [apiClient] 404 Not Found - Resource does not exist');
+          }
           break;
         case 500:
           console.error('💥 [apiClient] 500 Server Error - Please try again later');

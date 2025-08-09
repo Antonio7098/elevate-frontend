@@ -2,21 +2,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { getChatHistory } from '../../services/chatService';
 import styles from './ChatSidebar.module.css';
-import { FiSend } from 'react-icons/fi';
 import { sendMessageToAI, type ChatMessage as ChatMessageType } from '../../services/chatService';
-
-interface ChatMessageProps {
-  message: ChatMessageType;
-}
-
-const ChatMessage = ({ message }: ChatMessageProps) => (
-  <div className={`${styles.messageWrapper} ${message.sender === 'user' ? styles.userMessage : styles.aiMessage}`}>
-    <div className={styles.messageContent}>
-      <p>{message.text}</p>
-      <span className={styles.timestamp}>{new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-    </div>
-  </div>
-);
+import EnhancedChatInput from './EnhancedChatInput';
+import ChatMessageBubble from './ChatMessageBubble';
+import ChatLoadingBubble from './ChatLoadingBubble';
+import TextWaveEffect from '../TextWaveEffect';
 
 interface ChatSidebarProps {
   noteId: string;
@@ -24,7 +14,6 @@ interface ChatSidebarProps {
 
 export const ChatSidebar = ({ noteId }: ChatSidebarProps) => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
-  const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -36,13 +25,7 @@ export const ChatSidebar = ({ noteId }: ChatSidebarProps) => {
         setMessages(history);
       } catch (error) {
         console.error('Failed to fetch chat history:', error);
-        // Optionally, show an error message in the chat
-        const errorMessage: ChatMessageType = {
-          sender: 'ai',
-          text: 'Could not load chat history.',
-          timestamp: new Date(),
-        };
-        setMessages([errorMessage]);
+        setMessages([{ sender: 'ai', text: 'Could not load chat history.', timestamp: new Date() }]);
       } finally {
         setIsHistoryLoading(false);
       }
@@ -53,20 +36,18 @@ export const ChatSidebar = ({ noteId }: ChatSidebarProps) => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isLoading]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleSendMessage = async (message: string, mode?: string, attachments?: File[]) => {
+    if (!message.trim() || isLoading) return;
 
     const userMessage: ChatMessageType = {
       sender: 'user',
-      text: input,
+      text: message,
       timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInput('');
     setIsLoading(true);
 
     try {
@@ -79,12 +60,7 @@ export const ChatSidebar = ({ noteId }: ChatSidebarProps) => {
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Failed to send message:', error);
-      const errorMessage: ChatMessageType = {
-        sender: 'ai',
-        text: 'Sorry, I encountered an error. Please try again.',
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, { sender: 'ai', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date() }]);
     } finally {
       setIsLoading(false);
     }
@@ -106,27 +82,41 @@ export const ChatSidebar = ({ noteId }: ChatSidebarProps) => {
             <p>Ask questions about this note...</p>
           </div>
         ) : (
-          messages.map((msg, index) => <ChatMessage key={index} message={msg} />)
+          messages.map((msg, index) => (
+            <ChatMessageBubble
+              key={index}
+              sender={msg.sender}
+              text={msg.sender === 'ai' ? '' : msg.text}
+              timestamp={msg.timestamp}
+            >
+            </ChatMessageBubble>
+          ))
         )}
+        {/* Render AI messages with wave effect text overlay */}
+        {!isHistoryLoading &&
+          messages.map((msg, index) => (
+            msg.sender === 'ai' ? (
+              <div key={`ai-${index}`} className={`${styles.messageWrapper} ${styles.ai}`}>
+                <div className={`${styles.message} ${styles.ai}`}>
+                  <TextWaveEffect text={msg.text} color="#374151" effect="clip" />
+                </div>
+                <div className={styles.timestamp}>
+                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            ) : null
+          ))}
+        {isLoading && <ChatLoadingBubble />}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSendMessage} className={styles.inputForm}>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          className={styles.input}
-          disabled={isLoading}
+      <div className={styles.chatInputArea}>
+        <EnhancedChatInput 
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          placeholder="Ask about this note..."
+          fullWidth
         />
-        <button type="submit" disabled={!input.trim() || isLoading} className={styles.sendButton}>
-          {isLoading ? (
-            <div className={styles.spinner}></div>
-          ) : (
-            <FiSend />
-          )}
-        </button>
-      </form>
+      </div>
     </div>
   );
 }; 

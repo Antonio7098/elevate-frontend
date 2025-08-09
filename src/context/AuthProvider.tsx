@@ -24,83 +24,95 @@ const useAuthState = () => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isInitialized, user, updateState } = useAuthState();
 
-  const parseToken = useCallback((token: string): User | null => {
+  const parseToken = useCallback(async (token: string): Promise<User | null> => {
     console.log('🔑 [Auth] Parsing token:', token);
-    
-    if (!token) {
-      console.error('❌ [Auth] No token provided');
-      return null;
-    }
+    if (!token) return null;
 
-    // For debugging - log the token format
-    console.log('🔑 [Auth] Token format check:', {
-      length: token.length,
-      hasDots: token.includes('.'),
-      parts: token.split('.').length
-    });
-    
     try {
-      // First try standard JWT format (header.payload.signature)
-      if (token.split('.').length === 3) {
-        const parts = token.split('.');
-        // Handle both URL-safe base64 and standard base64
-        const payload = atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
-        console.log('🔑 [Auth] Decoded JWT payload:', payload);
+      // Try to parse as base64 JSON first (for mock tokens)
+      try {
+        const decoded = atob(token);
+        const data = JSON.parse(decoded);
         
-        const data = JSON.parse(payload);
-        console.log('🔑 [Auth] Parsed JWT data:', data);
+        console.log('🔑 [Auth] Successfully parsed base64 JSON token:', data);
         
-        // Check for common JWT claims that might contain the email
         const email = data.email || data.sub || data.username;
-        
-        if (email) {
-          // Try to get a display name from various possible fields
-          const name = data.name || data.fullName || data.displayName || email.split('@')[0];
+        const name = data.name || data.fullName || data.displayName || (email ? email.split('@')[0] : undefined);
+        if (email || typeof data.userId === 'number') {
+          const user = {
+            email: email || `user-${data.userId}@local`,
+            name: name || `User ${data.userId}`,
+          };
+          console.log('🔑 [Auth] Returning parsed user:', user);
+          return user;
+        }
+      } catch (base64Error) {
+        console.log('🔑 [Auth] Token is not base64 JSON, trying other formats...', base64Error);
+      }
+
+      // Standard JWT (header.payload.signature)
+      if (token.split('.').length === 3) {
+        try {
+          const payload = atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'));
+          const data = JSON.parse(payload);
           
-          return {
-            email,
-            name
-          };
+          console.log('🔑 [Auth] Successfully parsed JWT payload:', data);
+
+          const email = data.email || data.sub || data.username;
+          const name = data.name || data.fullName || data.displayName || (email ? email.split('@')[0] : undefined);
+          
+          console.log('🔑 [Auth] Extracted from JWT - email:', email, 'name:', name, 'userId:', data.userId);
+          
+          if (email || typeof data.userId === 'number') {
+            // If we have email in the token, use it
+            if (email) {
+              const user = {
+                email: email,
+                name: name || email.split('@')[0],
+              };
+              console.log('🔑 [Auth] Returning JWT parsed user with email:', user);
+              return user;
+            }
+            
+            // If no email in token but we have userId, use userId-based user
+            if (typeof data.userId === 'number') {
+              const user = {
+                email: `user-${data.userId}@local`,
+                name: `User ${data.userId}`,
+              };
+              console.log('🔑 [Auth] Returning userId-based user:', user);
+              return user;
+            }
+          }
+        } catch (jwtError) {
+          console.log('🔑 [Auth] Token is not valid JWT:', jwtError);
         }
       }
-      
-      // If JWT parsing failed or didn't have email, try parsing as direct JSON
-      // This is a fallback for non-standard tokens or direct user objects
+
+      // Direct JSON user
       try {
-        console.log('🔑 [Auth] Attempting to parse token as JSON...');
         const directData = JSON.parse(token);
-        console.log('🔑 [Auth] Parsed direct JSON data:', directData);
-        
-        // Check if this looks like a user object
         if (directData.email) {
-          return {
-            email: directData.email,
-            name: directData.name || directData.email.split('@')[0]
-          };
+          return { email: directData.email, name: directData.name || directData.email.split('@')[0] };
         }
-      } catch {
-        console.log('🔑 [Auth] Not a JSON token, continuing with other methods');
+      } catch (jsonError) {
+        console.log('🔑 [Auth] Token is not direct JSON:', jsonError);
       }
-      
-      // Last resort: Check if we have user data in localStorage
-      try {
-        const userDataStr = localStorage.getItem('userData');
-        if (userDataStr) {
-          console.log('🔑 [Auth] Found userData in localStorage, trying to use that');
+
+      // Fallback to cached userData
+      const userDataStr = localStorage.getItem('userData');
+      if (userDataStr) {
+        try {
           const userData = JSON.parse(userDataStr);
           if (userData.email) {
-            return {
-              email: userData.email,
-              name: userData.name || userData.email.split('@')[0]
-            };
+            return { email: userData.email, name: userData.name || userData.email.split('@')[0] };
           }
+        } catch (userDataError) {
+          console.log('🔑 [Auth] Failed to parse userData:', userDataError);
         }
-      } catch (localStorageError) {
-        console.error('❌ [Auth] Error parsing userData from localStorage:', localStorageError);
       }
-      
-      // If we've tried everything and still can't get user data
-      console.error('❌ [Auth] Could not extract user data from token or localStorage');
+
+      console.log('🔑 [Auth] No valid token format found');
       return null;
     } catch (error) {
       console.error('❌ [Auth] Error parsing token:', error);
@@ -108,7 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const checkAuth = useCallback((): boolean => {
+  const checkAuth = useCallback(async (): Promise<boolean> => {
     console.log('🔄 [Auth] Checking authentication status');
     const token = localStorage.getItem('authToken');
     
@@ -131,7 +143,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       console.log('🔑 [Auth] Attempting to parse token...');
-      const userData = parseToken(token);
+      const userData = await parseToken(token);
       console.log('🔑 [Auth] Parsed user data:', userData);
       
       if (userData) {
@@ -190,7 +202,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       console.log('🔍 [Auth] Parsing token in login...');
-      const userData = parseToken(token);
+      const userData = await parseToken(token);
       console.log('👤 [Auth] Parsed user data in login:', userData);
 
       if (!userData) {
@@ -244,7 +256,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Initialize auth state on mount
   useEffect(() => {
     console.log('🔑 [AuthProvider] Initializing auth state on mount...');
-    checkAuth();
+    // Add a small delay to ensure login process completes before checking auth
+    const timer = setTimeout(async () => {
+      await checkAuth();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [checkAuth]);
 
   const value = useMemo(() => ({

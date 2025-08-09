@@ -27,6 +27,8 @@ export interface Note {
   userId: string;
   folderId?: string;
   questionSetId?: string | null;
+  // Links to the blueprint that generated this note, if any
+  generatedFromBlueprintId?: string | null;
   tags?: string[];
   isArchived?: boolean;
   isPinned?: boolean;

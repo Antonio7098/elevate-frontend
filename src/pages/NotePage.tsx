@@ -36,6 +36,14 @@ const NotePage: React.FC = () => {
         return;
     }
 
+    // Guard: avoid calling backend with mock-style ids like 'note-1'
+    const isLikelyMockId = /^note-\d+$/i.test(noteId);
+    if (isLikelyMockId) {
+      setIsLoading(false);
+      setError('This looks like a mock note id (note-1). Please open a real note from the list.');
+      return;
+    }
+
     const fetchNote = async () => {
       console.log(`[NotePage] Fetching note with ID: ${noteId}`);
       try {

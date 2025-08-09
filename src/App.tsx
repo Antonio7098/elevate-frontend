@@ -8,6 +8,12 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { StrictMode } from 'react';
 
 console.log("🟢 [App] Initializing application");
+console.log("🔧 [App] Environment variables:", {
+  DEV: import.meta.env.DEV,
+  VITE_USE_MOCK_AUTH: import.meta.env.VITE_USE_MOCK_AUTH,
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  VITE_FORCE_AI_EVALUATION: import.meta.env.VITE_FORCE_AI_EVALUATION
+});
 
 // Create a basic client
 const queryClient = new QueryClient();

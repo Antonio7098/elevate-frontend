@@ -1,5 +1,25 @@
 import apiClient from './apiClient';
 
+// Development mode flag - set to true to use mock authentication
+const USE_MOCK_AUTH = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_AUTH === 'true';
+
+// Log mock auth status on module load
+console.log('🔧 [authService] Environment check:', {
+  DEV: import.meta.env.DEV,
+  VITE_USE_MOCK_AUTH: import.meta.env.VITE_USE_MOCK_AUTH,
+  USE_MOCK_AUTH: USE_MOCK_AUTH
+});
+
+if (USE_MOCK_AUTH) {
+  console.log('🎭 [authService] Mock authentication enabled for development');
+  console.log('🎭 [authService] Available test accounts:');
+  console.log('🎭 [authService] - test@example.com / password123');
+  console.log('🎭 [authService] - admin@example.com / admin123');
+  console.log('🎭 [authService] Set VITE_USE_MOCK_AUTH=false to use real backend');
+} else {
+  console.log('🔗 [authService] Using real backend authentication');
+}
+
 export interface RegisterCredentials {
   email: string;      // User's email address
   password: string;   // User's password (will be hashed server-side)
@@ -22,6 +42,37 @@ export interface AuthResponse {
   user: User;
 }
 
+// Mock authentication for development
+interface MockUser {
+  id: number;
+  email: string;
+  password: string;
+  name: string;
+}
+
+const mockAuth = {
+  users: [
+    { id: 1, email: 'test@example.com', password: 'password123', name: 'Test User' },
+    { id: 2, email: 'admin@example.com', password: 'admin123', name: 'Admin User' }
+  ] as MockUser[],
+  
+  generateToken: (user: MockUser): string => {
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      iat: Date.now(),
+      exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+    };
+    return btoa(JSON.stringify(payload));
+  },
+  
+  validateCredentials: (email: string, password: string): MockUser | null => {
+    const user = mockAuth.users.find((u: MockUser) => u.email === email && u.password === password);
+    return user || null;
+  }
+};
+
 /**
  * Attempts to log in a user with the provided credentials
  * @param credentials User's login credentials
@@ -33,6 +84,37 @@ export interface AuthResponse {
  */
 export const register = async (credentials: RegisterCredentials): Promise<AuthResponse> => {
   console.log('📝 [authService] Registering new user:', credentials.email);
+  
+  if (USE_MOCK_AUTH) {
+    console.log('🎭 [authService] Using mock registration');
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Check if user already exists
+    const existingUser = mockAuth.users.find(u => u.email === credentials.email);
+    if (existingUser) {
+      throw new Error('User already exists with this email');
+    }
+    
+    // Create new user (in real app, this would be saved to backend)
+    const newUser = {
+      id: mockAuth.users.length + 1,
+      email: credentials.email,
+      password: credentials.password,
+      name: credentials.name || credentials.email.split('@')[0]
+    };
+    
+    const token = mockAuth.generateToken(newUser);
+    
+    return {
+      token,
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name
+      }
+    };
+  }
   
   try {
     // Prepare the payload with only the fields the backend expects
@@ -85,6 +167,28 @@ export const register = async (credentials: RegisterCredentials): Promise<AuthRe
  */
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   console.log('🔐 [authService] Attempting login with email:', credentials.email);
+  
+  if (USE_MOCK_AUTH) {
+    console.log('🎭 [authService] Using mock login');
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const user = mockAuth.validateCredentials(credentials.email, credentials.password);
+    if (!user) {
+      throw new Error('Invalid credentials');
+    }
+    
+    const token = mockAuth.generateToken(user);
+    
+    return {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name
+      }
+    };
+  }
   
   try {
     const response = await apiClient.post<AuthResponse>('/auth/login', {

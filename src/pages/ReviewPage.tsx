@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { apiClient } from '../services/apiClient';
+import { getAllQuestionSets } from '../services/questionSetService';
 import type { Question } from '../types/question';
 import type { EnhancedQuestionSet } from '../types/questionSet';
 import styles from './ReviewPage.module.css';
@@ -44,15 +44,15 @@ const ReviewPage: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        // Use the new comprehensive endpoint
-        const response = await apiClient.get<EnhancedQuestionSet[]>('/questionsets');
-        setQuestionSets(response.data);
+        // Use service that handles multiple endpoints and safe fallbacks
+        const allSets = await getAllQuestionSets();
+        setQuestionSets(allSets);
         
         // If this is a "Review Again" session, automatically select question sets with questions that need review
         if (isReviewAgain && questionsToReview.length > 0) {
           const questionIdsToReview = new Set(questionsToReview.map((q: Question) => q.id));
           
-          const questionSetsToSelect = response.data.filter(questionSet => 
+          const questionSetsToSelect = allSets.filter(questionSet => 
             questionSet.questions.some(question => questionIdsToReview.has(question.id))
           );
           

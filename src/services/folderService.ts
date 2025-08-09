@@ -1,5 +1,9 @@
 import { apiClient } from './apiClient';
 import type { Folder, CreateFolderData, UpdateFolderData } from '../types/folder';
+import { mockFolders } from '../data/mockFoldersData';
+
+// Development mode flag - set to true to use mock data
+const USE_MOCK_DATA = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_AUTH === 'true';
 
 // Helper function to safely stringify objects
 const safeStringify = (obj: unknown): string => {
@@ -13,6 +17,21 @@ const safeStringify = (obj: unknown): string => {
 
 export const getFolders = async (parentId?: string | null): Promise<Folder[]> => {
   console.log('🔍 [folderService] getFolders called with parentId:', parentId);
+  
+  if (USE_MOCK_DATA) {
+    console.log('🎭 [folderService] Using mock folders data');
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    if (parentId === undefined || parentId === null) {
+      // Return top-level folders
+      return mockFolders.filter(folder => !folder.parentId);
+    } else {
+      // Return children of the specified folder
+      return mockFolders.filter(folder => folder.parentId === parentId);
+    }
+  }
+
   try {
           // If no parentId is specified, get all folders and build the tree
       if (parentId === undefined || parentId === null) {
@@ -153,6 +172,18 @@ export const getFolders = async (parentId?: string | null): Promise<Folder[]> =>
 };
 
 export const getFolder = async (folderId: string): Promise<Folder> => {
+  if (USE_MOCK_DATA) {
+    console.log('🎭 [folderService] Using mock folder data for:', folderId);
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    const folder = mockFolders.find(f => f.id === folderId);
+    if (!folder) {
+      throw new Error(`Folder with id ${folderId} not found`);
+    }
+    return folder;
+  }
+
   try {
     console.log('📡 [folderService] Fetching folder:', folderId);
     const response = await apiClient.get<Folder>(`/folders/${folderId}`);

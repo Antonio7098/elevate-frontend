@@ -43,7 +43,7 @@
 
 .card {
   background-color: var(--card-background);
-  border: var(--card-border);
+  border: var(--border-thin) solid transparent;
   border-radius: var(--card-border-radius);
   padding: var(--card-padding);
   cursor: pointer;
@@ -63,7 +63,27 @@
 }
 
 .card.critical {
-  border-left: var(--card-critical-border);
+  border-left: none;
+}
+
+.statusIndicatorWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statusIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.criticalIndicator {
+  background-color: var(--color-danger);
+}
+
+.coreIndicator {
+  background-color: var(--color-secondary);
 }
 
 .cardContent {

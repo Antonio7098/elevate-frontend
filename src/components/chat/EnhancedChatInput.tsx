@@ -12,6 +12,7 @@ interface EnhancedChatInputProps {
   onSendMessage: (message: string, mode?: string, attachments?: File[]) => void;
   isLoading?: boolean;
   placeholder?: string;
+  fullWidth?: boolean; // NEW: stretch to container width
 }
 
 const modes: Mode[] = [
@@ -24,7 +25,8 @@ const modes: Mode[] = [
 const EnhancedChatInput: React.FC<EnhancedChatInputProps> = ({
   onSendMessage,
   isLoading = false,
-  placeholder = "Type message here"
+  placeholder = "Type message here",
+  fullWidth = false,
 }) => {
   const [message, setMessage] = useState('');
   const [selectedMode, setSelectedMode] = useState<Mode>(modes[0]);
@@ -121,7 +123,7 @@ const EnhancedChatInput: React.FC<EnhancedChatInputProps> = ({
         </div>
       )}
 
-      <div className={styles.inputWrapper}>
+      <div className={`${styles.inputWrapper} ${fullWidth ? styles.fullWidth : ''}`}>
         <div className={styles.inputContainer}>
           <textarea
             ref={textareaRef}

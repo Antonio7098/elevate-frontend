@@ -1,0 +1,86 @@
+.text-wave-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+
+.text-original {
+  position: relative;
+  z-index: 1;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+.text-wave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  color: var(--wave-color, #007bff);
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  white-space: pre;
+  pointer-events: none;
+  will-change: clip-path;
+}
+
+/* Alternative wave effect using gradient */
+.text-wave-gradient {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--wave-color, #007bff) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: wave-sweep 0.8s ease-out;
+}
+
+@keyframes wave-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Enhanced wave effect with blur */
+.text-wave-blur {
+  filter: blur(0.5px);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* Hover states */
+.text-wave-container:hover .text-original {
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+.text-wave-container:hover .text-wave {
+  filter: drop-shadow(0 0 2px var(--wave-color, #007bff));
+}
+
+/* Responsive adjustments */
+@media (prefers-reduced-motion: reduce) {
+  .text-wave {
+    transition: none;
+  }
+  
+  .text-wave-gradient {
+    animation: none;
+  }
+}
+

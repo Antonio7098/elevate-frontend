@@ -4,55 +4,89 @@
   height: 100vh;
   width: 100%;
   overflow: hidden;
+  background-color: var(--color-background, #f8f9fa);
 }
 
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--color-border);
-  background-color: var(--color-surface);
+  padding: 1rem 1.5rem;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  background-color: var(--color-surface-white, #ffffff);
   flex-shrink: 0;
+  box-shadow: 
+    0 2px 4px -1px rgba(0, 0, 0, 0.1),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06);
 }
 
 .leftButtons, .centerButtons, .rightButtons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .toggleButton {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background-color: var(--color-surface);
+  padding: 0.75rem 1.25rem;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: var(--color-surface-white, #ffffff);
   cursor: pointer;
   font-size: 0.9rem;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  color: var(--color-text-base, #333);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 2px 4px -1px rgba(0, 0, 0, 0.1),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06);
 }
 
 .toggleButton:hover {
-  background-color: var(--color-surface-hover);
+  background-color: var(--color-primary, #007bff);
+  color: var(--color-text-on-primary, #ffffff);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.toggleButton:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .panelsContainer {
   display: flex;
   flex-grow: 1;
   overflow: hidden;
-  gap: 8px;
-  padding: 8px;
-  background-color: var(--color-background); /* A neutral background for the container */
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--color-background, #f8f9fa);
 }
 
 .notePanel,
 .sidePanel {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
+  background-color: var(--color-surface-white, #ffffff);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notePanel:hover,
+.sidePanel:hover {
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .notePanel {
@@ -61,29 +95,37 @@
 
 .sidePanel {
   flex-shrink: 0;
-  width: 300px;
+  width: 320px;
 }
 
 /* Responsive Design */
 @media (max-width: 992px) {
   .panelsContainer {
     flex-direction: column;
-    overflow-y: auto; /* Allow scrolling for the container */
+    overflow-y: auto;
+    gap: 0.75rem;
+    padding: 0.75rem;
   }
 
   .sidePanel {
     width: 100%;
-    height: 45vh; /* Give side panels a fixed height */
-    min-height: 300px; /* Ensure they don't get too small */
+    height: 45vh;
+    min-height: 300px;
   }
 
   .notePanel {
-    height: 100%; /* Allow note panel to take remaining space */
-    min-height: 500px; /* Ensure editor is usable */
+    height: 100%;
+    min-height: 500px;
   }
 
   .toolbar {
     flex-wrap: wrap;
     justify-content: center;
+    padding: 0.75rem 1rem;
+  }
+  
+  .toggleButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
   }
 }

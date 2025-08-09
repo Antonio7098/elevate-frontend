@@ -148,7 +148,7 @@ const LoginPage = () => {
       
       try {
         // Update auth context with onSuccess callback for navigation
-        login(token, () => {
+        await login(token, () => {
           console.log('✅ [LoginPage] ✅ Login success callback triggered, navigating to:', from);
           navigate(from, { replace: true });
         });
@@ -157,6 +157,11 @@ const LoginPage = () => {
         
         // Force navigation if callback doesn't trigger
         setTimeout(() => {
+          console.log('⏰ [LoginPage] ⏰ Timeout reached, checking auth state:', {
+            isAuthenticated,
+            isInitialized,
+            loginAttempted
+          });
           if (window.location.pathname === '/login') {
             console.log('⏰ [LoginPage] ⏰ Timeout reached, forcing navigation to:', from);
             navigate(from, { replace: true });

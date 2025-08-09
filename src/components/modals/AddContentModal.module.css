@@ -1,0 +1,90 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: var(--color-background-light);
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-elevation-medium);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modalTitle {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.optionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  justify-content: center;
+}
+
+.optionButton {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border: none;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: var(--shadow-elevation-low);
+}
+
+.optionButton:hover {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-elevation-medium);
+}
+
+.optionIcon {
+  font-size: var(--font-size-xxl);
+  margin-bottom: 5px;
+}
+
+.closeButton {
+  background: var(--color-grey-300);
+  color: var(--color-text-secondary);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: var(--font-size-md);
+  cursor: pointer;
+  align-self: center;
+  margin-top: 15px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.closeButton:hover {
+  background: var(--color-grey-400);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

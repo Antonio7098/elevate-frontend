@@ -31,6 +31,10 @@ const InsightCatalystDisplay: React.FC<InsightCatalystDisplayProps> = ({ catalys
     }
   };
 
+  // Safely get text content with fallback
+  const textContent = catalyst.text || 'No content available';
+  const truncatedText = textContent.length > 50 ? textContent.substring(0, 50) + '...' : textContent;
+
   return (
     <div 
       className={`${styles.catalystDisplay} ${onClick ? styles.clickable : ''}`}
@@ -38,12 +42,12 @@ const InsightCatalystDisplay: React.FC<InsightCatalystDisplayProps> = ({ catalys
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(); } : undefined}
-      aria-label={`Insight Catalyst: ${catalyst.type} - ${catalyst.text.substring(0, 50)}`}
+      aria-label={`Insight Catalyst: ${catalyst.type} - ${truncatedText}`}
     >
       <CatalystIcon type={catalyst.type} />
       <div className={styles.content}>
         <span className={styles.typeLabel}>{catalyst.type.charAt(0).toUpperCase() + catalyst.type.slice(1)}:</span>
-        <p className={styles.text}>{catalyst.text}</p>
+        <p className={styles.text}>{textContent}</p>
       </div>
     </div>
   );
