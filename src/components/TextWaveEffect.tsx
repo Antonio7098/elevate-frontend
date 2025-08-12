@@ -8,40 +8,34 @@ interface TextWaveEffectProps {
   color?: string; // Wave color
   effect?: 'clip' | 'gradient' | 'blur'; // Different wave effects
   direction?: 'left-to-right' | 'right-to-left' | 'center-out'; // Wave direction
+  barWidth?: number; // Width of the moving color bar (in percentage)
 }
 
 export default function TextWaveEffect({ 
   text, 
   className = '', 
-  speed = 800,
-  color = '#007bff',
+  speed = 2000, // Increased from 800 to slow down the animation
+  color = '#C0C0C0', // Changed from #007bff to silver
   effect = 'clip',
-  direction = 'left-to-right'
+  direction = 'left-to-right',
+  barWidth = 20 // Default bar width of 20%
 }: TextWaveEffectProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
   const [wavePosition, setWavePosition] = useState(0);
 
   useEffect(() => {
-    if (!isHovered) {
-      setWavePosition(0);
-      return;
-    }
-
+    // Always animate, not just on hover
     const startTime = Date.now();
     const animate = () => {
       const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / speed, 1);
+      const progress = (elapsed % speed) / speed; // Use modulo to create infinite loop
       
       setWavePosition(progress);
-      
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
+      requestAnimationFrame(animate); // Always continue animating
     };
 
     requestAnimationFrame(animate);
-  }, [isHovered, speed]);
+  }, [speed]);
 
   const getWaveStyle = () => {
     const baseStyle = {
@@ -55,9 +49,13 @@ export default function TextWaveEffect({
 
     switch (effect) {
       case 'clip':
+        // Create a moving bar effect - a rectangle that moves across the text
+        const barStart = wavePosition * (100 + barWidth) - barWidth;
+        const barEnd = wavePosition * (100 + barWidth);
+        
         return {
           ...baseStyle,
-          clipPath: `inset(0 ${100 - (wavePosition * 100)}% 0 0)`,
+          clipPath: `inset(0 ${100 - barEnd}% 0 ${100 - barStart}%)`,
           transition: 'clip-path 0.1s ease-out',
         };
       
@@ -90,8 +88,6 @@ export default function TextWaveEffect({
     <div
       ref={containerRef}
       className={`${styles['text-wave-container']} ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       style={{
         '--wave-color': color,
       } as React.CSSProperties}

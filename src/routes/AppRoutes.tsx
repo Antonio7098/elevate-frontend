@@ -6,6 +6,7 @@ import styles from './AppRoutes.module.css';
 import LearningBlueprintPage from '../pages/LearningBlueprintPage';
 import BlueprintMindmapPage from '../pages/BlueprintMindmapPage';
 const CreateHubPage = lazy(() => import('../pages/CreateHubPage'));
+import TextWaveEffect from '../components/TextWaveEffect';
 
 // --- Lazy-loaded Page Components ---
 // Public Pages
@@ -15,6 +16,7 @@ const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 // Authenticated Pages
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const FoldersPage = lazy(() => import('../pages/FoldersPage'));
+const LibraryPage = lazy(() => import('../pages/LibraryPage'));
 
 const ReviewSessionPage = lazy(() => import('../pages/ReviewSessionPage'));
 const QuestionSelectionPage = lazy(() => import('../pages/QuestionSelectionPage'));
@@ -38,6 +40,7 @@ const QuestionsPage = lazy(() => import('../pages/QuestionsPage'));
 const Loading = () => (
   <div className={styles.loadingRoot}>
     <div className={styles.spinner} />
+    <TextWaveEffect text="Loading..." color="#007bff" effect="gradient" />
   </div>
 );
 
@@ -63,6 +66,10 @@ const ProtectedRoutes = () => {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="folders/:folderId?" element={<FoldersPage />} />
+        <Route path="library">
+          <Route index element={<LibraryPage />} />
+          <Route path=":folderId" element={<LibraryPage />} />
+        </Route>
         <Route path="folders/:folderId/all-questions" element={<AllContentPage />} />
         <Route path="folders/:folderId/all-notes" element={<AllContentPage />} />
         <Route path="chat" element={<ChatPage />} />

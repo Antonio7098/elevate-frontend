@@ -5,6 +5,7 @@ import type { Question } from '../types/question';
 import type { EnhancedQuestionSet } from '../types/questionSet';
 import styles from './ReviewPage.module.css';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
+import LoadingText from '../components/LoadingText';
 
 interface SelectedQuestionSet {
   questionSet: EnhancedQuestionSet;
@@ -189,7 +190,7 @@ const ReviewPage: React.FC = () => {
     return (
       <div className={styles.container}>
         <div className={styles.loadingContainer}>
-          <div className={styles.loader}>Loading...</div>
+          <div className={styles.loader}><LoadingText /></div>
         </div>
       </div>
     );

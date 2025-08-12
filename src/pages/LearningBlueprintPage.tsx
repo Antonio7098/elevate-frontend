@@ -16,6 +16,7 @@ import { getFolders } from '../services/folderService';
 import type { Folder } from '../types/folder';
 import type { LearningBlueprint, QuestionSet } from '../types/questionSet';
 import styles from './LearningBlueprintPage.module.css';
+import TextWaveEffect from '../components/TextWaveEffect';
 
 // Question generation options
 const DIFFICULTY_OPTIONS = [
@@ -218,7 +219,7 @@ const LearningBlueprintPage: React.FC = () => {
           {isLoadingFolders ? (
             <div className={styles.loadingInput}>
               <FiLoader className="animate-spin" />
-              Loading folders...
+              <TextWaveEffect text="Loading folders..." color="#007bff" effect="gradient" />
             </div>
           ) : (
             <>
@@ -267,7 +268,7 @@ const LearningBlueprintPage: React.FC = () => {
           {isLoading ? (
             <>
               <FiLoader className="animate-spin" />
-              Creating Blueprint...
+              <TextWaveEffect text="Creating Blueprint..." color="#007bff" effect="gradient" />
             </>
           ) : (
             <>
@@ -409,7 +410,7 @@ const LearningBlueprintPage: React.FC = () => {
           {isLoading ? (
             <>
               <FiLoader className="animate-spin" />
-              Generating Questions...
+              <TextWaveEffect text="Generating Questions..." color="#007bff" effect="gradient" />
             </>
           ) : (
             <>

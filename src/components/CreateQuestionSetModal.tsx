@@ -12,6 +12,7 @@ import AddQuestionModal from './AddQuestionModal';
 import { createQuestionSet } from '../services/questionSetService';
 import { createQuestion } from '../services/questionService';
 import { createPortal } from 'react-dom';
+import TextWaveEffect from './TextWaveEffect';
 
 const FOCUS_OPTIONS = [
   { value: 'understand', label: 'Understand (Foundational Concepts)' },
@@ -197,7 +198,7 @@ const CreateQuestionSetModal: React.FC<CreateQuestionSetModalProps> = ({
               {isFetchingFolders ? (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <FiLoader className="animate-spin" style={{ height: 20, width: 20, marginRight: 8 }} />
-                  Loading folders...
+                  <TextWaveEffect text="Loading folders..." color="#007bff" effect="gradient" />
                 </div>
               ) : (
                 <>

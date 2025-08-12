@@ -21,18 +21,30 @@
   --font-size-sm: 0.875rem;
 
   /* Color Palette */
-  --color-background: #f5f4f4; /* More subtle warm off-white */
-  --color-surface: #f3eeea;    /* Slightly different off-white for cards */
+  --color-background: #faf9f5; /* More subtle warm off-white */
+  --color-surface: #f0efe7;    /* Slightly different off-white for cards */
   --color-surface-white: #ffffff; /* Pure white for input containers */
   --color-text-base: #5D4037;  /* Dark, rich sepia or charcoal brown */
   --color-text-muted: #7c7875; /* Lighter, muted brown */
   --color-text-on-primary: #FFFFFF;
 
-  --color-primary: #e48464;      /* A deep, rich brown */
+  --color-primary: #c86443;      /* A deep, rich brown */
   --color-primary-hover: #A86450;/* Lighter version of primary */
   --color-primary-lightest: rgba(148, 102, 90, 0.1); /* Very light primary for selections */
   --color-secondary: #C38154;    /* A complementary color */
   --color-danger: #D32F2F;       /* A standard red */
+  --color-danger-hover: #B71C1C; /* Darker red for hover */
+  --color-danger-light: rgba(211, 47, 47, 0.1); /* Light red background */
+  --color-danger-dark: #B71C1C;  /* Darker red for text */
+  --color-danger-border: #D32F2F; /* Red for borders */
+  
+  --color-success: #388E3C;      /* A standard green */
+  --color-success-light: rgba(56, 142, 60, 0.1); /* Light green background */
+  --color-success-dark: #2E7D32; /* Darker green for text */
+  
+  --color-warning: #F57C00;      /* A standard orange */
+  --color-warning-light: rgba(245, 124, 0, 0.1); /* Light orange background */
+  --color-warning-dark: #E65100; /* Darker orange for text */
   
   --color-input-bg: #ffffff;    /* Pure white for input fields */
 
@@ -166,7 +178,19 @@
   --color-primary-hover: #7C3AED;  /* Slightly darker/richer purple */
   --color-secondary: #34d399;    /* Emerald 400 */
   --color-danger: #f87171;       /* Red 400 */
-
+  --color-danger-hover: #ef4444; /* Red 500 */
+  --color-danger-light: rgba(248, 113, 113, 0.1); /* Light red background */
+  --color-danger-dark: #ef4444;  /* Red 500 for text */
+  --color-danger-border: #f87171; /* Red 400 for borders */
+  
+  --color-success: #10b981;      /* Emerald 500 */
+  --color-success-light: rgba(16, 185, 129, 0.1); /* Light emerald background */
+  --color-success-dark: #059669; /* Emerald 600 for text */
+  
+  --color-warning: #f59e0b;      /* Amber 500 */
+  --color-warning-light: rgba(245, 158, 11, 0.1); /* Light amber background */
+  --color-warning-dark: #d97706; /* Amber 600 for text */
+  
   --color-input-bg: #1f2937;
 
   /* Borders & Shadows */

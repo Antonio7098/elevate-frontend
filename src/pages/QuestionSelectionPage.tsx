@@ -5,6 +5,7 @@ import type { Question } from '../types/question';
 import type { QuestionSet } from '../types/questionSet';
 import styles from './QuestionSelectionPage.module.css';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
+import LoadingText from '../components/LoadingText';
 
 const QuestionSelectionPage: React.FC = () => {
   const { setId } = useParams<{ setId: string }>();
@@ -86,7 +87,7 @@ const QuestionSelectionPage: React.FC = () => {
     return (
       <div className={styles.container}>
         <div className={styles.loadingContainer}>
-          <div className={styles.loader}>Loading...</div>
+          <div className={styles.loader}><LoadingText /></div>
         </div>
       </div>
     );

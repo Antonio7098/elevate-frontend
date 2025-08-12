@@ -6,6 +6,7 @@ import { createQuestionSet } from '../services/questionSetService';
 import { createQuestion } from '../services/questionService';
 import type { Folder } from '../types/folder';
 import styles from './CreateManualQuestionSetPage.module.css';
+import TextWaveEffect from '../components/TextWaveEffect';
 
 interface ManualQuestion {
   text: string;
@@ -130,7 +131,7 @@ const CreateManualQuestionSetPage: React.FC = () => {
               className={styles.select}
               disabled={isFetchingFolders}
             >
-              <option value="">{isFetchingFolders ? 'Loading...' : 'Select a folder'}</option>
+              <option value="">{isFetchingFolders ? <TextWaveEffect text="Loading..." color="#007bff" effect="gradient" /> : 'Select a folder'}</option>
               {folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
             </select>
           </div>
@@ -193,7 +194,7 @@ const CreateManualQuestionSetPage: React.FC = () => {
       {/* Save Action */}
       <div className={styles.saveAction}>
         <button onClick={handleSave} disabled={isSaving} className={styles.saveButton}>
-          {isSaving ? <><FiLoader className={styles.spinner} /> Saving...</> : <><FiSave /> Save Question Set</>}
+          {isSaving ? <><FiLoader className={styles.spinner} /> <TextWaveEffect text="Saving..." color="#007bff" effect="gradient" /></> : <><FiSave /> Save Question Set</>}
         </button>
       </div>
     </div>

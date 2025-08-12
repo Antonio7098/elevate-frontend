@@ -8,6 +8,7 @@ import AnswerEvaluation from '../components/evaluation/AnswerEvaluation';
 import type { Question } from '../types/question';
 import type { QuestionSet } from '../types/questionSet';
 import type { EvaluationResult } from '../services/evaluationService';
+import TextWaveEffect from '../components/TextWaveEffect';
 
 // Define question types for the review session
 interface ReviewQuestion extends Omit<Question, 'questionType' | 'options' | 'uueFocus'> {
@@ -522,7 +523,7 @@ const ReviewSessionPage = () => {
     return (
       <div className={styles.container} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '30vh'}}>
         <span className={styles.loader}><FiLoader size={24} /></span>
-        <span>Loading questions...</span>
+        <TextWaveEffect text="Loading questions..." color="#007bff" effect="gradient" />
       </div>
     );
   }
@@ -752,7 +753,7 @@ const ReviewSessionPage = () => {
                   ) : (
                                       <div className={styles.feedbackPlaceholder}>
                     {evaluationStatus === 'loading' && <FiLoader className="animate-spin mr-2" />} 
-                    {evaluationStatus === 'loading' ? 'Evaluating...' : 'Submit an answer to see feedback.'}
+                    {evaluationStatus === 'loading' ? <TextWaveEffect text="Evaluating..." color="#007bff" effect="gradient" /> : 'Submit an answer to see feedback.'}
                   </div>
                   )}
                 </>

@@ -13,6 +13,7 @@ import {
   FiSave,
   FiEye
 } from 'react-icons/fi';
+import LoadingText from '../components/LoadingText';
 import { getQuestions, createQuestion, updateQuestion, deleteQuestion } from '../services/questionService';
 import { getQuestionSet, updateQuestionSet } from '../services/questionSetService';
 import { QuestionSetEditor } from '../components/questions/QuestionSetEditor';
@@ -350,7 +351,7 @@ type QuestionSetWithFolder = QuestionSet & { folderId: string };
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>
-            {loading ? 'Loading...' : questionSet?.name || 'Questions'}
+            {loading ? <LoadingText /> : questionSet?.name || 'Questions'}
           </h1>
           {questionSet && (
             <p className={styles.subtitle}>

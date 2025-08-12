@@ -15,6 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 import type { Connection, EdgeChange, NodeChange } from 'reactflow';
 import 'reactflow/dist/style.css';
+import TextWaveEffect from '../components/TextWaveEffect';
 
 export default function BlueprintMindmapPage() {
   const { blueprintId } = useParams();
@@ -126,7 +127,7 @@ export default function BlueprintMindmapPage() {
             fontSize: '16px',
             color: '#666'
           }}>
-            Loading mindmap...
+            <TextWaveEffect text="Loading mindmap..." color="#007bff" effect="gradient" />
           </div>
         ) : (
           <ReactFlow

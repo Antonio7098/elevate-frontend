@@ -5,6 +5,8 @@ import { getFolders } from '../services/folderService';
 import type { LearningBlueprint } from '../types/questionSet';
 import type { Folder } from '../types/folder';
 import { FiLoader, FiAlertCircle, FiArrowLeft, FiCpu } from 'react-icons/fi';
+import LoadingText from '../components/LoadingText';
+import TextWaveEffect from '../components/TextWaveEffect';
 import styles from './GenerateQuestionsFromBlueprintPage.module.css';
 
 const GenerateQuestionsFromBlueprintPage: React.FC = () => {
@@ -69,7 +71,12 @@ const GenerateQuestionsFromBlueprintPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className={styles.centeredMessage}><FiLoader className={styles.spinner} /> Loading...</div>;
+    return (
+      <div className={styles.centeredMessage}>
+        <FiLoader className={styles.spinner} /> 
+        <TextWaveEffect text="Loading..." color="#007bff" effect="gradient" />
+      </div>
+    );
   }
 
   if (error) {
@@ -118,7 +125,7 @@ const GenerateQuestionsFromBlueprintPage: React.FC = () => {
           </div>
           <button type="submit" className={styles.generateButton} disabled={isGenerating}>
             {isGenerating ? <FiLoader className={styles.spinner} /> : <FiCpu />}
-            {isGenerating ? 'Generating...' : 'Generate Question Set'}
+            {isGenerating ? <TextWaveEffect text="Generating..." color="#007bff" effect="gradient" /> : 'Generate Question Set'}
           </button>
         </form>
       </div>

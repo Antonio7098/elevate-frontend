@@ -45,7 +45,7 @@ export const getBlueprintMindmap = async (blueprintId: string): Promise<MindmapP
   }
 
   try {
-    const response = await apiClient.get<MindmapPayload>(`/blueprints/${blueprintId}/mindmap`);
+    const response = await apiClient.get<MindmapPayload>(`/api/blueprints/${blueprintId}/mindmap`);
     return response.data;
   } catch (error) {
     console.warn('Failed to fetch mindmap from backend, using mock data:', error);
@@ -71,7 +71,7 @@ export const updateBlueprintMindmap = async (
   }
 
   try {
-    const response = await apiClient.put<MindmapPayload>(`/blueprints/${blueprintId}/mindmap`, payload);
+    const response = await apiClient.put<MindmapPayload>(`/api/blueprints/${blueprintId}/mindmap`, payload);
     return response.data;
   } catch (error) {
     console.warn('Failed to update mindmap on backend:', error);

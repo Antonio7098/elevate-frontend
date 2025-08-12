@@ -42,7 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
 
   const navigationItems: NavigationItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: <FiHome className={iconClassName} /> },
-    { name: 'Folders', href: '/folders', icon: <FiFolder className={iconClassName} /> },
+    { name: 'Library', href: '/library', icon: <FiFolder className={iconClassName} /> },
     { name: 'Review', href: '/review', icon: <FiBookOpen className={iconClassName} /> },
     { name: 'AI Chat', href: '/chat', icon: <FiMessageSquare className={iconClassName} /> },
     { name: 'My Progress', href: '/my-progress', icon: <FiBarChart2 className={iconClassName} /> },

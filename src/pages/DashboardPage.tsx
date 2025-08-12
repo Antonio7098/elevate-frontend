@@ -90,14 +90,14 @@ const DashboardPage: React.FC = () => {
   if (error) {
     return (
       <div className={`page-container ${styles.pageContainer}`}>
-        <div className={`card ${styles.errorCard}`}>
+        <div className={styles.errorCard}>
           <h1 className={styles.welcome}>Offline Mode</h1>
           <p className={styles.welcomeMessage}>
             Could not connect to the server. Displaying placeholder data.
           </p>
         </div>
         <div className={styles.dashboardContainer}>
-          <div className={`${styles.mainColumn} card`}>
+          <div className={styles.mainColumn}>
             <TodaysTasksWidget 
               dueToday={mockDashboardData.dueToday} 
               onStartTasks={handleBeginTodaysTasks}
@@ -105,7 +105,7 @@ const DashboardPage: React.FC = () => {
               error={tasksError}
             />
           </div>
-          <div className={`${styles.sidebar} card`}>
+          <div className={styles.sidebar}>
             <RecentProgressWidget recentProgress={mockDashboardData.recentProgress} />
           </div>
         </div>
@@ -115,7 +115,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className={`page-container ${styles.pageContainer}`}>
-      <div className="card">
+      <div className={styles.welcomeCard}>
         <h1 className={styles.welcome}>Welcome back, Antonio!</h1>
         <p className={styles.welcomeMessage}>
           Your hard work is really paying off! I've noticed you've recently pushed the mastery on your "Advanced Calculus" set up to 85% – that's fantastic progress on a tough subject.
@@ -126,7 +126,7 @@ const DashboardPage: React.FC = () => {
       </div>
       
       <div className={styles.dashboardContainer}>
-        <div className={`${styles.mainColumn} card`}>
+        <div className={styles.mainColumn}>
           <TodaysTasksWidget 
             dueToday={dashboardData?.dueToday || []} 
             onStartTasks={handleBeginTodaysTasks}
@@ -134,7 +134,7 @@ const DashboardPage: React.FC = () => {
             error={tasksError}
           />
         </div>
-        <div className={`${styles.sidebar} card`}>
+        <div className={styles.sidebar}>
           <RecentProgressWidget recentProgress={dashboardData?.recentProgress || []} />
         </div>
       </div>

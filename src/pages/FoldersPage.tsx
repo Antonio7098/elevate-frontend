@@ -6,6 +6,7 @@ import { CreateFolderModal } from '../components/modals/CreateFolderModal';
 import { AddContentModal } from '../components/modals/AddContentModal';
 import { createFolder, getFolder, getFolders } from '../services/folderService';
 import { getLearningBlueprints } from '../services/learningBlueprintService';
+import LoadingText from '../components/LoadingText';
 import type { Folder } from '../types/folder';
 import type { QuestionSet, LearningBlueprint } from '../types/questionSet';
 import type { Note } from '../types/note.types';
@@ -351,13 +352,13 @@ export default function FoldersPage() {
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h1 className={styles.title}>Loading...</h1>
+            <h1 className={styles.title}><LoadingText /></h1>
           </div>
         </div>
         <div className={styles.folderList}>
           <div className={styles.folderItem}>
             <FiLoader className={styles.spinner} />
-            Loading content...
+            <TextWaveEffect text="Loading content..." color="#007bff" effect="gradient" />
           </div>
         </div>
       </div>

@@ -5,22 +5,22 @@ import type { EnhancedQuestionSet } from '../types/questionSet';
 // Get all question sets for a folder
 export const getQuestionSets = async (folderId: string): Promise<QuestionSet[]> => {
   try {
-    // First try the nested route approach
+    // First try the flat approach with query parameter (most likely to work)
     try {
-      const response = await apiClient.get<QuestionSet[]>(`/folders/${folderId}/questionsets`);
+      const response = await apiClient.get<QuestionSet[]>(`/questionsets?folderId=${folderId}`);
       return response.data;
     } catch {
-      // Try hyphenated nested route
+      // Try nested route approach
       try {
-        const response = await apiClient.get<QuestionSet[]>(`/folders/${folderId}/question-sets`);
+        const response = await apiClient.get<QuestionSet[]>(`/folders/${folderId}/questionsets`);
         return response.data;
       } catch {
-        // If that fails, try the flat approach with query parameter
+        // Try hyphenated nested route
         try {
-          const response = await apiClient.get<QuestionSet[]>(`/questionsets?folderId=${folderId}`);
+          const response = await apiClient.get<QuestionSet[]>(`/folders/${folderId}/question-sets`);
           return response.data;
         } catch {
-          // Try hyphenated flat route
+          // Try hyphenated flat route as last resort
           const response = await apiClient.get<QuestionSet[]>(`/question-sets?folderId=${folderId}`);
           return response.data;
         }
@@ -65,21 +65,22 @@ export const getAllQuestionSets = async (): Promise<EnhancedQuestionSet[]> => {
 
 export const getQuestionSet = async (folderId: string, questionSetId: string): Promise<QuestionSet> => {
   try {
-    // First try the nested route approach
+    // First try the direct approach (most likely to work)
     try {
-      const response = await apiClient.get<QuestionSet>(`/folders/${folderId}/questionsets/${questionSetId}`);
+      const response = await apiClient.get<QuestionSet>(`/questionsets/${questionSetId}`);
       return response.data;
     } catch {
-      // Try hyphenated nested route
+      // Try nested route approach
       try {
-        const response = await apiClient.get<QuestionSet>(`/folders/${folderId}/question-sets/${questionSetId}`);
+        const response = await apiClient.get<QuestionSet>(`/folders/${folderId}/questionsets/${questionSetId}`);
         return response.data;
       } catch {
-        // If that fails, try the direct approach
+        // Try hyphenated nested route
         try {
-          const response = await apiClient.get<QuestionSet>(`/questionsets/${questionSetId}`);
+          const response = await apiClient.get<QuestionSet>(`/folders/${folderId}/question-sets/${questionSetId}`);
           return response.data;
         } catch {
+          // Try hyphenated direct route as last resort
           const response = await apiClient.get<QuestionSet>(`/question-sets/${questionSetId}`);
           return response.data;
         }
@@ -94,11 +95,11 @@ export const getQuestionSet = async (folderId: string, questionSetId: string): P
 export const getQuestionSetByIdAny = async (questionSetId: string): Promise<any> => {
   // Try common endpoints without folder context
   try {
-    const res = await apiClient.get(`/question-sets/${questionSetId}`);
+    const res = await apiClient.get(`/questionsets/${questionSetId}`);
     return res.data;
   } catch {
     try {
-      const res = await apiClient.get(`/questionsets/${questionSetId}`);
+      const res = await apiClient.get(`/question-sets/${questionSetId}`);
       return res.data;
     } catch (error) {
       console.error(`Failed to fetch question set by id ${questionSetId}:`, error);
@@ -171,7 +172,7 @@ export const deleteQuestionSet = async (folderId: string, questionSetId: string)
         try {
           await apiClient.delete(`/questionsets/${questionSetId}`);
         } catch {
-          await apiClient.delete(`/question-sets/${questionSetId}`);
+                      await apiClient.delete(`/question-sets/${questionSetId}`);
         }
       }
     }
@@ -198,16 +199,16 @@ export const updateQuestionSet = async (questionSetId: string, data: UpdateQuest
   try {
     // Try direct first
     try {
-      const response = await apiClient.put<QuestionSet>(`/questionsets/${questionSetId}`, data);
+      const response = await apiClient.put<QuestionSet>(`/api/questionsets/${questionSetId}`, data);
       return response.data;
     } catch {
       // Try alternative direct hyphenated
       try {
-        const response = await apiClient.put<QuestionSet>(`/question-sets/${questionSetId}`, data);
+        const response = await apiClient.put<QuestionSet>(`/api/question-sets/${questionSetId}`, data);
         return response.data;
       } catch {
         // Try nested alt
-        const response = await apiClient.put<QuestionSet>(`/folders/questionsets/${questionSetId}`, data);
+        const response = await apiClient.put<QuestionSet>(`/api/folders/questionsets/${questionSetId}`, data);
         return response.data;
       }
     }

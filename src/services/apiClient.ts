@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 // Development mode flag - set to true to use mock data
-const USE_MOCK_DATA = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_AUTH === 'true';
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_AUTH === 'true';
 
 console.log("🟢 [apiClient] Initializing API client");
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: '/api', // Use relative URL to go through Vite proxy
   headers: {
     'Content-Type': 'application/json',
   },
@@ -118,7 +118,7 @@ apiClient.interceptors.response.use(
       });
       // Add a more user-friendly tip for the most common cause of this error.
       if (error.message === 'Network Error') {
-        console.error('💡 Tip: Please check if your backend server is running on http://localhost:3000 and that there are no network connectivity issues.');
+        console.error('💡 Tip: Please check if your backend server is running and that there are no network connectivity issues.');
       }
     } else {
       console.error('❌ [apiClient] Request setup error:', error.message);

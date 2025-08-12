@@ -14,6 +14,7 @@ import { createQuestionSet } from '../services/questionSetService';
 import { createQuestion } from '../services/questionService';
 import type { Folder } from '../types/folder';
 import styles from './CreateQuestionSetPage.module.css';
+import TextWaveEffect from '../components/TextWaveEffect';
 
 // Focus options for AI question generation
 const FOCUS_OPTIONS = [
@@ -189,7 +190,7 @@ const CreateQuestionSetPage = () => {
             {isFetchingFolders ? (
               <div className={styles.loading}>
                 <FiLoader className={styles.spinner} />
-                Loading folders...
+                <TextWaveEffect text="Loading folders..." color="#007bff" effect="gradient" />
               </div>
             ) : (
               <>

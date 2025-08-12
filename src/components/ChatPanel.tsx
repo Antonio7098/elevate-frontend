@@ -134,32 +134,7 @@ const ChatPanel: React.FC = () => {
   return (
     <div className={styles.panelContainer}>
       <div className={styles.headerSmall}>AI Chat</div>
-      <div className={styles.contextSelector}>
-        <span>{isLoadingFolders ? <FiLoader size={16} /> : <FiFolder size={16} />}</span>
-        <select
-          className={styles.input}
-          value={context.folderId || ''}
-          onChange={handleFolderChange}
-          disabled={isLoadingFolders}
-        >
-          <option value="">All Folders</option>
-          {folders.map(folder => (
-            <option key={folder.id} value={folder.id}>{folder.name}</option>
-          ))}
-        </select>
-        <span>{isLoadingQuestionSets ? <FiLoader size={16} /> : <FiBook size={16} />}</span>
-        <select
-          className={styles.input}
-          value={context.questionSetId || ''}
-          onChange={e => setContext(prev => ({ ...prev, questionSetId: e.target.value || undefined }))}
-          disabled={isLoadingQuestionSets || !context.folderId}
-        >
-          <option value="">All Question Sets</option>
-          {questionSets.map(qs => (
-            <option key={qs.id} value={qs.id}>{qs.name}</option>
-          ))}
-        </select>
-      </div>
+      {/* Context controls removed for a cleaner panel */}
       <div className={styles.messagesPanel}>
         {messages.length === 0 ? (
           <div className={styles.messageAi}>
@@ -172,7 +147,7 @@ const ChatPanel: React.FC = () => {
         )}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSendMessage} className={styles.inputRowPanel}>
+      <form onSubmit={handleSendMessage} className={styles.inputRowPanel} style={{ borderTop: 'none' }}>
         <input
           type="text"
           value={input}

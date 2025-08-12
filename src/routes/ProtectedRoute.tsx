@@ -1,11 +1,13 @@
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import type { ReactNode } from 'react';
+import TextWaveEffect from '../components/TextWaveEffect';
 
 import styles from './ProtectedRoute.module.css';
 const Loading = () => (
   <div className={styles.loadingRoot}>
     <div className={styles.spinner}></div>
+    <TextWaveEffect text="Loading..." color="#007bff" effect="gradient" />
   </div>
 );
 

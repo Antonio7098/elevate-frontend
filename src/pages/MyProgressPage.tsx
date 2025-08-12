@@ -13,6 +13,8 @@ import { getQuestionSets, pinQuestionSet } from '../services/questionSetService'
 import type { Folder } from '../types/folder';
 import type { QuestionSet } from '../types/questionSet';
 import CarouselItemCard from '../components/stats/CarouselItemCard';
+import LoadingText from '../components/LoadingText';
+import TextWaveEffect from '../components/TextWaveEffect';
 
 type ProgressItem = (Folder | QuestionSet) & { isPinned: boolean };
 
@@ -193,7 +195,7 @@ const SubfolderList: React.FC<{
           </div>
           {expanded[sub.id] && (
             <div style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
-              {loading[sub.id] && <span>Loading...</span>}
+              {loading[sub.id] && <span><LoadingText /></span>}
               {subfolderData[sub.id] && subfolderData[sub.id].subfolders && (
                 <SubfolderList subfolders={subfolderData[sub.id].subfolders} navigate={navigate} />
               )}
@@ -559,7 +561,7 @@ const MyProgressPage: React.FC = () => {
   // Render logic will be updated later to show specific views
   // For now, let's keep the overall loading/error/data check for the default view
   if (loadingOverall) {
-    return <div className={styles.centered}>Loading...</div>;
+    return <div className={styles.centered}><LoadingText /></div>;
   }
   if (errorOverall) {
     return <div className={styles.centered}>{errorOverall}</div>;
@@ -570,7 +572,7 @@ const MyProgressPage: React.FC = () => {
   }
   // SET VIEW
   if (setId) {
-    if (loadingSet) return <div className={styles.centered}>Loading Set Details...</div>;
+    if (loadingSet) return <div className={styles.centered}><TextWaveEffect text="Loading Set Details..." color="#007bff" effect="gradient" /></div>;
     if (errorSet) return <div className={styles.centered}>{errorSet}</div>;
     if (!setDetails) return <div className={styles.centered}>Set details not found.</div>;
 
@@ -614,7 +616,7 @@ const MyProgressPage: React.FC = () => {
 
   // FOLDER VIEW
   if (folderId) {
-    if (loadingFolder) return <div className={styles.centered}>Loading Folder Details...</div>;
+    if (loadingFolder) return <div className={styles.centered}><TextWaveEffect text="Loading Folder Details..." color="#007bff" effect="gradient" /></div>;
     if (errorFolder) return <div className={styles.centered}>{errorFolder}</div>;
     if (!folderDetails) return <div className={styles.centered}>Folder details not found.</div>;
     

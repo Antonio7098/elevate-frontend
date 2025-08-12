@@ -16,49 +16,263 @@
 .welcomeMessage {
   font-size: 1.1rem;
   line-height: 1.7;
-  margin: 0 0 2rem 0;
+  margin: 0 0 var(--space-md) 0;
+  padding: var(--space-md);
   background-color: var(--color-surface-white);
-  border: var(--border-medium) solid var(--color-border);
-  border-radius: var(--radius-chat-input);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcomeMessage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--border-thin);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.welcomeMessage:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-2px);
+}
+
+.welcomeMessage:hover::before {
+  opacity: 1;
 }
 
 .welcomeMessage:last-child {
-  margin-bottom: 0;
+  margin-bottom: var(--space-lg);
+}
+
+.welcomeCard {
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-white);
+  padding: var(--space-md);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--space-lg);
+}
+
+.welcomeCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--border-thin);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.welcomeCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-2px);
+}
+
+.welcomeCard:hover::before {
+  opacity: 1;
 }
 
 .dashboardContainer {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 3rem;
-  margin-bottom: 3rem;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
 }
 
 .card {
-  margin-bottom: 2rem;
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-white);
+  padding: var(--space-md);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--border-thin);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-4px);
+}
+
+.card:hover::before {
+  opacity: 1;
 }
 
 .mainColumn {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  background-color: var(--color-surface-white);
-  border: var(--border-medium) solid var(--color-border);
-  border-radius: var(--radius-chat-input);
+  gap: var(--space-md);
+}
+
+.mainColumn > * {
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-white);
+  padding: var(--space-md);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.mainColumn > *::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--border-thin);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mainColumn > *:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-4px);
+}
+
+.mainColumn > *:hover::before {
+  opacity: 1;
+}
+
+/* Override internal widget card styling to avoid conflicts */
+.mainColumn .card {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.mainColumn .card:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+/* Ensure proper spacing for widget content */
+.mainColumn .widgetHeader {
+  margin-bottom: var(--space-md);
+}
+
+.mainColumn .title {
+  margin-bottom: var(--space-md);
+}
+
+.mainColumn .cardsContainer {
+  gap: var(--space-sm);
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  background-color: var(--color-surface-white);
-  border: var(--border-medium) solid var(--color-border);
-  border-radius: var(--radius-chat-input);
+  gap: var(--space-md);
+}
+
+.sidebar > * {
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-white);
+  padding: var(--space-md);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar > *::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--border-thin);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar > *:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-4px);
+}
+
+.sidebar > *:hover::before {
+  opacity: 1;
+}
+
+/* Override internal widget list styling to avoid conflicts */
+.sidebar .list {
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar .listItem {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar .listItem:hover {
+  background: transparent;
+  border: none;
+  transform: none;
+}
+
+/* Ensure proper spacing for sidebar widget content */
+.sidebar .title {
+  margin-bottom: var(--space-md);
+}
+
+.sidebar .list {
+  gap: var(--space-sm);
 }
 
 .errorCard {
   background-color: var(--color-surface-white);
-  border: var(--border-medium) solid var(--color-border);
-  border-radius: var(--radius-chat-input);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.errorCard:hover {
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-2px);
 }
 
 /* Desktop styles */

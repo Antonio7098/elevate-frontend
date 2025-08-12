@@ -1,7 +1,7 @@
 import type { Question } from '../types/question';
 import { apiClient } from './apiClient';
 
-const AI_EVALUATION_ENDPOINT = '/ai/evaluate-answer';
+const AI_EVALUATION_ENDPOINT = '/api/ai/evaluate-answer';
 
 export interface EvaluationResult {
   isCorrect: boolean | null;

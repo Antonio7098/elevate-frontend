@@ -27,6 +27,6 @@ export interface TodaysTasksResponse {
 
 export async function getTodaysTasks(mockToday?: string): Promise<TodaysTasksResponse> {
   const params = mockToday ? { mockToday } : undefined;
-  const res = await apiClient.get<TodaysTasksResponse>('/todays-tasks', { params });
+      const res = await apiClient.get<TodaysTasksResponse>('/api/todays-tasks', { params });
   return res.data;
 }

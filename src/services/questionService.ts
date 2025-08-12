@@ -8,7 +8,7 @@ export const getQuestions = async (questionSetId: string, folderId?: string): Pr
     if (folderId) {
       try {
         console.log(`Trying to fetch questions using nested folder route: /folders/${folderId}/questionsets/${questionSetId}/questions`);
-        const response = await apiClient.get<Question[]>(`/folders/${folderId}/questionsets/${questionSetId}/questions`);
+        const response = await apiClient.get<Question[]>(`/api/folders/${folderId}/questionsets/${questionSetId}/questions`);
         return response.data;
       } catch {
         console.log(`Folder-nested route failed, trying alternative endpoints`);
@@ -19,12 +19,12 @@ export const getQuestions = async (questionSetId: string, folderId?: string): Pr
     // Try the direct question set route
     try {
       console.log(`Trying to fetch questions using direct route: /questionsets/${questionSetId}/questions`);
-      const response = await apiClient.get<Question[]>(`/questionsets/${questionSetId}/questions`);
+      const response = await apiClient.get<Question[]>(`/api/questionsets/${questionSetId}/questions`);
       return response.data;
     } catch {
       // If that fails, try the query parameter approach
       console.log(`Direct route failed, trying query parameter approach`);
-      const response = await apiClient.get<Question[]>(`/questions?questionSetId=${questionSetId}`);
+      const response = await apiClient.get<Question[]>(`/api/questions?questionSetId=${questionSetId}`);
       return response.data;
     }
   } catch (error) {
@@ -39,12 +39,12 @@ export const getQuestion = async (questionSetId: string, questionId: string): Pr
   try {
     // Try the nested route approach
     try {
-      const response = await apiClient.get<Question>(`/questionsets/${questionSetId}/questions/${questionId}`);
+      const response = await apiClient.get<Question>(`/api/questionsets/${questionSetId}/questions/${questionId}`);
       return response.data;
     } catch {
       // If that fails, try the direct approach
       console.log(`Trying alternative endpoint for question ${questionId}`);
-      const response = await apiClient.get<Question>(`/questions/${questionId}`);
+      const response = await apiClient.get<Question>(`/api/questions/${questionId}`);
       return response.data;
     }
   } catch (error) {
@@ -72,12 +72,12 @@ export const updateQuestion = async (questionSetId: string, questionId: string, 
   try {
     // Try the nested route approach
     try {
-      const response = await apiClient.put<Question>(`/questionsets/${questionSetId}/questions/${questionId}`, data);
+      const response = await apiClient.put<Question>(`/api/questionsets/${questionSetId}/questions/${questionId}`, data);
       return response.data;
     } catch {
       // If that fails, try the direct approach
       console.log(`Trying alternative endpoint for updating question ${questionId}`);
-      const response = await apiClient.put<Question>(`/questions/${questionId}`, data);
+      const response = await apiClient.put<Question>(`/api/questions/${questionId}`, data);
       return response.data;
     }
   } catch (error) {
@@ -91,11 +91,11 @@ export const deleteQuestion = async (questionSetId: string, questionId: string):
   try {
     // Try the nested route approach
     try {
-      await apiClient.delete(`/api/questionsets/${questionSetId}/questions/${questionId}`);
+      await apiClient.delete(`/questionsets/${questionSetId}/questions/${questionId}`);
     } catch {
       // If that fails, try the direct approach
       console.log(`Trying alternative endpoint for deleting question ${questionId}`);
-      await apiClient.delete(`/api/questions/${questionId}`);
+      await apiClient.delete(`/questions/${questionId}`);
     }
   } catch (error) {
     console.error(`Failed to delete question ${questionId} in question set ${questionSetId}:`, error);

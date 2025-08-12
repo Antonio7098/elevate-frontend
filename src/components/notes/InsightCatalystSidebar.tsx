@@ -3,6 +3,7 @@ import type { InsightCatalyst } from '../../types/insightCatalyst.types';
 import { FiPlus } from 'react-icons/fi';
 import { getCatalystsForNote, createCatalyst } from '../../services/insightCatalystService';
 import InsightCatalystDisplay from '../insightCatalysts/InsightCatalystDisplay';
+import LoadingText from '../LoadingText';
 import styles from './InsightCatalystSidebar.module.css';
 
 interface ContentLink {
@@ -59,7 +60,7 @@ export const InsightCatalystSidebar = ({ noteId, noteHeadings = [], questionLink
   const hasQuestionLinks = questionLinks.length > 0;
 
   if (isLoading) {
-    return <div className={styles.sidebar}>Loading...</div>;
+    return <div className={styles.sidebar}><LoadingText /></div>;
   }
 
   return (

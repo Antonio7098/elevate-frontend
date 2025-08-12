@@ -75,7 +75,7 @@ export const ChatSidebar = ({ noteId }: ChatSidebarProps) => {
         {isHistoryLoading ? (
           <div className={styles.emptyState}>
             <div className={styles.spinner}></div>
-            <p>Loading history...</p>
+            <TextWaveEffect text="Loading history..." color="#007bff" effect="gradient" />
           </div>
         ) : messages.length === 0 ? (
           <div className={styles.emptyState}>

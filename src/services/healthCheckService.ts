@@ -24,7 +24,7 @@ const aiServiceClient = axios.create({
 export const checkApiHealth = async (): Promise<boolean> => {
   try {
     console.log('🩺 [HealthCheck] Checking API health...');
-    const response = await apiClient.get('health');
+    const response = await apiClient.get('/health');
     console.log(`🩺 [HealthCheck] API health check response: ${response.status}`);
     return response.status === 200;
   } catch (error: unknown) {

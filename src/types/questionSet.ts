@@ -61,6 +61,8 @@ export interface EnhancedQuestionSet {
 export interface LearningBlueprint {
   id: string;
   sourceText: string;
+  title?: string;
+  description?: string;
   blueprintJson: unknown; // The parsed blueprint from AI
   // Optional folder association if supported by API
   folderId?: string;

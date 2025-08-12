@@ -89,18 +89,20 @@ export interface LearningBlueprint {
 }
 
 // Mindmap types used by React Flow and API contracts
-export type NodeKind = 'section' | 'proposition' | 'entity' | 'process' | 'group';
+export type NodeKind = 'section' | 'proposition' | 'entity' | 'process' | 'group' | 'default';
 
 export interface MindmapNode {
   id: string;
-  type: NodeKind;
+  type: string; // Allow any string type for React Flow compatibility
   data: {
-    title: string;
+    label: string; // Changed from 'title' to 'label' to match backend
     description?: string | null;
     primitiveType?: string | null;
-  };
+  }
   position: { x: number; y: number };
   parentId?: string | null;
+  width?: number; // Add optional width/height for React Flow
+  height?: number;
 }
 
 export type RelationKind = 'prereq' | 'part-of' | 'causes' | 'custom';

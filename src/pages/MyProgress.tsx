@@ -9,6 +9,30 @@ import { getFolderStats, getSetStats } from '../services/statsService';
 import MasteryOverTimeChart from '../components/stats/MasteryOverTimeChart';
 import UUEScoresWidget from '../components/stats/UUEScoresWidget';
 import SRStatusWidget from '../components/stats/SRStatusWidget';
+import TextWaveEffect from '../components/TextWaveEffect';
+
+// Global Loading component
+const Loading = () => (
+  <div style={{ 
+    display: 'flex', 
+    flexDirection: 'column',
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    padding: '20px',
+    marginBottom: '20px'
+  }}>
+    <div style={{
+      border: '4px solid #e5e7eb', 
+      borderTop: '4px solid #C0C0C0', 
+      borderRadius: '50%', 
+      width: 48, 
+      height: 48, 
+      animation: 'spin 1s linear infinite'
+    }} />
+    <TextWaveEffect text="Loading..." color="#C0C0C0" effect="gradient" />
+    <style>{'@keyframes spin { to { transform: rotate(360deg); } }'}</style>
+  </div>
+);
 
 const MyProgress: React.FC = () => {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
@@ -17,7 +41,7 @@ const MyProgress: React.FC = () => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [questionSets, setQuestionSets] = useState<QuestionSet[]>([]);
 
-  const [isLoadingFolders, setIsLoadingFolders] = useState<boolean>(false);
+  const [isLoadingFolders, setIsLoadingFolders] = useState<boolean>(true); // Set to true to show wave effect
   const [isLoadingSets, setIsLoadingSets] = useState<boolean>(false);
 
   const [errorFolders, setErrorFolders] = useState<string | null>(null);
@@ -34,6 +58,7 @@ const MyProgress: React.FC = () => {
   const [errorSetStats, setErrorSetStats] = useState<string | null>(null);
 
   // Fetch folders on component mount
+  /*
   useEffect(() => {
     const fetchFolders = async () => {
       setIsLoadingFolders(true);
@@ -49,6 +74,7 @@ const MyProgress: React.FC = () => {
     };
     fetchFolders();
   }, []);
+  */
 
   // Fetch question sets when selectedFolderId changes
   useEffect(() => {
@@ -139,6 +165,19 @@ const MyProgress: React.FC = () => {
     <div className={styles.container}>
       <h1 className={styles.title}>Statistics</h1>
       
+      {/* Permanent Loading component to show the wave effect */}
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: '30px', 
+        padding: '20px',
+        border: '2px solid #C0C0C0',
+        borderRadius: '10px',
+        backgroundColor: '#f8f9fa'
+      }}>
+        <h3 style={{ marginBottom: '15px', color: '#666' }}>Wave Effect Demo</h3>
+        <Loading />
+      </div>
+      
       <div className={styles.selectors}>
         <div className={styles.selectorItem}>
           <label htmlFor="folder-select">Select Folder:</label>
@@ -155,8 +194,8 @@ const MyProgress: React.FC = () => {
               </option>
             ))}
           </select>
-          {isLoadingFolders && <p>Loading folders...</p>}
-          {errorFolders && <p className={styles.errorText}>{errorFolders}</p>}
+          {isLoadingFolders && <TextWaveEffect text="Loading folders..." color="#C0C0C0" effect="gradient" />}
+          {/* {errorFolders && <p className={styles.errorText}>{errorFolders}</p>} */}
         </div>
 
         <div className={styles.selectorItem}>
@@ -174,14 +213,14 @@ const MyProgress: React.FC = () => {
               </option>
             ))}
           </select>
-          {selectedFolderId && isLoadingSets && <p>Loading question sets...</p>}
+          {selectedFolderId && isLoadingSets && <TextWaveEffect text="Loading question sets..." color="#007bff" effect="gradient" />}
           {selectedFolderId && !isLoadingSets && errorSets && <p className={styles.errorText}>{errorSets}</p>}
           {selectedFolderId && !isLoadingSets && !errorSets && questionSets.length === 0 && <p>No question sets in this folder.</p>}
         </div>
       </div>
 
       <div className={`${styles.card} ${styles.statsDisplayArea}`}>
-        {isLoadingFolderStats && <p>Loading folder statistics...</p>}
+        {isLoadingFolderStats && <TextWaveEffect text="Loading folder statistics..." color="#007bff" effect="gradient" />}
         {errorFolderStats && <p className={styles.errorText}>{errorFolderStats}</p>}
         {/* Folder Stats Display */}
         {folderStats && !selectedSetId ? (
@@ -209,7 +248,7 @@ const MyProgress: React.FC = () => {
           </div>
         ) : null}
 
-        {isLoadingSetStats && <p>Loading question set statistics...</p>}
+        {isLoadingSetStats && <TextWaveEffect text="Loading question set statistics..." color="#007bff" effect="gradient" />}
         {errorSetStats && <p className={styles.errorText}>{errorSetStats}</p>}
         {/* Set Stats Display */}
         {setStats && selectedSetId ? (

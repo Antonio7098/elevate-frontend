@@ -5,6 +5,7 @@ import type { FolderStatsDetails } from '../api/stats';
 import MasteryLineChart from '../components/stats/MasteryLineChart';
 import CircularProgress from '../components/stats/CircularProgress';
 import { UUESegmentedProgressBar } from '../components/stats/SegmentedProgressBar';
+import LoadingText from '../components/LoadingText';
 import styles from './FolderProgressView.module.css';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
 
@@ -31,7 +32,7 @@ const FolderProgressView: React.FC = () => {
   }, [folderId]);
 
   if (loading) {
-    return <div className={styles.centered}>Loading...</div>;
+    return <div className={styles.centered}><LoadingText /></div>;
   }
   if (error) {
     return <div className={styles.centered}>{error}</div>;

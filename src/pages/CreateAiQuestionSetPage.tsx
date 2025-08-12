@@ -12,6 +12,7 @@ import {
 import { generateAiPoweredSet } from '../services/aiService';
 import { getFolders } from '../services/folderService';
 import type { Folder } from '../types/folder';
+import TextWaveEffect from '../components/TextWaveEffect';
 
 // Focus options for AI question generation
 const FOCUS_OPTIONS = [
@@ -164,7 +165,7 @@ const CreateAiQuestionSetPage = () => {
             {isFetchingFolders ? (
               <div className={styles.input} style={{ display: 'flex', alignItems: 'center' }}>
                 <FiLoader className="animate-spin" style={{ height: 20, width: 20, marginRight: 8 }} />
-                Loading folders...
+                <TextWaveEffect text="Loading folders..." color="#007bff" effect="gradient" />
               </div>
             ) : (
               <>

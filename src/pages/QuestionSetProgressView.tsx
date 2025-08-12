@@ -5,6 +5,7 @@ import type { QuestionSetStatsDetails, QuestionStat } from '../api/stats';
 import MasteryLineChart from '../components/stats/MasteryLineChart';
 import { UUESegmentedProgressBar } from '../components/stats/SegmentedProgressBar';
 import QuestionStatItem from '../components/stats/QuestionStatItem';
+import LoadingText from '../components/LoadingText';
 import styles from './QuestionSetProgressView.module.css';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
 
@@ -36,7 +37,7 @@ const QuestionSetProgressView: React.FC = () => {
   }, [setId]);
 
   if (loading) {
-    return <div className={styles.centered}>Loading...</div>;
+    return <div className={styles.centered}><LoadingText /></div>;
   }
   if (error) {
     return <div className={styles.centered}>{error}</div>;

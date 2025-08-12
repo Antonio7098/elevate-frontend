@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getLearningBlueprints } from '../services/learningBlueprintService';
 import type { LearningBlueprint } from '../types/questionSet';
 import { FiLoader, FiAlertCircle, FiEye } from 'react-icons/fi';
+import TextWaveEffect from '../components/TextWaveEffect';
 import styles from './BlueprintsPage.module.css';
 
 const BlueprintsPage: React.FC = () => {
@@ -33,7 +34,7 @@ const BlueprintsPage: React.FC = () => {
       {isLoading && (
         <div className={styles.centeredMessage}>
           <FiLoader className={styles.spinner} />
-          <p>Loading blueprints...</p>
+          <TextWaveEffect text="Loading blueprints..." color="#007bff" effect="gradient" />
         </div>
       )}
 

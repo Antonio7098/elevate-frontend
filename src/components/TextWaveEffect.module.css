@@ -22,7 +22,7 @@
   top: 0;
   left: 0;
   z-index: 2;
-  color: var(--wave-color, #007bff);
+  color: var(--wave-color, #C0C0C0); /* Updated default to silver */
   font-weight: inherit;
   font-size: inherit;
   line-height: inherit;
@@ -37,14 +37,14 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    var(--wave-color, #007bff) 50%,
+    var(--wave-color, #C0C0C0) 50%, /* Updated default to silver */
     transparent 100%
   );
   background-size: 200% 100%;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: wave-sweep 0.8s ease-out;
+  animation: wave-sweep 2s ease-out infinite; /* Made infinite and slowed down */
 }
 
 @keyframes wave-sweep {
@@ -61,16 +61,6 @@
   filter: blur(0.5px);
   transform: scale(1.02);
   transition: all 0.3s ease;
-}
-
-/* Hover states */
-.text-wave-container:hover .text-original {
-  opacity: 0.3;
-  transition: opacity 0.3s ease;
-}
-
-.text-wave-container:hover .text-wave {
-  filter: drop-shadow(0 0 2px var(--wave-color, #007bff));
 }
 
 /* Responsive adjustments */

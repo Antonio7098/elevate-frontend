@@ -3,7 +3,7 @@ import type { ReviewItem } from '../types/review';
 
 export const fetchTodaysReviews = async (): Promise<ReviewItem[]> => {
   try {
-    const response = await apiClient.get<ReviewItem[]>('/reviews/today');
+    const response = await apiClient.get<ReviewItem[]>('/api/reviews/today');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch today\'s reviews:', error);

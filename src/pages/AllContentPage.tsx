@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FiAlertCircle, FiLoader, FiChevronRight, FiFileText, FiBook } from 'react-icons/fi';
+import LoadingText from '../components/LoadingText';
 import styles from './AllContentPage.module.css';
 
 interface Question {
@@ -148,12 +149,12 @@ export function AllContentPage() {
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h1 className={styles.title}>Loading...</h1>
+            <h1 className={styles.title}><LoadingText /></h1>
           </div>
         </div>
         <div className={styles.loadingContent}>
           <FiLoader className={styles.spinner} />
-          Loading content...
+          <LoadingText text="Loading content..." />
         </div>
       </div>
     );
