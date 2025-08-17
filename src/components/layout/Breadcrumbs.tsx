@@ -23,6 +23,17 @@ const Breadcrumbs: React.FC = () => {
     crumbs.push({ label: 'Set', to: `/my-progress/sets/${params.setId}` });
   }
 
+  // Add breadcrumbs for settings and profile pages
+  if (path === '/settings') {
+    crumbs.length = 0; // Clear existing crumbs
+    crumbs.push({ label: 'Settings', to: '/settings' });
+  }
+  
+  if (path === '/profile') {
+    crumbs.length = 0; // Clear existing crumbs
+    crumbs.push({ label: 'Profile', to: '/profile' });
+  }
+
   return (
     <nav aria-label="Breadcrumb" className={styles.breadcrumbs}>
       {crumbs.map((crumb, idx) => (

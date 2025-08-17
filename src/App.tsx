@@ -1,68 +1,23 @@
-import { BrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import React from 'react';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './routes/blueprintRoutes';
+import { BlueprintProvider } from './contexts/BlueprintContext';
 import { AuthProvider } from './context/AuthProvider';
 import { ThemeProvider } from './context/ThemeProvider';
-import AppRoutes from './routes/AppRoutes';
-import { ErrorBoundary } from 'react-error-boundary';
-import { StrictMode } from 'react';
+import { MockDataProvider } from './contexts/MockDataContext';
 
-console.log("🟢 [App] Initializing application");
-console.log("🔧 [App] Environment variables:", {
-  DEV: import.meta.env.DEV,
-  VITE_USE_MOCK_AUTH: import.meta.env.VITE_USE_MOCK_AUTH,
-  VITE_API_URL: import.meta.env.VITE_API_URL,
-  VITE_FORCE_AI_EVALUATION: import.meta.env.VITE_FORCE_AI_EVALUATION
-});
-
-// Create a basic client
-const queryClient = new QueryClient();
-
-import styles from './App.module.css';
-
-function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
-  console.error('❌ [ErrorFallary] Error caught:', error);
+const App: React.FC = () => {
   return (
-    <div role="alert" className={styles.errorFallback}>
-      <p className={styles.fontBold}>Something went wrong:</p>
-      <pre className={styles.preWrap}>{error.message}</pre>
-      <button
-        onClick={resetErrorBoundary}
-        className={styles.retryBtn}
-      >
-        Try again
-      </button>
-    </div>
+    <ThemeProvider>
+      <AuthProvider>
+        <MockDataProvider>
+          <BlueprintProvider>
+            <RouterProvider router={router} />
+          </BlueprintProvider>
+        </MockDataProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
-}
-
-function App() {
-  console.log("🟢 [App] Rendering application");
-  return (
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <ErrorBoundary
-            FallbackComponent={ErrorFallback}
-            onReset={() => {
-              console.log("🔄 [App] Resetting application state");
-              // Reset the state of your app here
-              window.location.href = '/';
-            }}
-          >
-            <ThemeProvider>
-              <AuthProvider>
-                <div className={styles.bg}>
-                  <AppRoutes />
-                </div>
-              </AuthProvider>
-            </ThemeProvider>
-          </ErrorBoundary>
-        </BrowserRouter>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </StrictMode>
-  );
-}
+};
 
 export default App;

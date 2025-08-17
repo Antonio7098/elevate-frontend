@@ -1,0 +1,62 @@
+.mockDataIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: var(--color-warning-lightest);
+  border: 1px solid var(--color-warning);
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-warning-dark);
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.mockDataIndicator:hover {
+  background: var(--color-warning-light);
+  transform: translateY(-1px);
+}
+
+.icon {
+  font-size: 0.875rem;
+}
+
+.text {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Position variants */
+.mockDataIndicator.topRight {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+.mockDataIndicator.topLeft {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+}
+
+.mockDataIndicator.bottomRight {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+.mockDataIndicator.bottomLeft {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 1000;
+}
+
+
+
+
+

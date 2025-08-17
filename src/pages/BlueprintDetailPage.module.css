@@ -1,19 +1,40 @@
 .container {
-  padding: 2rem;
-  max-width: 1400px;
+  padding: 1rem;
+  max-width: 100%;
   margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--color-surface);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.headerContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .title {
   font-size: 1.8rem;
   font-weight: 600;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin: 0;
 }
 
 .backButton {
@@ -32,33 +53,92 @@
   background-color: var(--color-surface-hover);
 }
 
-.contentGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  height: calc(100vh - 150px);
+.saveButton {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.sourcePanel, .jsonPanel {
+.saveButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.saveButton:disabled {
+  background-color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+.saveError {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flowContainer {
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  min-height: 600px;
+}
+
+.infoPanel {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 1.5rem;
-  overflow-y: auto;
-}
-
-.sourceText {
-  white-space: pre-wrap;
-  line-height: 1.6;
-}
-
-.jsonViewer {
-  background-color: var(--color-background);
   padding: 1rem;
+  max-width: 300px;
+  z-index: 10;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.infoPanel h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.infoPanel h4 {
+  margin: 1rem 0 0.5rem 0;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.infoGrid {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.infoItem {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.sourcePreview {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  background: var(--color-background);
+  padding: 0.5rem;
   border-radius: 4px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  font-family: monospace;
+  border: 1px solid var(--color-border);
 }
 
 .centeredMessage {

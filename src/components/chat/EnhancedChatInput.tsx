@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiPlus, FiSend, FiUpload, FiChevronDown } from 'react-icons/fi';
+import { FiPlus, FiSend, FiUpload, FiChevronDown, FiSquare } from 'react-icons/fi';
 import styles from './EnhancedChatInput.module.css';
 
 interface Mode {
@@ -10,6 +10,8 @@ interface Mode {
 
 interface EnhancedChatInputProps {
   onSendMessage: (message: string, mode?: string, attachments?: File[]) => void;
+  onCancel?: () => void;
+  currentMessage?: string;
   isLoading?: boolean;
   placeholder?: string;
   fullWidth?: boolean; // NEW: stretch to container width
@@ -24,6 +26,8 @@ const modes: Mode[] = [
 
 const EnhancedChatInput: React.FC<EnhancedChatInputProps> = ({
   onSendMessage,
+  onCancel,
+  currentMessage = '',
   isLoading = false,
   placeholder = "Type message here",
   fullWidth = false,
@@ -38,6 +42,13 @@ const EnhancedChatInput: React.FC<EnhancedChatInputProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const modeDropdownRef = useRef<HTMLDivElement>(null);
   const uploadDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Update message when currentMessage prop changes (for restoring cancelled messages)
+  useEffect(() => {
+    if (currentMessage && !isLoading) {
+      setMessage(currentMessage);
+    }
+  }, [currentMessage, isLoading]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -69,6 +80,12 @@ const EnhancedChatInput: React.FC<EnhancedChatInputProps> = ({
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
+    }
+  };
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
     }
   };
 
@@ -208,16 +225,18 @@ const EnhancedChatInput: React.FC<EnhancedChatInputProps> = ({
               </div>
             </div>
 
-            {/* Right Send Button */}
+            {/* Right Send/Stop Button */}
             <button
-              onClick={handleSend}
-              disabled={isLoading || !message.trim()}
-              className={`${styles.actionButton} ${styles.sendButton}`}
+              onClick={isLoading ? handleCancel : handleSend}
+              disabled={!isLoading && !message.trim()}
+              className={`${styles.actionButton} ${styles.sendButton} ${isLoading ? styles.stopButton : ''}`}
               type="button"
             >
-              <div className={styles.loadingSpinner}>
-                <div className={styles.spinner}></div>
-              </div>
+              {isLoading ? (
+                <FiSquare size={16} />
+              ) : (
+                <FiSend size={16} />
+              )}
             </button>
           </div>
         </div>

@@ -35,6 +35,7 @@ const BlueprintsPage = lazy(() => import('../pages/BlueprintsPage'));
 const BlueprintDetailPage = lazy(() => import('../pages/BlueprintDetailPage'));
 const AllContentPage = lazy(() => import('../pages/AllContentPage').then(module => ({ default: module.AllContentPage })));
 const QuestionsPage = lazy(() => import('../pages/QuestionsPage'));
+const IdeaspaceDemoPage = lazy(() => import('../pages/IdeaspaceDemoPage'));
 
 // --- Helper Components ---
 const Loading = () => (
@@ -96,7 +97,9 @@ const ProtectedRoutes = () => {
         <Route path="blueprints" element={<BlueprintsPage />} />
         <Route path="blueprints/:blueprintId" element={<BlueprintDetailPage />} />
         <Route path="blueprints/:blueprintId/mindmap" element={<BlueprintMindmapPage />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="ideaspaces/demo" element={<IdeaspaceDemoPage />} />
+        {/* Temporarily commenting out catch-all route to debug navigation */}
+        {/* <Route path="*" element={<Navigate to="/dashboard" replace />} /> */}
       </Routes>
     </AuthenticatedLayout>
   );

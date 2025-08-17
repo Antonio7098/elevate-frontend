@@ -23,6 +23,9 @@ export default function TextWaveEffect({
   const containerRef = useRef<HTMLDivElement>(null);
   const [wavePosition, setWavePosition] = useState(0);
 
+  // Debug logging
+  console.log('TextWaveEffect rendering with:', { text, color, effect, speed });
+
   useEffect(() => {
     // Always animate, not just on hover
     const startTime = Date.now();
@@ -90,17 +93,27 @@ export default function TextWaveEffect({
       className={`${styles['text-wave-container']} ${className}`}
       style={{
         '--wave-color': color,
+        border: '3px solid red', // Very obvious debug border
+        padding: '8px',
+        display: 'inline-block',
+        backgroundColor: 'lightblue', // Debug background
+        position: 'relative', // Ensure positioning works
+        minHeight: '1.5em' // Ensure minimum height
       } as React.CSSProperties}
     >
       {/* Original text */}
-      <span className={styles['text-original']}>
+      <span className={styles['text-original']} style={{ color: 'black', zIndex: 1 }}>
         {text}
       </span>
       
       {/* Wave overlay */}
       <span 
         className={`${styles['text-wave']} ${effect === 'gradient' ? styles['text-wave-gradient'] : ''}`}
-        style={getWaveStyle()}
+        style={{
+          ...getWaveStyle(),
+          color: color,
+          zIndex: 2
+        }}
       >
         {text}
       </span>

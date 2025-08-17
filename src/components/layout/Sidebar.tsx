@@ -8,9 +8,12 @@ import {
   FiBarChart2,
   FiSettings,
   FiBookOpen,
-  FiLogOut
+  FiLogOut,
+  FiMap,
+  FiUser
 } from 'react-icons/fi';
 import { useAuth } from '../../context/useAuth';
+import styles from './Sidebar.module.css';
 
 interface NavigationItem {
   name: string;
@@ -21,8 +24,6 @@ interface NavigationItem {
 interface SidebarProps {
   onNavigate?: () => void;
 }
-
-import styles from './Sidebar.module.css';
 
 const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
   const { logout, user } = useAuth();
@@ -40,15 +41,40 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
     }
   }, [logout, navigate]); 
 
-  const navigationItems: NavigationItem[] = [
+  const handleProfileClick = useCallback(() => {
+    navigate('/profile');
+  }, [navigate]);
+
+  const handleSettingsClick = useCallback(() => {
+    navigate('/settings');
+  }, [navigate]);
+
+  const originalNavigationItems: NavigationItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: <FiHome className={iconClassName} /> },
-    { name: 'Library', href: '/library', icon: <FiFolder className={iconClassName} /> },
-    { name: 'Review', href: '/review', icon: <FiBookOpen className={iconClassName} /> },
-    { name: 'AI Chat', href: '/chat', icon: <FiMessageSquare className={iconClassName} /> },
+    { name: 'Folders', href: '/folders', icon: <FiFolder className={iconClassName} /> },
+    { name: 'Library', href: '/library', icon: <FiBookOpen className={iconClassName} /> },
     { name: 'My Progress', href: '/my-progress', icon: <FiBarChart2 className={iconClassName} /> },
+    { name: 'Ideaspaces', href: '/blueprints', icon: <FiFolder className={iconClassName} /> },
+  ];
+
+  const blueprintNavigationItems: NavigationItem[] = [
+    { name: 'Ideaspace Dashboard', href: '/blueprints/dashboard', icon: <FiHome className={iconClassName} /> },
+    { name: 'Sections', href: '/blueprints/sections', icon: <FiFolder className={iconClassName} /> },
+    { name: 'Mastery', href: '/blueprints/mastery', icon: <FiBarChart2 className={iconClassName} /> },
+    { name: 'UUE Progression', href: '/blueprints/uue-progression', icon: <FiBookOpen className={iconClassName} /> },
+    { name: 'Questions', href: '/blueprints/questions', icon: <FiMessageSquare className={iconClassName} /> },
+    { name: 'Mind Map', href: '/blueprints/mindmap', icon: <FiMap className={iconClassName} /> },
+    { name: 'Ideaspace', href: '/blueprints/ideaspace', icon: <FiMap className={iconClassName} /> },
+    { name: 'Pathways', href: '/blueprints/pathways', icon: <FiMap className={iconClassName} /> },
+    { name: 'Chat', href: '/blueprints/chat', icon: <FiMessageSquare className={iconClassName} /> },
+  ];
+
+  const utilityItems: NavigationItem[] = [
+    { name: 'Mock Login', href: '/mock-login', icon: <FiLogOut className={iconClassName} /> },
   ];
 
   const bottomNavItems: NavigationItem[] = [
+    { name: 'Profile', href: '/profile', icon: <FiUser className={iconClassName} /> },
     { name: 'Settings', href: '/settings', icon: <FiSettings className={iconClassName} /> },
   ];
   
@@ -71,20 +97,62 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
 
       {/* Main Navigation */}
       <nav className={styles.nav}>
-        {navigationItems.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            className={({ isActive }) =>
-              `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
-            }
-            title={item.name}
-            onClick={onNavigate}
-          >
-            <span className={styles.icon}>{item.icon}</span>
-            <span className={styles.linkText}>{item.name}</span>
-          </NavLink>
-        ))}
+        {/* Original Navigation Section */}
+        <div className={styles.navSection}>
+          <div className={styles.navSectionHeader}>Main Navigation</div>
+          {originalNavigationItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.href}
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
+              }
+              title={item.name}
+              onClick={onNavigate}
+            >
+              <span className={styles.icon}>{item.icon}</span>
+              <span className={styles.linkText}>{item.name}</span>
+            </NavLink>
+          ))}
+        </div>
+
+        {/* Ideaspace Navigation Section */}
+        <div className={styles.navSection}>
+          <div className={styles.navSectionHeader}>Ideaspace System</div>
+          {blueprintNavigationItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.href}
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
+              }
+              title={item.name}
+              onClick={onNavigate}
+            >
+              <span className={styles.icon}>{item.icon}</span>
+              <span className={styles.linkText}>{item.name}</span>
+            </NavLink>
+          ))}
+        </div>
+
+        {/* Utility Items */}
+        <div className={styles.navSection}>
+          <div className={styles.navSectionHeader}>Utilities</div>
+          {utilityItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.href}
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
+              }
+              title={item.name}
+              onClick={onNavigate}
+            >
+              <span className={styles.icon}>{item.icon}</span>
+              <span className={styles.linkText}>{item.name}</span>
+            </NavLink>
+          ))}
+        </div>
         
         {/* Create New Button */}
         <button
@@ -101,29 +169,37 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
       {/* Bottom Navigation */}
       <div className={styles.bottom}>
         <div className={styles.bottomNav}>
-          {/* Settings NavLink */}
-          {bottomNavItems.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.href}
-              className={({ isActive }) =>
-                `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
-              }
-              title={item.name}
-            >
-              <span className={styles.icon}>{item.icon}</span>
-              <span className={styles.linkText}>{item.name}</span>
-            </NavLink>
-          ))}
+          {/* Profile and Settings Buttons */}
+          <button
+            onClick={handleProfileClick}
+            className={styles.navLink}
+            title="Profile"
+          >
+            <span className={styles.icon}><FiUser className={iconClassName} /></span>
+            <span className={styles.linkText}>Profile</span>
+          </button>
+          
+          <button
+            onClick={handleSettingsClick}
+            className={styles.navLink}
+            title="Settings"
+          >
+            <span className={styles.icon}><FiSettings className={iconClassName} /></span>
+            <span className={styles.linkText}>Settings</span>
+          </button>
           
           {/* User Profile */}
           <div className={styles.profileArea}>
             {/* User Profile Clickable Area */}
-            <div className={styles.profileBtn} title={user?.name || 'User'}>
+            <button
+              onClick={handleProfileClick}
+              className={styles.profileBtn}
+              title={user?.name || 'User'}
+            >
               <div className={styles.profileText}>
                 <p style={{ fontSize: '0.875rem', fontWeight: 500, color: '#fff' }}>{user?.name || 'User'}</p>
               </div>
-            </div>
+            </button>
             
             {/* Logout Button */}
             <button

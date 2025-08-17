@@ -2,12 +2,16 @@
   position: relative;
   display: inline-block;
   cursor: pointer;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to visible for debugging */
   font-family: inherit;
   font-size: inherit;
   font-weight: inherit;
   line-height: inherit;
   letter-spacing: inherit;
+  border: 3px solid purple; /* Debug border - very obvious */
+  min-height: 1em; /* Ensure minimum height */
+  background-color: lightyellow; /* Debug background */
+  padding: 4px; /* Debug padding */
 }
 
 .text-original {
@@ -15,6 +19,8 @@
   z-index: 1;
   color: inherit;
   transition: color 0.3s ease;
+  display: block; /* Ensure it's visible */
+  border: 1px solid green; /* Debug border */
 }
 
 .text-wave {
@@ -30,6 +36,8 @@
   white-space: pre;
   pointer-events: none;
   will-change: clip-path;
+  display: block; /* Ensure it's visible */
+  border: 1px solid orange; /* Debug border */
 }
 
 /* Alternative wave effect using gradient */

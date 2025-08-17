@@ -2,15 +2,15 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './ChatPage.module.css';
-import { FiFolder, FiBook, FiSettings } from 'react-icons/fi';
-import { sendMessageToAI, type ChatContext } from '../services/chatService';
-import { getFolders } from '../services/folderService';
+import { FiFolder, FiBook, FiSettings, FiSquare } from 'react-icons/fi';
+import { sendMessageToAI, type ChatContext } from '../services/mockChatService';
+import { mockFolders } from '../data/mockFoldersData';
 import { getQuestionSets } from '../services/questionSetService';
 import { getNotesForFolder } from '../services/noteService';
 import type { Folder } from '../types/folder';
 import type { QuestionSet } from '../types/questionSet';
 import type { Note } from '../types/note.types';
-import type { ChatMessage as ChatMessageType } from '../services/chatService';
+import type { ChatMessage as ChatMessageType } from '../services/mockChatService';
 import TemporaryInput from '../components/chat/TemporaryInput';
 import ModeSelector from '../components/chat/ModeSelector/ModeSelector';
 import AdvancedSettings from '../components/chat/AdvancedSettings';
@@ -77,6 +77,8 @@ const ChatPage: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedContextItems, setSelectedContextItems] = useState<ContextItem[]>([]);
+  const [currentMessage, setCurrentMessage] = useState<string>('');
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -95,32 +97,8 @@ const ChatPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const fetchAllFolders = async () => {
-      try {
-        const fetchedFolders = await getFolders();
-        
-        // For each folder, fetch its subfolders
-        const foldersWithSubfolders = await Promise.all(
-          fetchedFolders.map(async (folder) => {
-            try {
-              const subfolders = await getFolders(folder.id);
-              return [folder, ...subfolders];
-            } catch (error) {
-              console.error(`Failed to fetch subfolders for folder ${folder.id}:`, error);
-              return [folder];
-            }
-          })
-        );
-        
-        // Flatten the array of arrays into a single array of folders
-        const allFolders = foldersWithSubfolders.flat();
-        setFolders(allFolders);
-      } catch (error) {
-        console.error('Failed to fetch folders:', error);
-      }
-    };
-
-    fetchAllFolders();
+    // Use mock data directly since we're in mock mode
+    setFolders(mockFolders);
   }, []);
 
   const fetchQuestionSets = useCallback(async (folderId: string) => {
@@ -153,10 +131,25 @@ const ChatPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
+  const handleCancelRequest = useCallback(() => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+    }
+    setIsLoading(false);
+    // Restore the current message to the input
+    setCurrentMessage(currentMessage);
+  }, [abortController, currentMessage]);
+
   const handleSendMessage = async (message: string) => {
     if (!message.trim() || isLoading) return;
   
     setIsLoading(true);
+    setCurrentMessage(message);
+    
+    // Create new AbortController for this request
+    const controller = new AbortController();
+    setAbortController(controller);
   
     const userMessage: ChatMessageType = {
       sender: 'user',
@@ -168,7 +161,7 @@ const ChatPage: React.FC = () => {
 
     try {
       if (message.trim()) {
-        const aiResponse = await sendMessageToAI(message, context);
+        const aiResponse = await sendMessageToAI(message, context, controller.signal);
         const aiMessage: ChatMessageType = {
           sender: 'ai',
           text: aiResponse.response, // Fixed: Using 'response' instead of 'text'
@@ -176,7 +169,15 @@ const ChatPage: React.FC = () => {
         };
         setMessages(prev => [...prev, aiMessage]);
       }
-    } catch (_error) {
+    } catch (error) {
+      // Check if the request was cancelled
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Request was cancelled');
+        // Remove the user message since it was cancelled
+        setMessages(prev => prev.slice(0, -1));
+        return;
+      }
+      
       const errorMessage: ChatMessageType = {
         sender: 'ai',
         text: 'Sorry, I encountered an error. Please try again.',
@@ -185,6 +186,8 @@ const ChatPage: React.FC = () => {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      setAbortController(null);
+      setCurrentMessage('');
     }
   };
 
@@ -233,6 +236,8 @@ const ChatPage: React.FC = () => {
           }}
           isLoading={isLoading}
           placeholder="Type message here"
+          onCancel={handleCancelRequest}
+          currentMessage={currentMessage}
         />
       </div>
       <AdvancedSettings 

@@ -1,15 +1,26 @@
 import React from 'react';
 import styles from './TypingIndicator.module.css';
+import TextWaveEffect from '../TextWaveEffect';
 
 const TypingIndicator: React.FC = () => {
   return (
     <div className={styles.typingIndicator}>
-      <div className={styles.typingDots}>
-        <div className={styles.dot}></div>
-        <div className={styles.dot}></div>
-        <div className={styles.dot}></div>
+      <div className={styles.loadingSpinner}>
+        <div className={styles.spinner}></div>
       </div>
-      <span className={styles.typingText}>AI is thinking...</span>
+      
+      {/* Minimal TextWaveEffect test */}
+      <TextWaveEffect 
+        text="AI is thinking..." 
+        color="#ff0000" 
+        effect="clip" 
+        speed={2000}
+      />
+      
+      {/* Plain text for comparison */}
+      <span style={{ color: 'blue', fontSize: '16px' }}>
+        Plain: AI is thinking...
+      </span>
     </div>
   );
 };

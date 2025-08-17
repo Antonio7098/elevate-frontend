@@ -1,0 +1,19 @@
+.breadcrumbWrapper {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  max-height: 3rem;
+  overflow: hidden;
+}
+
+.mockDataIndicator {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+.contentWrapper {
+  padding: 1rem;
+  background: var(--color-background);
+  min-height: calc(100vh - 5rem);
+}

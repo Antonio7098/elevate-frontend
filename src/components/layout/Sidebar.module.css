@@ -66,9 +66,31 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
   overflow-y: auto;
   padding: 1rem 0.5rem;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.navSectionHeader {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 1rem 0.25rem;
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 0.2s ease 0.1s;
+}
+
+.sidebar:hover .navSectionHeader {
+  opacity: 1;
 }
 .navLink {
   display: flex;

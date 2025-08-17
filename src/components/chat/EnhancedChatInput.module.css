@@ -339,6 +339,16 @@
   transform: none;
 }
 
+.stopButton {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.stopButton:hover:not(:disabled) {
+  background-color: var(--color-danger-dark);
+  transform: var(--transform-input-hover);
+}
+
 .loadingSpinner {
   height: 1.25rem;
   width: 1.25rem;
