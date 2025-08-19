@@ -23,6 +23,7 @@ import 'reactflow/dist/style.css';
 import { FiEye, FiMap, FiX, FiMaximize2, FiMinimize2, FiZoomIn, FiPlus, FiEdit3, FiTrash2, FiSave, FiTag, FiGrid, FiLayers } from 'react-icons/fi';
 import Dagre from '@dagrejs/dagre';
 import styles from './MindMapView.module.css';
+import MasteryReviewModal from '../mastery/MasteryReviewModal';
 
 // Dagre.js layout algorithm for automatic node positioning
 const getLayoutedElements = (nodes: Node[], edges: Edge[], direction: 'TB' | 'LR' = 'TB') => {
@@ -392,20 +393,38 @@ const CustomNode: React.FC<{
   onEdit?: (nodeId: string) => void;
   onDelete?: (nodeId: string) => void;
   onAddChild?: (nodeId: string) => void;
-}> = ({ id, data, onEdit, onDelete, onAddChild }) => {
+  onReview?: (nodeId: string) => void;
+}> = ({ id, data, onEdit, onDelete, onAddChild, onReview }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   
   // Use expandable node for mastery criteria
   if (data.type === 'criterion') {
+    // Debug: Log the mastery status
+    console.log('🔍 [CustomNode] Criterion node:', {
+      id,
+      label: data.label,
+      isMastered: data.isMastered,
+      masteryScore: data.masteryScore
+    });
+    // Determine if this criterion has any linked questions
+    const hasQuestions = Array.isArray(data.questionInstances) && data.questionInstances.length > 0;
+    
     // For mastery criterion nodes, we need to get the expanded state from the parent
     // This will be handled by the main component's state
     return (
       <div 
-        className={styles.expandableCriterionNode}
+        className={`${styles.expandableCriterionNode} ${data.isMastered ? styles.mastered : styles.notMastered}`}
         data-type="criterion"
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        style={{ cursor: 'pointer' }}
+        style={{ 
+          cursor: 'pointer',
+          background: 'white !important',
+          border: `2px solid ${data.isMastered ? '#dc2626' : '#6b7280'} !important`,
+          boxShadow: `${data.isMastered 
+            ? '0 4px 12px rgba(220, 38, 38, 0.2)' 
+            : '0 4px 12px rgba(107, 114, 128, 0.2)'} !important`
+        }}
       >
         {/* Node Toolbar */}
         {onEdit && onDelete && onAddChild && (
@@ -421,6 +440,16 @@ const CustomNode: React.FC<{
         
         <div className={styles.nodeContent}>
           <div className={styles.nodeLabel}>{data.label}</div>
+          <div className={styles.masteryInfo}>
+            <div className={styles.masteryBadge}>
+              {data.isMastered ? '✓' : '○'}
+            </div>
+            {data.masteryScore !== undefined && (
+              <div className={styles.masteryScore}>
+                {Math.round(data.masteryScore * 100)}%
+              </div>
+            )}
+          </div>
           <div className={styles.expandIndicator}>
             {data.isExpanded ? '−' : '+'}
           </div>
@@ -500,8 +529,22 @@ const CustomNode: React.FC<{
               </div>
             )}
             
-            {/* Edit Button */}
+            {/* Actions: Review and Edit */}
             <div className={styles.editSection}>
+              <button
+                className={styles.editButton}
+                disabled={!hasQuestions}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!hasQuestions) return;
+                  console.log('🧪 [CustomNode] Review clicked', { nodeId: id, hasQuestions, qCount: (data.questionInstances || []).length });
+                  if (onReview) onReview(id);
+                }}
+                title={hasQuestions ? 'Review questions for this criterion' : 'No questions to review'}
+              >
+                <FiEye />
+                Review
+              </button>
               <button
                 className={styles.editButton}
                 onClick={(e) => {
@@ -509,9 +552,10 @@ const CustomNode: React.FC<{
                   if (onEdit) onEdit(id);
                 }}
                 title="Edit this mastery criterion"
+                style={{ marginLeft: 8 }}
               >
                 <FiEdit3 />
-                Edit Criterion
+                Edit
               </button>
             </div>
           </div>
@@ -688,7 +732,8 @@ const CustomNode: React.FC<{
 const createNodeTypes = (
   onEdit: (nodeId: string) => void,
   onDelete: (nodeId: string) => void,
-  onAddChild: (nodeId: string) => void
+  onAddChild: (nodeId: string) => void,
+  onReview: (nodeId: string) => void
 ) => ({
   custom: (props: any) => (
     <CustomNode 
@@ -696,6 +741,7 @@ const createNodeTypes = (
       onEdit={onEdit}
       onDelete={onDelete}
       onAddChild={onAddChild}
+      onReview={onReview}
     />
   )
 });
@@ -705,13 +751,15 @@ const createStableNodeTypes = () => {
   let currentHandlers = {
     onEdit: (nodeId: string) => {},
     onDelete: (nodeId: string) => {},
-    onAddChild: (nodeId: string) => {}
+    onAddChild: (nodeId: string) => {},
+    onReview: (nodeId: string) => {}
   };
   
   const nodeTypes = createNodeTypes(
     (nodeId: string) => currentHandlers.onEdit(nodeId),
     (nodeId: string) => currentHandlers.onDelete(nodeId),
-    (nodeId: string) => currentHandlers.onAddChild(nodeId)
+    (nodeId: string) => currentHandlers.onAddChild(nodeId),
+    (nodeId: string) => currentHandlers.onReview(nodeId)
   );
   
   const updateHandlers = (newHandlers: typeof currentHandlers) => {
@@ -771,6 +819,12 @@ const MindMapView: React.FC<MindMapViewProps> = ({
     editNodeId?: string;
     editData?: any;
   }>({ isOpen: false });
+  const [reviewModal, setReviewModal] = useState<{
+    isOpen: boolean;
+    criterion?: any;
+    questions?: any[];
+    masteryTracking?: any;
+  }>({ isOpen: false });
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
 
   // Create handlers directly in the nodeTypes useMemo to avoid stale closures
@@ -779,6 +833,11 @@ const MindMapView: React.FC<MindMapViewProps> = ({
   useEffect(() => {
     console.log('masteryCriterionModal state changed:', masteryCriterionModal);
       }, [masteryCriterionModal]);
+
+  // Debug review modal state changes
+  useEffect(() => {
+    console.log('🧪 [MindMapView] reviewModal state changed:', reviewModal);
+  }, [reviewModal]);
 
   // Debug nodes state changes
   useEffect(() => {
@@ -807,7 +866,8 @@ const MindMapView: React.FC<MindMapViewProps> = ({
       hasPrimitives: item?.primitives?.length > 0,
       hasMasteryCriteria: item?.masteryCriteria?.length > 0,
       itemKeys: Object.keys(item || {}),
-      finalPageType: pageType || detectedPageType
+      finalPageType: pageType || detectedPageType,
+      selectedItemTitle: selectedItem?.title || selectedItem?.name
     });
 
     // Use the explicitly passed pageType if available, otherwise fall back to auto-detection
@@ -838,9 +898,12 @@ const MindMapView: React.FC<MindMapViewProps> = ({
       const nodeData: any = {
         label,
         description,
-        type: itemData.type || type,
+        // Normalize to the explicit type we are adding for consistency in rendering
+        // This ensures mastery criterion nodes are recognized as 'criterion'
+        type: type,
         itemCount,
-        isExpanded: false // Initialize as not expanded
+        isExpanded: false, // Initialize as not expanded
+        originalId: itemData.id // Store the original ID for prerequisite matching
       };
       
       // Add mastery criterion-specific data if this is a criterion
@@ -852,9 +915,39 @@ const MindMapView: React.FC<MindMapViewProps> = ({
         nodeData.masteryThreshold = itemData.masteryThreshold;
         nodeData.timeLimit = itemData.timeLimit;
         nodeData.attemptsAllowed = itemData.attemptsAllowed;
-        nodeData.questionInstances = itemData.questionInstances;
+        // Enhance mock data when questionInstances is not provided (undefined/null)
+        nodeData.questionInstances = Array.isArray(itemData.questionInstances)
+          ? itemData.questionInstances
+          : [
+              {
+                id: `${id}-q1`,
+                questionText: `What is the key idea behind "${label}"?`,
+                answer: 'It depends on the specific criterion context',
+                explanation: 'This is a sample short-answer question for demonstration.',
+                difficulty: 'MEDIUM',
+                questionType: 'short_answer'
+              },
+              {
+                id: `${id}-q2`,
+                questionText: `Select the correct statement about "${label}".`,
+                answer: 'Option B',
+                explanation: 'Option B reflects the expected behaviour for this criterion.',
+                difficulty: 'EASY',
+                questionType: 'multiple_choice',
+                options: [
+                  { id: `${id}-q2-o1`, text: 'Option A' },
+                  { id: `${id}-q2-o2`, text: 'Option B' },
+                  { id: `${id}-q2-o3`, text: 'Option C' }
+                ]
+              }
+            ];
         nodeData.prerequisiteFor = itemData.prerequisiteFor;
         nodeData.requiresPrerequisites = itemData.requiresPrerequisites;
+        // Preserve mastery status data
+        nodeData.isMastered = itemData.isMastered;
+        nodeData.masteryScore = itemData.masteryScore;
+        nodeData.difficulty = itemData.difficulty;
+        nodeData.criterionType = itemData.type;
       }
       
       // Add primitive-specific data if this is a primitive
@@ -877,8 +970,14 @@ const MindMapView: React.FC<MindMapViewProps> = ({
       return id;
     };
 
-    // Add the selected item as the root node
-    const rootId = addNode(item, item.type);
+    // Add the selected item as the root node (only for non-pathways pages)
+    let rootId: string;
+    if (finalPageType === 'pathways') {
+      // For pathways, we don't want a root node
+      rootId = 'virtual-root';
+    } else {
+      rootId = addNode(item, item.type);
+    }
 
     // Recursive function to add all nested content
     const addNestedContent = (parentId: string, parentItem: any, level: number = 0) => {
@@ -895,6 +994,14 @@ const MindMapView: React.FC<MindMapViewProps> = ({
       // Add children if they exist
       if (parentItem.children && parentItem.children.length > 0) {
         parentItem.children.forEach((child: any) => {
+                // For pathways page, skip adding section and blueprint nodes
+      if (finalPageType === 'pathways' && (child.type === 'section' || child.type === 'blueprint')) {
+        // Skip adding the node, but still process its children recursively
+        // Pass the current parentId so mastery criteria connect to the right parent
+        addNestedContent(parentId, child, level + 1);
+        return;
+      }
+          
           const childId = addNode(child, child.type);
           
           // Add edge from parent to child
@@ -976,11 +1083,182 @@ const MindMapView: React.FC<MindMapViewProps> = ({
             });
           }
         });
+
+        // Add prerequisite edges between mastery criteria
+        if (parentItem.masteryCriteria && parentItem.masteryCriteria.length > 0) {
+          parentItem.masteryCriteria.forEach((criterion: any) => {
+            if (criterion.prerequisites && criterion.prerequisites.length > 0) {
+              criterion.prerequisites.forEach((prereqId: string) => {
+                // Find the prerequisite criterion node by matching the original criterion ID
+                const prereqNode = nodes.find(n => n.data.originalId === prereqId || n.data.id === prereqId);
+                // Find the current criterion node by matching the original criterion ID
+                const currentNode = nodes.find(n => n.data.originalId === criterion.id || n.data.id === criterion.id);
+                
+                if (prereqNode && currentNode) {
+                  console.log('🔗 [MindMapView] Creating prerequisite edge:', {
+                    from: prereqNode.data.label,
+                    to: currentNode.data.label,
+                    prereqId,
+                    criterionId: criterion.id
+                  });
+                  
+                  edges.push({
+                    id: `prereq-${prereqId}-${criterion.id}`,
+                    source: prereqNode.id,
+                    target: currentNode.id,
+                    type: 'default',
+                    animated: true,
+                    style: {
+                      stroke: '#ff6b6b',
+                      strokeWidth: 2,
+                      strokeDasharray: '5,5',
+                      zIndex: 2
+                    },
+                    data: {
+                      type: 'prerequisite',
+                      label: 'Prerequisite'
+                    }
+                  });
+                } else {
+                  console.log('❌ [MindMapView] Could not find nodes for prerequisite edge:', {
+                    prereqId,
+                    criterionId: criterion.id,
+                    availableNodes: nodes.map(n => ({ id: n.id, originalId: n.data.originalId, label: n.data.label }))
+                  });
+                }
+              });
+            }
+          });
+        }
       }
     };
 
-    // Start building the tree from the selected item
-    addNestedContent(rootId, item, 0);
+    // For pathways page, create a mastery criteria hierarchy without root node
+    if (finalPageType === 'pathways') {
+      // Find all mastery criteria from the selected item and its children
+      const allCriteria: any[] = [];
+      const collectCriteria = (item: any) => {
+        if (item.masteryCriteria) {
+          allCriteria.push(...item.masteryCriteria);
+        }
+        if (item.children) {
+          item.children.forEach(collectCriteria);
+        }
+      };
+      collectCriteria(item);
+      
+      if (allCriteria.length > 0) {
+        console.log(`🧠 [MindMapView] Creating mastery criteria hierarchy with ${allCriteria.length} criteria`);
+        
+        // Create nodes for all criteria
+        const criterionNodes = new Map<string, string>(); // originalId -> nodeId
+        allCriteria.forEach((criterion: any) => {
+          console.log('🧠 [MindMapView] Creating criterion node:', {
+            id: criterion.id,
+            title: criterion.title,
+            isMastered: criterion.isMastered,
+            masteryScore: criterion.masteryScore
+          });
+          const nodeId = addNode(criterion, 'criterion');
+          criterionNodes.set(criterion.id, nodeId);
+        });
+        
+        // Create prerequisite edges to show learning progression with mastery-based colors
+        allCriteria.forEach((criterion: any) => {
+          if (criterion.prerequisites && criterion.prerequisites.length > 0) {
+            criterion.prerequisites.forEach((prereqId: string) => {
+              const prereqNodeId = criterionNodes.get(prereqId);
+              const currentNodeId = criterionNodes.get(criterion.id);
+              
+              if (prereqNodeId && currentNodeId) {
+                const prereqCriterion = allCriteria.find(c => c.id === prereqId);
+                const isPrereqMastered = prereqCriterion?.isMastered || false;
+                
+                console.log('🔗 [MindMapView] Creating prerequisite edge:', {
+                  from: prereqCriterion?.title,
+                  to: criterion.title,
+                  isPrereqMastered
+                });
+                
+                // Different colors based on mastery status
+                let edgeColor = '#ff6b6b'; // Default red for unmastered
+                let edgeStyle = '5,5'; // Dashed
+                
+                console.log('🎨 [MindMapView] Prerequisite mastery check:', {
+                  prereqId,
+                  prereqCriterion: prereqCriterion?.title,
+                  isPrereqMastered,
+                  masteryScore: prereqCriterion?.masteryScore
+                });
+                
+                if (isPrereqMastered) {
+                  edgeColor = '#51cf66'; // Green for mastered
+                  edgeStyle = 'none'; // Solid line
+                  console.log('✅ [MindMapView] Using GREEN line for mastered prerequisite');
+                } else {
+                  console.log('❌ [MindMapView] Using RED line for unmastered prerequisite');
+                }
+                
+                edges.push({
+                  id: `prereq-${prereqId}-${criterion.id}`,
+                  source: prereqNodeId,
+                  target: currentNodeId,
+                  type: 'default',
+                  animated: !isPrereqMastered, // Only animate unmastered prerequisites
+                  style: {
+                    stroke: edgeColor,
+                    strokeWidth: 2,
+                    strokeDasharray: edgeStyle,
+                    zIndex: 2
+                  },
+                  data: {
+                    type: 'prerequisite',
+                    label: 'Prerequisite',
+                    isPrereqMastered
+                  }
+                });
+              }
+            });
+          }
+        });
+        
+        // Add question instances if they exist
+        allCriteria.forEach((criterion: any) => {
+          if (criterion.questionInstances && criterion.questionInstances.length > 0) {
+            const criterionNodeId = criterionNodes.get(criterion.id);
+            if (criterionNodeId) {
+              criterion.questionInstances.forEach((question: any) => {
+                console.log('❓ [MindMapView] Adding question instance:', {
+                  questionText: question.questionText,
+                  explanation: question.explanation
+                });
+                
+                const questionId = addNode({
+                  ...question,
+                  title: question.questionText, // Use title for consistency
+                  description: question.explanation,
+                  type: 'question'
+                }, 'question');
+                
+                edges.push({
+                  id: `edge-${criterionNodeId}-${questionId}`,
+                  source: criterionNodeId,
+                  target: questionId,
+                  type: 'default',
+                  style: { 
+                    stroke: 'var(--color-success)',
+                    strokeWidth: 1 
+                  }
+                });
+              });
+            }
+          }
+        });
+      }
+    } else {
+      // For non-pathways pages, use the original recursive approach
+      addNestedContent(rootId, item, 0);
+    }
 
     // Apply Dagre.js layout to get clean positioning
     return getLayoutedElements(nodes, edges, 'TB'); // Top to bottom layout
@@ -1037,11 +1315,115 @@ const MindMapView: React.FC<MindMapViewProps> = ({
         });
       }
     };
+
+    const handleReview = (nodeId: string) => {
+      console.log('👁️ [MindMapView] handleReview clicked for node:', nodeId);
+      const node = nodes.find(n => n.id === nodeId);
+      if (!node || node.data.type !== 'criterion') return;
+
+      const data = node.data || {};
+      const rawQuestions: any[] = Array.isArray(data.questionInstances) ? data.questionInstances : [];
+
+      const questions = rawQuestions.map((q: any, idx: number) => {
+        const qId = q.id || `temp-${Date.now()}-${idx}`;
+        const correctAnswer = q.correctAnswer ?? q.answer;
+        const options = Array.isArray(q.options)
+          ? q.options.map((opt: any, i: number) => {
+              const text = typeof opt === 'string' ? opt : (opt.text ?? String(opt));
+              const isCorrect = Array.isArray(correctAnswer)
+                ? correctAnswer.includes(text)
+                : (typeof correctAnswer === 'string' ? correctAnswer === text : false);
+              return {
+                id: opt.id || `opt-${qId}-${i}`,
+                text,
+                isCorrect,
+                explanation: opt.explanation || undefined,
+                questionInstanceId: qId
+              };
+            })
+          : undefined;
+
+        const questionType = q.questionType
+          || (options ? 'multiple_choice' : (typeof correctAnswer === 'boolean' ? 'true_false' : 'short_answer'));
+
+        const difficulty = (q.difficulty || 'medium').toString().toLowerCase();
+
+        return {
+          id: qId,
+          question: q.question || q.questionText || '',
+          answer: q.answer,
+          questionType,
+          difficulty,
+          status: 'active',
+          masteryCriterionId: data.originalId || data.id || nodeId,
+          blueprintSectionId: (selectedItem && (selectedItem.id || selectedItem.blueprintSectionId)) || 'unknown',
+          userId: selectedItem?.userId || 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          options,
+          correctAnswer,
+          explanation: q.explanation,
+          hints: q.hints || [],
+          tags: q.tags || [],
+          userQuestionAttempts: [],
+          masteryCriterion: {},
+          successRate: undefined,
+          averageTimeSpent: undefined,
+          isActive: true
+        };
+      });
+
+      const masteryTracking = {
+        id: (data.originalId || nodeId) + '-tracking',
+        userId: selectedItem?.userId || 0,
+        blueprintSectionId: (selectedItem && (selectedItem.id || selectedItem.blueprintSectionId)) || 'unknown',
+        masteryCriterionId: data.originalId || nodeId,
+        currentLevel: typeof data.masteryScore === 'number' ? Math.max(0, Math.min(5, Math.round((data.masteryScore || 0) * 5))) : 0,
+        targetLevel: 5,
+        totalAttempts: 0,
+        successfulAttempts: 0,
+        consecutiveSuccesses: 0,
+        consecutiveFailures: 0,
+        lastAttemptAt: new Date().toISOString(),
+        nextReviewAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        successRate: 0,
+        progressPercentage: typeof data.masteryScore === 'number' ? Math.round((data.masteryScore || 0) * 100) : 0,
+        isMastered: !!data.isMastered,
+        isDue: true,
+        daysUntilNextReview: 0
+      };
+
+      const criterion = {
+        id: data.originalId || nodeId,
+        title: data.label || 'Criterion',
+        description: data.description || '',
+        weight: data.weight || 1,
+        uueStage: data.uueStage || 'UNDERSTAND',
+        complexityScore: data.complexityScore || 3,
+        knowledgePrimitiveId: data.knowledgePrimitiveId || 'unknown',
+        blueprintSectionId: (selectedItem && (selectedItem.id || selectedItem.blueprintSectionId)) || 'unknown',
+        userId: selectedItem?.userId || 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        questionInstances: [],
+        userCriterionMasteries: [],
+        masteryProgress: undefined,
+        nextReviewAt: undefined,
+        isDue: undefined
+      };
+
+      const nextState = { isOpen: true, criterion, questions, masteryTracking };
+      console.log('👁️ [MindMapView] Opening review modal with:', nextState);
+      setReviewModal(nextState);
+    };
     
     updateHandlers({
       onEdit: handleEditNode,
       onDelete: handleDeleteNode,
-      onAddChild: handleAddChild
+      onAddChild: handleAddChild,
+      onReview: handleReview
     });
   }, [nodes, setNodes, setEdges, setContextMenu, setMasteryCriterionModal, updateHandlers]);
 
@@ -1280,7 +1662,7 @@ const MindMapView: React.FC<MindMapViewProps> = ({
         <div className={styles.headerLeft}>
           <FiMap className={styles.headerIcon} />
           <h3 className={styles.headerTitle}>
-            {selectedItem ? `${selectedItem.name} - Mind Map` : 'Mind Map View'}
+            {selectedItem ? `${selectedItem.title || selectedItem.name} - Mind Map` : 'Mind Map View'}
           </h3>
         </div>
         
@@ -1318,6 +1700,7 @@ const MindMapView: React.FC<MindMapViewProps> = ({
       {/* React Flow Canvas */}
       <div className={styles.flowContainer}>
         <ReactFlow
+          key={`${selectedItem?.id || selectedItem?.title || 'default'}-${pageType}-${nodes.length}`}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
@@ -1391,9 +1774,27 @@ const MindMapView: React.FC<MindMapViewProps> = ({
           <div className={`${styles.legendColor} ${styles.criterion}`}></div>
           <span>Mastery Criterion</span>
         </div>
+        
+        <div className={styles.legendItem}>
+          <div className={styles.legendColor} style={{ backgroundColor: 'white', border: '2px solid #dc2626' }}></div>
+          <span>Mastered Criterion</span>
+        </div>
+        
+        <div className={styles.legendItem}>
+          <div className={styles.legendColor} style={{ backgroundColor: 'white', border: '2px solid #6b7280' }}></div>
+          <span>Unmastered Criterion</span>
+        </div>
         <div className={styles.legendItem}>
           <div className={`${styles.legendColor} ${styles.question}`}></div>
           <span>Question</span>
+        </div>
+        <div className={styles.legendItem}>
+          <div className={styles.legendColor} style={{ backgroundColor: '#51cf66' }}></div>
+          <span>Mastered Prerequisites</span>
+        </div>
+        <div className={styles.legendItem}>
+          <div className={styles.legendColor} style={{ backgroundColor: '#ff6b6b' }}></div>
+          <span>Unmastered Prerequisites</span>
         </div>
       </div>
 
@@ -1459,6 +1860,22 @@ const MindMapView: React.FC<MindMapViewProps> = ({
                       parentNode={masteryCriterionModal.parentId ? nodes.find(n => n.id === masteryCriterionModal.parentId) : undefined}
             editMode={masteryCriterionModal.editMode}
             editData={masteryCriterionModal.editData}
+        />
+      )}
+
+      {/* Quick Review Modal */}
+      {reviewModal.isOpen && reviewModal.criterion && reviewModal.questions && reviewModal.masteryTracking && (
+        <MasteryReviewModal
+          isOpen={reviewModal.isOpen}
+          onClose={() => setReviewModal({ isOpen: false })}
+          onComplete={(trackingId, wasCorrect, performance) => {
+            // TODO: integrate with mastery tracking update service
+            console.debug('[MindMapView] Review complete:', { trackingId, wasCorrect, performance });
+            setReviewModal({ isOpen: false });
+          }}
+          masteryTracking={reviewModal.masteryTracking}
+          criterion={reviewModal.criterion}
+          questions={reviewModal.questions}
         />
       )}
     </div>

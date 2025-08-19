@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import type { MasteryTracking } from '../../types/masteryTracking';
 import type { MasteryCriterion } from '../../types/masteryCriterion';
 import type { QuestionInstance } from '../../types/questionInstance';
@@ -22,15 +23,32 @@ const MasteryReviewModal: React.FC<MasteryReviewModalProps> = ({
   questions,
   className = ''
 }) => {
+  console.log('🧪 [MasteryReviewModal] render', { isOpen, criterionTitle: criterion?.title, questionsLen: questions?.length });
+  const isDev = (import.meta as any)?.env?.MODE !== 'production';
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | string[] | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+  useEffect(() => {
+    console.log('🧪 [MasteryReviewModal] mounted', { criterionId: criterion?.id });
+    return () => console.log('🧪 [MasteryReviewModal] unmounted');
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log('🧪 [MasteryReviewModal] opened', { questionsLen: questions?.length, path: (!questions || questions.length === 0) ? 'empty' : 'normal' });
+    } else {
+      console.log('🧪 [MasteryReviewModal] closed');
+    }
+  }, [isOpen, questions]);
 
   useEffect(() => {
     if (isOpen) {
@@ -43,11 +61,60 @@ const MasteryReviewModal: React.FC<MasteryReviewModalProps> = ({
     }
   }, [isOpen]);
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
+
+  // Diagnostics: measure panel visibility/position and top-most element
+  useEffect(() => {
+    if (!isOpen) return;
+    const t = setTimeout(() => {
+      try {
+        const panel = panelRef.current;
+        const overlay = overlayRef.current;
+        if (panel) {
+          const rect = panel.getBoundingClientRect();
+          const styles = window.getComputedStyle(panel);
+          const midX = rect.left + rect.width / 2;
+          const midY = rect.top + rect.height / 2;
+          const topEl = document.elementFromPoint(midX, midY);
+          console.log('🧪 [MasteryReviewModal] panel rect/styles', {
+            rect: { x: rect.left, y: rect.top, w: rect.width, h: rect.height },
+            styles: { display: styles.display, visibility: styles.visibility, opacity: styles.opacity, zIndex: styles.zIndex, position: styles.position },
+            viewport: { w: window.innerWidth, h: window.innerHeight },
+            topElementAtCenter: topEl?.id || topEl?.className || topEl?.nodeName
+          });
+        } else {
+          console.log('🧪 [MasteryReviewModal] panelRef is null');
+        }
+        if (overlay) {
+          const rect = overlay.getBoundingClientRect();
+          const styles = window.getComputedStyle(overlay);
+          console.log('🧪 [MasteryReviewModal] overlay rect/styles', {
+            rect: { x: rect.left, y: rect.top, w: rect.width, h: rect.height },
+            styles: { display: styles.display, visibility: styles.visibility, opacity: styles.opacity, zIndex: styles.zIndex, position: styles.position }
+          });
+        }
+      } catch (e) {
+        console.log('🧪 [MasteryReviewModal] diagnostics error', e);
+      }
+    }, 0);
+    return () => clearTimeout(t);
+  }, [isOpen, currentQuestionIndex]);
+
   const handleAnswerSelect = (answer: string | string[]) => {
+    console.log('🧪 [MasteryReviewModal] answer selected', { answer });
     setSelectedAnswer(answer);
   };
 
   const handleSubmitAnswer = () => {
+    console.log('🧪 [MasteryReviewModal] submit answer', { selectedAnswer, questionId: currentQuestion?.id, qType: currentQuestion?.questionType });
     if (!selectedAnswer) return;
 
     const correct = checkAnswer(selectedAnswer, currentQuestion);
@@ -57,6 +124,7 @@ const MasteryReviewModal: React.FC<MasteryReviewModalProps> = ({
   };
 
   const handleNextQuestion = () => {
+    console.log('🧪 [MasteryReviewModal] next question', { isLastQuestion, currentIndex: currentQuestionIndex });
     if (isLastQuestion) {
       // Complete the review
       const performance = {
@@ -93,10 +161,24 @@ const MasteryReviewModal: React.FC<MasteryReviewModalProps> = ({
   };
 
   const renderQuestionOptions = () => {
-    if (!currentQuestion.options) return null;
+    if (!currentQuestion) return null;
+    const qType = currentQuestion.questionType || 'short_answer';
 
-    switch (currentQuestion.questionType) {
+    switch (qType) {
       case 'multiple_choice':
+        if (!Array.isArray(currentQuestion.options) || currentQuestion.options.length === 0) {
+          return (
+            <div className="space-y-3">
+              <textarea
+                placeholder="Enter your answer..."
+                value={(selectedAnswer as string) || ''}
+                onChange={(e) => handleAnswerSelect(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                rows={4}
+              />
+            </div>
+          );
+        }
         return (
           <div className="space-y-3">
             {currentQuestion.options.map((option, index) => (
@@ -171,19 +253,106 @@ const MasteryReviewModal: React.FC<MasteryReviewModalProps> = ({
     }
   };
 
-  if (!isOpen || !currentQuestion) return null;
+  if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+  // Empty state when there are no questions
+  if (!questions || questions.length === 0) {
+    console.log(' [MasteryReviewModal] rendering EMPTY-STATE portal');
+    return createPortal(
+      <div id="mastery-review-portal-root" className="fixed inset-0 overflow-y-auto" style={{ zIndex: 2147483647, pointerEvents: 'auto' }}>
+        {isDev && (
+          <div style={{ position: 'fixed', top: 8, left: 8, zIndex: 2147483647, background: '#dc2626', color: 'white', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>
+            MasteryReviewModal Active
+          </div>
+        )}
+        <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+          {/* Background overlay */}
+          <div
+            className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+            style={{ zIndex: 2147483646 }}
+            id="mastery-review-overlay"
+            ref={overlayRef}
+            onClick={onClose}
+          />
+
+          {/* Modal panel */}
+          <div
+            role="dialog"
+            aria-modal="true"
+            className={`rounded-lg text-left overflow-hidden transition-all max-w-lg w-[min(90vw,40rem)] ${isDev ? 'ring-2 ring-blue-300' : ''} ${className}`}
+            style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2147483647, pointerEvents: 'auto', backgroundColor: '#ffffff', boxShadow: '0 10px 25px rgba(0,0,0,0.35)' }}
+            id="mastery-review-panel"
+            ref={panelRef}
+          >
+            {/* Header */}
+            <div className="bg-blue-600 px-4 py-3 sm:px-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg leading-6 font-medium text-white">
+                  Mastery Review - {criterion.title}
+                </h3>
+                <button
+                  onClick={() => { console.log(' [MasteryReviewModal] close button clicked (empty-state header)'); onClose(); }}
+                  className="rounded-md text-blue-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+                >
+                  <span className="sr-only">Close</span>
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="bg-white px-4 py-5 sm:p-6">
+              <div className="text-center space-y-3">
+                <p className="text-gray-900 font-medium">No questions linked to this criterion yet.</p>
+                <p className="text-gray-600 text-sm">Add questions to enable quick review.</p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <button
+                onClick={() => { console.log(' [MasteryReviewModal] close button clicked (empty-state footer)'); onClose(); }}
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
+  console.log(' [MasteryReviewModal] rendering NORMAL portal');
+  return createPortal(
+    <div id="mastery-review-portal-root" className="fixed inset-0 overflow-y-auto" style={{ zIndex: 2147483647, pointerEvents: 'auto' }}>
+      {isDev && (
+        <div style={{ position: 'fixed', top: 8, left: 8, zIndex: 2147483647, background: '#dc2626', color: 'white', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>
+          MasteryReviewModal Active
+        </div>
+      )}
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
         <div
           className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          style={{ zIndex: 2147483646 }}
+          id="mastery-review-overlay"
+          ref={overlayRef}
           onClick={onClose}
         />
 
         {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+        <div
+          role="dialog"
+          aria-modal="true"
+          className={`rounded-lg text-left overflow-hidden transition-all max-w-2xl w-[min(95vw,48rem)] ${isDev ? 'ring-2 ring-blue-300' : ''} ${className}`}
+          style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2147483647, pointerEvents: 'auto', backgroundColor: '#ffffff', boxShadow: '0 10px 25px rgba(0,0,0,0.35)' }}
+          id="mastery-review-panel"
+          ref={panelRef}
+        >
           {/* Header */}
           <div className="bg-blue-600 px-4 py-3 sm:px-6">
             <div className="flex items-center justify-between">
@@ -191,7 +360,7 @@ const MasteryReviewModal: React.FC<MasteryReviewModalProps> = ({
                 Mastery Review - {criterion.title}
               </h3>
               <button
-                onClick={onClose}
+                onClick={() => { console.log('🧪 [MasteryReviewModal] close button clicked (normal header)'); onClose(); }}
                 className="rounded-md text-blue-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
               >
                 <span className="sr-only">Close</span>
@@ -260,26 +429,35 @@ const MasteryReviewModal: React.FC<MasteryReviewModalProps> = ({
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             {!showExplanation ? (
               <button
-                type="button"
-                onClick={handleSubmitAnswer}
-                disabled={!selectedAnswer}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                Submit Answer
-              </button>
+              type="button"
+              onClick={() => { 
+                console.log('🧪 [MasteryReviewModal] submit answer clicked'); 
+                handleSubmitAnswer(); 
+              }}
+              disabled={!selectedAnswer}
+              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm"
+            >
+              Submit Answer
+            </button>
             ) : (
               <button
-                type="button"
-                onClick={handleNextQuestion}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                {isLastQuestion ? 'Complete Review' : 'Next Question'}
-              </button>
+              type="button"
+              onClick={() => { 
+                console.log('🧪 [MasteryReviewModal] next question clicked'); 
+                handleNextQuestion(); 
+              }}
+              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
+            >
+              {isLastQuestion ? 'Complete Review' : 'Next Question'}
+            </button>
             )}
             
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => { 
+                console.log('🧪 [MasteryReviewModal] cancel clicked (normal footer)'); 
+                onClose(); 
+              }}
               className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
             >
               Cancel
@@ -287,7 +465,8 @@ const MasteryReviewModal: React.FC<MasteryReviewModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

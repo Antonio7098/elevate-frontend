@@ -15,6 +15,8 @@ import IdeaspaceDemoPage from '../pages/IdeaspaceDemoPage';
 import SettingsPage from '../pages/SettingsPage';
 import ProfilePage from '../pages/ProfilePage';
 import AuthenticatedLayout from '../components/layout/AuthenticatedLayout';
+import ReviewPage from '../pages/ReviewPage';
+import ReviewSessionPage from '../pages/ReviewSessionPage';
 
 // Route configuration
 export const blueprintRoutes = [
@@ -37,6 +39,9 @@ export const blueprintRoutes = [
       { path: ':blueprintId/sections/:sectionId/mindmap', element: <BlueprintMindmapPage /> },
       { path: 'ideaspace', element: <IdeaspacePage /> },
       { path: 'pathways', element: <PathwaysPage /> },
+      // Review routes under ideaspace
+      { path: 'review', element: <ReviewPage /> },
+      { path: 'review/set', element: <ReviewSessionPage /> },
     ],
   },
   {
@@ -94,4 +99,6 @@ export const ROUTES = {
   IDEASPACE: '/blueprints/ideaspace',
   PATHWAYS: '/blueprints/pathways',
   IDEASPACE_DEMO: '/ideaspaces/demo',
+  REVIEW: '/blueprints/review',
+  REVIEW_SET: '/blueprints/review/set',
 };

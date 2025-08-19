@@ -7,133 +7,132 @@ const mockData = {
   items: [
     {
       id: '1',
-      name: 'Mathematics',
+      title: 'Mathematics',
       description: 'Core mathematical concepts and problem-solving',
       type: 'section' as const,
-      itemCount: 3,
       children: [
         {
           id: '1-1',
-          name: 'Calculus Fundamentals',
+          title: 'Calculus Fundamentals',
           description: 'Derivatives, integrals, and applications',
           type: 'blueprint' as const,
-          itemCount: 2,
           children: [
             {
               id: '1-1-1',
-              name: 'Derivatives Pathway',
+              title: 'Derivatives Pathway',
               description: 'Understanding and applying derivatives',
               type: 'pathway' as const,
-              itemCount: 5,
               masteryCriteria: [
                 {
                   id: 'mc-1',
                   title: 'What is a derivative?',
                   description: 'Understand the basic concept of derivatives',
-                  weight: 1.0,
-                  uueStage: 'UNDERSTAND' as const,
-                  complexityScore: 2.0,
-                  assessmentType: 'QUESTION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 300,
-                  attemptsAllowed: 3,
-                  questionInstances: [
-                    {
-                      id: 'qi-1',
-                      questionText: 'What does a derivative represent?',
-                      answer: 'Rate of change',
-                      explanation: 'A derivative represents the instantaneous rate of change.',
-                      context: 'Basic derivative concepts',
-                      difficulty: 'EASY' as const,
-                      masteryCriterionId: 'mc-1'
-                    }
+                  type: 'knowledge' as const,
+                  difficulty: 'Beginner' as const,
+                  prerequisites: [],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can explain the geometric meaning of derivatives',
+                    'Understands rate of change concepts',
+                    'Can identify when derivatives are useful'
                   ],
-                  prerequisiteFor: ['mc-2'],
-                  requiresPrerequisites: []
+                  resources: ['Calculus Textbook', 'Derivative Tutorial'],
+                  estimatedTime: '2 hours',
+                  isMastered: true,
+                  masteryScore: 0.95
                 },
                 {
                   id: 'mc-2',
                   title: 'Calculate basic derivatives',
                   description: 'Apply derivative rules to simple functions',
-                  weight: 2.0,
-                  uueStage: 'USE' as const,
-                  complexityScore: 4.0,
-                  assessmentType: 'APPLICATION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 600,
-                  attemptsAllowed: 3,
+                  type: 'skill' as const,
+                  difficulty: 'Intermediate' as const,
+                  prerequisites: ['mc-1'],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can apply power rule to simple functions',
+                    'Understands product and chain rules',
+                    'Can solve basic derivative problems'
+                  ],
+                  resources: ['Derivative Rules Guide', 'Practice Problems'],
+                  estimatedTime: '3 hours',
+                  isMastered: true,
+                  masteryScore: 0.87,
                   questionInstances: [
                     {
-                      id: 'qi-2',
-                      questionText: 'Find the derivative of f(x) = x²',
+                      id: 'q-2-1',
+                      questionText: 'What is the derivative of x²?',
                       answer: '2x',
                       explanation: 'Using the power rule: d/dx(x^n) = n*x^(n-1)',
-                      context: 'Power rule application',
-                      difficulty: 'MEDIUM' as const,
-                      masteryCriterionId: 'mc-2'
+                      difficulty: 'MEDIUM'
+                    },
+                    {
+                      id: 'q-2-2',
+                      questionText: 'Find the derivative of 3x³ + 2x',
+                      answer: '9x² + 2',
+                      explanation: 'Apply power rule to each term separately'
                     }
-                  ],
-                  prerequisiteFor: ['mc-3'],
-                  requiresPrerequisites: ['mc-1']
+                  ]
                 },
                 {
                   id: 'mc-3',
                   title: 'Solve optimization problems',
                   description: 'Apply derivatives to real-world problems',
-                  weight: 3.0,
-                  uueStage: 'EXPLORE' as const,
-                  complexityScore: 6.0,
-                  assessmentType: 'APPLICATION_BASED',
-                  masteryThreshold: 0.85,
-                  timeLimit: 900,
-                  attemptsAllowed: 2,
+                  type: 'application' as const,
+                  difficulty: 'Advanced' as const,
+                  prerequisites: ['mc-1', 'mc-2'],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can solve optimization problems using derivatives',
+                    'Understands real-world applications',
+                    'Can analyze critical points and extrema'
+                  ],
+                  resources: ['Optimization Problems', 'Real-World Applications'],
+                  estimatedTime: '4 hours',
+                  isMastered: false,
+                  masteryScore: 0.45,
                   questionInstances: [
                     {
-                      id: 'qi-3',
+                      id: 'q-3-1',
                       questionText: 'Find the maximum area of a rectangle with perimeter 20',
                       answer: '25 square units',
-                      explanation: 'Use derivatives to find critical points and test for maximum',
-                      context: 'Optimization problems',
-                      difficulty: 'HARD' as const,
-                      masteryCriterionId: 'mc-3'
+                      explanation: 'Use A = x(10-x) and find critical points'
                     }
-                  ],
-                  prerequisiteFor: [],
-                  requiresPrerequisites: ['mc-1', 'mc-2']
+                  ]
                 }
               ]
             },
             {
               id: '1-1-2',
-              name: 'Integration Pathway',
+              title: 'Integration Pathway',
               description: 'Learning integration techniques and applications',
               type: 'pathway' as const,
-              itemCount: 4,
               masteryCriteria: [
                 {
                   id: 'mc-4',
                   title: 'Understand antiderivatives',
                   description: 'Grasp the relationship between derivatives and antiderivatives',
-                  weight: 1.5,
-                  uueStage: 'UNDERSTAND' as const,
-                  complexityScore: 3.0,
-                  assessmentType: 'EXPLANATION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 450,
-                  attemptsAllowed: 3,
+                  type: 'knowledge' as const,
+                  difficulty: 'Intermediate' as const,
+                  prerequisites: ['mc-1'],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can explain the relationship between derivatives and antiderivatives',
+                    'Understands the constant of integration',
+                    'Can identify basic antiderivatives'
+                  ],
+                  resources: ['Integration Guide', 'Antiderivative Tutorial'],
+                  estimatedTime: '2.5 hours',
+                  isMastered: false,
+                  masteryScore: 0.32,
                   questionInstances: [
                     {
-                      id: 'qi-4',
+                      id: 'q-4-1',
                       questionText: 'What is the antiderivative of 2x?',
                       answer: 'x² + C',
-                      explanation: 'The antiderivative of 2x is x² + C, where C is the constant of integration.',
-                      context: 'Basic antiderivative concepts',
-                      difficulty: 'MEDIUM' as const,
-                      masteryCriterionId: 'mc-4'
+                      explanation: 'The antiderivative of 2x is x² plus a constant'
                     }
-                  ],
-                  prerequisiteFor: ['mc-5'],
-                  requiresPrerequisites: ['mc-1']
+                  ]
                 }
               ]
             }
@@ -141,42 +140,31 @@ const mockData = {
         },
         {
           id: '1-2',
-          name: 'Linear Algebra',
+          title: 'Linear Algebra',
           description: 'Vectors, matrices, and linear transformations',
           type: 'blueprint' as const,
-          itemCount: 1,
           children: [
             {
               id: '1-2-1',
-              name: 'Vector Operations',
+              title: 'Vector Operations',
               description: 'Understanding vector addition, multiplication, and applications',
               type: 'pathway' as const,
-              itemCount: 3,
               masteryCriteria: [
                 {
                   id: 'mc-5',
                   title: 'Vector addition and subtraction',
                   description: 'Perform basic vector operations',
-                  weight: 1.0,
-                  uueStage: 'UNDERSTAND' as const,
-                  complexityScore: 2.5,
-                  assessmentType: 'QUESTION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 300,
-                  attemptsAllowed: 3,
-                  questionInstances: [
-                    {
-                      id: 'qi-5',
-                      questionText: 'Add the vectors (1, 2) and (3, 4)',
-                      answer: '(4, 6)',
-                      explanation: 'Add corresponding components: (1+3, 2+4) = (4, 6)',
-                      context: 'Vector addition',
-                      difficulty: 'EASY' as const,
-                      masteryCriterionId: 'mc-5'
-                    }
+                  type: 'skill' as const,
+                  difficulty: 'Beginner' as const,
+                  prerequisites: [],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can add and subtract vectors component-wise',
+                    'Understands vector magnitude and direction',
+                    'Can visualize vector operations'
                   ],
-                  prerequisiteFor: [],
-                  requiresPrerequisites: []
+                  resources: ['Vector Operations Guide', 'Interactive Vector Tool'],
+                  estimatedTime: '2 hours'
                 }
               ]
             }
@@ -186,49 +174,37 @@ const mockData = {
     },
     {
       id: '2',
-      name: 'Computer Science',
+      title: 'Computer Science',
       description: 'Programming, algorithms, and data structures',
       type: 'section' as const,
-      itemCount: 2,
       children: [
         {
           id: '2-1',
-          name: 'Data Structures',
+          title: 'Data Structures',
           description: 'Understanding fundamental data structures',
           type: 'blueprint' as const,
-          itemCount: 1,
           children: [
             {
               id: '2-1-1',
-              name: 'Arrays and Lists',
+              title: 'Arrays and Lists',
               description: 'Linear data structures and their operations',
               type: 'pathway' as const,
-              itemCount: 3,
               masteryCriteria: [
                 {
                   id: 'mc-6',
                   title: 'Array fundamentals',
                   description: 'Understand basic array operations and memory layout',
-                  weight: 1.0,
-                  uueStage: 'UNDERSTAND' as const,
-                  complexityScore: 2.0,
-                  assessmentType: 'QUESTION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 300,
-                  attemptsAllowed: 3,
-                  questionInstances: [
-                    {
-                      id: 'qi-6',
-                      questionText: 'What is the time complexity of accessing an array element?',
-                      answer: 'O(1)',
-                      explanation: 'Array access is constant time because we can directly calculate the memory address.',
-                      context: 'Array time complexity',
-                      difficulty: 'EASY' as const,
-                      masteryCriterionId: 'mc-6'
-                    }
+                  type: 'knowledge' as const,
+                  difficulty: 'Beginner' as const,
+                  prerequisites: [],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can explain array memory layout',
+                    'Understands time complexity of array operations',
+                    'Can identify when to use arrays vs lists'
                   ],
-                  prerequisiteFor: ['mc-7'],
-                  requiresPrerequisites: []
+                  resources: ['Data Structures Guide', 'Memory Layout Tutorial'],
+                  estimatedTime: '2.5 hours'
                 }
               ]
             }
@@ -252,30 +228,36 @@ interface QuestionInstance {
 interface MasteryCriterion {
   id: string;
   title: string;
-  description?: string;
-  weight: number;
-  uueStage: 'UNDERSTAND' | 'USE' | 'EXPLORE';
-  complexityScore: number;
-  assessmentType: string;
-  masteryThreshold: number;
-  timeLimit?: number;
-  attemptsAllowed: number;
-  questionInstances: QuestionInstance[];
-  prerequisiteFor: string[];
-  requiresPrerequisites: string[];
+  description: string;
+  type: 'knowledge' | 'skill' | 'application';
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  prerequisites: string[];
+  dependencies: string[];
+  assessmentCriteria: string[];
+  resources: string[];
+  estimatedTime: string;
+  isMastered: boolean;
+  masteryScore: number;
+  questionInstances?: QuestionInstance[];
+}
+
+interface QuestionInstance {
+  id: string;
+  questionText: string;
+  answer: string;
+  explanation: string;
+  difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
 }
 
 interface PathwaysItem {
   id: string;
-  name: string;
+  title: string;
   description?: string;
   type: 'section' | 'blueprint' | 'pathway';
-  itemCount: number;
   children?: PathwaysItem[];
   masteryCriteria?: MasteryCriterion[];
-  depth?: number;
-  orderIndex?: number;
   difficulty?: string;
+  estimatedHours?: number;
 }
 
 interface PathwaysSidebarProps {
@@ -339,14 +321,14 @@ const PathwaysSidebar: React.FC<PathwaysSidebarProps> = ({
             </div>
             
             <div className={styles.itemInfo}>
-              <div className={styles.itemName}>{item.name}</div>
+              <div className={styles.itemName}>{item.title}</div>
               {item.description && (
                 <div className={styles.itemDescription}>{item.description}</div>
               )}
               <div className={styles.itemMeta}>
                 <span className={styles.itemType}>{item.type}</span>
                 <span className={styles.itemCount}>
-                  {hasMasteryCriteria && item.masteryCriteria ? `${item.masteryCriteria.length} criteria` : `${item.itemCount} items`}
+                  {hasMasteryCriteria && item.masteryCriteria ? `${item.masteryCriteria.length} criteria` : `${item.children?.length || 0} items`}
                 </span>
               </div>
             </div>

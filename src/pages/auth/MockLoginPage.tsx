@@ -19,7 +19,7 @@ const MockLoginPage: React.FC = () => {
       const user = mockUsers.find(u => u.email === selectedUser);
       if (user) {
         await mockLogin(user.email, user.password);
-        navigate('/dashboard');
+        navigate('/blueprints/dashboard');
       }
     } catch (error) {
       console.error('Mock login failed:', error);
@@ -32,7 +32,7 @@ const MockLoginPage: React.FC = () => {
     setIsLoading(true);
     try {
       await mockLogin(email, 'password');
-      navigate('/dashboard');
+      navigate('/blueprints/dashboard');
     } catch (error) {
       console.error('Quick login failed:', error);
     } finally {

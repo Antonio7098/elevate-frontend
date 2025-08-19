@@ -205,6 +205,18 @@
   background: #10b981;
 }
 
+.legendColor.prerequisite {
+  background: #ff6b6b;
+}
+
+.legendColor.masteredPrerequisite {
+  background: #51cf66;
+}
+
+.legendColor.unmasteredPrerequisite {
+  background: #ff6b6b;
+}
+
 /* React Flow Customization */
 .mindMapView :global(.react-flow__node) {
   border-radius: var(--radius-md);
@@ -290,6 +302,32 @@
   from {
     stroke-dashoffset: 10;
   }
+}
+
+/* Mastery Status Styles */
+.masteryStatus {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  margin-left: 0.5rem;
+}
+
+.masteryStatus.mastered {
+  background-color: #51cf66;
+  color: white;
+}
+
+.masteryStatus.notMastered {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.criterionScore {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+  font-weight: 500;
 }
 
 /* Responsive Design */
@@ -495,11 +533,11 @@
   color: var(--color-text-muted);
 }
 
-/* Expandable Mastery Criterion Node Styles */
+/* Expandable Mastery Criterion Node Styles - UPDATED */
 .expandableCriterionNode {
   position: relative;
-  background: var(--color-surface-white);
-  border: 2px solid var(--color-primary);
+  background: white !important;
+  border: 2px solid #6b7280 !important;
   border-radius: var(--radius-lg);
   padding: var(--space-sm);
   min-width: 120px;
@@ -511,12 +549,35 @@
   user-select: none;
 }
 
+.expandableCriterionNode.mastered {
+  background: white !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
+}
+
+.expandableCriterionNode.notMastered {
+  background: white !important;
+  border-color: #6b7280 !important;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2) !important;
+}
+
 .expandableCriterionNode:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
-  border-color: var(--color-primary-hover);
-  background: var(--color-surface-hover);
+  background: white !important;
   z-index: 20;
+}
+
+.expandableCriterionNode.mastered:hover {
+  background: white !important;
+  border-color: #b91c1c !important;
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3) !important;
+}
+
+.expandableCriterionNode.notMastered:hover {
+  background: white !important;
+  border-color: #4b5563 !important;
+  box-shadow: 0 6px 16px rgba(107, 114, 128, 0.3) !important;
 }
 
 .expandableCriterionNode .nodeContent {
@@ -524,6 +585,48 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-xs);
+}
+
+.masteryBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: bold;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.expandableCriterionNode.mastered .masteryBadge {
+  background: #dc2626;
+  color: white;
+}
+
+.expandableCriterionNode.notMastered .masteryBadge {
+  background: #6b7280;
+  color: white;
+}
+
+.masteryInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.masteryScore {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+}
+
+.expandableCriterionNode.mastered .masteryScore {
+  color: #dc2626;
 }
 
 .expandableCriterionNode .nodeLabel {
@@ -541,8 +644,8 @@
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
+  background: #6b7280;
+  color: white;
   border-radius: var(--radius-sm);
   font-size: var(--font-size-lg);
   font-weight: bold;
@@ -550,9 +653,24 @@
   transition: all 0.2s ease;
 }
 
+.expandableCriterionNode.mastered .expandIndicator {
+  background: #dc2626;
+}
+
+.expandableCriterionNode.notMastered .expandIndicator {
+  background: #6b7280;
+}
+
 .expandableCriterionNode:hover .expandIndicator {
-  background: var(--color-primary-hover);
   transform: scale(1.1);
+}
+
+.expandableCriterionNode.mastered:hover .expandIndicator {
+  background: #b91c1c;
+}
+
+.expandableCriterionNode.notMastered:hover .expandIndicator {
+  background: #4b5563;
 }
 
 .expandedDetails {
@@ -1311,6 +1429,22 @@
 
 .editButton:active {
   transform: translateY(0);
+}
+
+/* Disabled state for action buttons */
+.editButton:disabled {
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.editButton:disabled:hover,
+.editButton:disabled:active {
+  background: var(--color-surface-hover);
+  box-shadow: none;
+  transform: none;
 }
 
 .editButton svg {

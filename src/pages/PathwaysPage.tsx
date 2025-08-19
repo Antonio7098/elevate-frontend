@@ -22,30 +22,25 @@ interface QuestionInstance {
 interface MasteryCriterion {
   id: string;
   title: string;
-  description?: string;
-  weight: number;
-  uueStage: 'UNDERSTAND' | 'USE' | 'EXPLORE';
-  complexityScore: number;
-  assessmentType: string;
-  masteryThreshold: number;
-  timeLimit?: number;
-  attemptsAllowed: number;
-  questionInstances: QuestionInstance[];
-  prerequisiteFor: string[]; // IDs of criteria this is a prerequisite for
-  requiresPrerequisites: string[]; // IDs of criteria this requires
+  description: string;
+  type: 'knowledge' | 'skill' | 'application';
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  prerequisites: string[];
+  dependencies: string[];
+  assessmentCriteria: string[];
+  resources: string[];
+  estimatedTime: string;
 }
 
 interface PathwaysItem {
   id: string;
-  name: string;
+  title: string;
   description?: string;
   type: 'section' | 'blueprint' | 'pathway';
-  itemCount: number;
   children?: PathwaysItem[];
   masteryCriteria?: MasteryCriterion[];
-  depth?: number;
-  orderIndex?: number;
   difficulty?: string;
+  estimatedHours?: number;
 }
 
 const PathwaysPage: React.FC = () => {
@@ -62,180 +57,168 @@ const PathwaysPage: React.FC = () => {
   const blueprintId = urlBlueprintId || 'demo-blueprint-001';
   const sectionId = urlSectionId || 'demo-section-001';
 
-  // Import the mock data from the sidebar
-  const sidebarData = [
+  // Enhanced mock data with complex mastery criteria
+  const enhancedSidebarData = [
     {
       id: '1',
-      name: 'Mathematics',
-      description: 'Core mathematical concepts and problem-solving',
-      type: 'section' as const,
-      itemCount: 3,
+      title: 'Computer Science Fundamentals',
+      type: 'section',
       children: [
         {
-          id: '1-1',
-          name: 'Calculus Fundamentals',
-          description: 'Derivatives, integrals, and applications',
-          type: 'blueprint' as const,
-          itemCount: 2,
+          id: '1.1',
+          title: 'Programming Basics',
+          type: 'blueprint',
           children: [
             {
-              id: '1-1-1',
-              name: 'Derivatives Pathway',
-              description: 'Understanding and applying derivatives',
-              type: 'pathway' as const,
-              itemCount: 5,
+              id: '1.1.1',
+              title: 'Python Fundamentals',
+              type: 'pathway',
+              description: 'Master the basics of Python programming',
+              difficulty: 'Beginner',
+              estimatedHours: 40,
               masteryCriteria: [
                 {
-                  id: 'mc-1',
-                  title: 'What is a derivative?',
-                  description: 'Understand the basic concept of derivatives',
-                  weight: 1.0,
-                  uueStage: 'UNDERSTAND' as const,
-                  complexityScore: 2.0,
-                  assessmentType: 'QUESTION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 300,
-                  attemptsAllowed: 3,
-                  questionInstances: [
-                    {
-                      id: 'qi-1',
-                      questionText: 'What does a derivative represent?',
-                      answer: 'Rate of change',
-                      explanation: 'A derivative represents the instantaneous rate of change.',
-                      context: 'Basic derivative concepts',
-                      difficulty: 'EASY' as const,
-                      masteryCriterionId: 'mc-1'
-                    }
+                  id: 'mc-1.1.1.1',
+                  title: 'Variables and Data Types',
+                  description: 'Understand Python variables, integers, floats, strings, and booleans',
+                  type: 'knowledge',
+                  difficulty: 'Beginner',
+                  prerequisites: [],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can declare and initialize variables',
+                    'Understands type conversion',
+                    'Can perform basic operations on different data types'
                   ],
-                  prerequisiteFor: ['mc-2'],
-                  requiresPrerequisites: []
+                  resources: ['Python Official Docs', 'Codecademy Python Course'],
+                  estimatedTime: '2 hours'
                 },
                 {
-                  id: 'mc-2',
-                  title: 'Calculate basic derivatives',
-                  description: 'Apply derivative rules to simple functions',
-                  weight: 2.0,
-                  uueStage: 'USE' as const,
-                  complexityScore: 4.0,
-                  assessmentType: 'APPLICATION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 600,
-                  attemptsAllowed: 3,
-                  questionInstances: [
-                    {
-                      id: 'qi-2',
-                      questionText: 'Find the derivative of f(x) = x²',
-                      answer: '2x',
-                      explanation: 'Using the power rule: d/dx(x^n) = n*x^(n-1)',
-                      context: 'Power rule application',
-                      difficulty: 'MEDIUM' as const,
-                      masteryCriterionId: 'mc-2'
-                    }
+                  id: 'mc-1.1.1.2',
+                  title: 'Control Flow',
+                  description: 'Master if-else statements, loops, and conditional logic',
+                  type: 'skill',
+                  difficulty: 'Beginner',
+                  prerequisites: ['mc-1.1.1.1'],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can write if-else statements with multiple conditions',
+                    'Understands for and while loops',
+                    'Can use break and continue statements'
                   ],
-                  prerequisiteFor: ['mc-3'],
-                  requiresPrerequisites: ['mc-1']
+                  resources: ['Python Control Flow Tutorial', 'Practice Exercises'],
+                  estimatedTime: '3 hours'
                 },
                 {
-                  id: 'mc-3',
-                  title: 'Solve optimization problems',
-                  description: 'Apply derivatives to real-world problems',
-                  weight: 3.0,
-                  uueStage: 'EXPLORE' as const,
-                  complexityScore: 6.0,
-                  assessmentType: 'APPLICATION_BASED',
-                  masteryThreshold: 0.85,
-                  timeLimit: 900,
-                  attemptsAllowed: 2,
-                  questionInstances: [
-                    {
-                      id: 'qi-3',
-                      questionText: 'Find the maximum area of a rectangle with perimeter 20',
-                      answer: '25 square units',
-                      explanation: 'Use derivatives to find critical points and test for maximum',
-                      context: 'Optimization problems',
-                      difficulty: 'HARD' as const,
-                      masteryCriterionId: 'mc-3'
-                    }
+                  id: 'mc-1.1.1.3',
+                  title: 'Functions and Scope',
+                  description: 'Create and use functions with proper scope management',
+                  type: 'skill',
+                  difficulty: 'Intermediate',
+                  prerequisites: ['mc-1.1.1.2'],
+                  dependencies: ['mc-1.1.1.1'],
+                  assessmentCriteria: [
+                    'Can define functions with parameters',
+                    'Understands return values',
+                    'Grasps local vs global scope',
+                    'Can use default arguments'
                   ],
-                  prerequisiteFor: [],
-                  requiresPrerequisites: ['mc-1', 'mc-2']
+                  resources: ['Function Tutorial', 'Scope Examples'],
+                  estimatedTime: '4 hours'
                 }
               ]
             },
             {
-              id: '1-1-2',
-              name: 'Integration Pathway',
-              description: 'Learning integration techniques and applications',
-              type: 'pathway' as const,
-              itemCount: 4,
+              id: '1.1.2',
+              title: 'Object-Oriented Programming',
+              type: 'pathway',
+              description: 'Learn OOP principles and implementation',
+              difficulty: 'Intermediate',
+              estimatedHours: 60,
               masteryCriteria: [
                 {
-                  id: 'mc-4',
-                  title: 'Understand antiderivatives',
-                  description: 'Grasp the relationship between derivatives and antiderivatives',
-                  weight: 1.5,
-                  uueStage: 'UNDERSTAND' as const,
-                  complexityScore: 3.0,
-                  assessmentType: 'EXPLANATION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 450,
-                  attemptsAllowed: 3,
-                  questionInstances: [
-                    {
-                      id: 'qi-4',
-                      questionText: 'What is the antiderivative of 2x?',
-                      answer: 'x² + C',
-                      explanation: 'The antiderivative of 2x is x² + C, where C is the constant of integration.',
-                      context: 'Basic antiderivative concepts',
-                      difficulty: 'MEDIUM' as const,
-                      masteryCriterionId: 'mc-4'
-                    }
+                  id: 'mc-1.1.2.1',
+                  title: 'Classes and Objects',
+                  description: 'Understand class definition, instantiation, and basic OOP concepts',
+                  type: 'knowledge',
+                  difficulty: 'Intermediate',
+                  prerequisites: ['mc-1.1.1.3'],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can define a class with attributes and methods',
+                    'Understands constructor methods',
+                    'Can create and use object instances'
                   ],
-                  prerequisiteFor: ['mc-5'],
-                  requiresPrerequisites: ['mc-1']
+                  resources: ['OOP Tutorial', 'Class Examples'],
+                  estimatedTime: '5 hours'
+                },
+                {
+                  id: 'mc-1.1.2.2',
+                  title: 'Inheritance and Polymorphism',
+                  description: 'Master inheritance hierarchies and polymorphic behavior',
+                  type: 'skill',
+                  difficulty: 'Advanced',
+                  prerequisites: ['mc-1.1.2.1'],
+                  dependencies: ['mc-1.1.1.3'],
+                  assessmentCriteria: [
+                    'Can create inheritance hierarchies',
+                    'Understands method overriding',
+                    'Can implement abstract classes',
+                    'Grasps polymorphic behavior'
+                  ],
+                  resources: ['Inheritance Guide', 'Polymorphism Examples'],
+                  estimatedTime: '8 hours'
                 }
               ]
             }
           ]
         },
         {
-          id: '1-2',
-          name: 'Linear Algebra',
-          description: 'Vectors, matrices, and linear transformations',
-          type: 'blueprint' as const,
-          itemCount: 1,
+          id: '1.2',
+          title: 'Data Structures',
+          type: 'blueprint',
           children: [
             {
-              id: '1-2-1',
-              name: 'Vector Operations',
-              description: 'Understanding vector addition, multiplication, and applications',
-              type: 'pathway' as const,
-              itemCount: 3,
+              id: '1.2.1',
+              title: 'Linear Data Structures',
+              type: 'pathway',
+              description: 'Master arrays, linked lists, stacks, and queues',
+              difficulty: 'Intermediate',
+              estimatedHours: 50,
               masteryCriteria: [
                 {
-                  id: 'mc-5',
-                  title: 'Vector addition and subtraction',
-                  description: 'Perform basic vector operations',
-                  weight: 1.0,
-                  uueStage: 'UNDERSTAND' as const,
-                  complexityScore: 2.5,
-                  assessmentType: 'QUESTION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 300,
-                  attemptsAllowed: 3,
-                  questionInstances: [
-                    {
-                      id: 'qi-5',
-                      questionText: 'Add the vectors (1, 2) and (3, 4)',
-                      answer: '(4, 6)',
-                      explanation: 'Add corresponding components: (1+3, 2+4) = (4, 6)',
-                      context: 'Vector addition',
-                      difficulty: 'EASY' as const,
-                      masteryCriterionId: 'mc-5'
-                    }
+                  id: 'mc-1.2.1.1',
+                  title: 'Arrays and Lists',
+                  description: 'Understand array operations, dynamic arrays, and list implementations',
+                  type: 'knowledge',
+                  difficulty: 'Intermediate',
+                  prerequisites: ['mc-1.1.1.2'],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can implement basic array operations',
+                    'Understands time complexity of operations',
+                    'Can work with dynamic arrays',
+                    'Grasps list vs array differences'
                   ],
-                  prerequisiteFor: [],
-                  requiresPrerequisites: []
+                  resources: ['Data Structures Book', 'Array Tutorial'],
+                  estimatedTime: '6 hours'
+                },
+                {
+                  id: 'mc-1.2.1.2',
+                  title: 'Linked Lists',
+                  description: 'Implement and manipulate singly and doubly linked lists',
+                  type: 'skill',
+                  difficulty: 'Intermediate',
+                  prerequisites: ['mc-1.2.1.1'],
+                  dependencies: ['mc-1.1.1.3'],
+                  assessmentCriteria: [
+                    'Can implement singly linked list',
+                    'Can implement doubly linked list',
+                    'Understands insertion and deletion',
+                    'Can reverse a linked list'
+                  ],
+                  resources: ['Linked List Guide', 'Implementation Examples'],
+                  estimatedTime: '8 hours'
                 }
               ]
             }
@@ -245,49 +228,55 @@ const PathwaysPage: React.FC = () => {
     },
     {
       id: '2',
-      name: 'Computer Science',
-      description: 'Programming, algorithms, and data structures',
-      type: 'section' as const,
-      itemCount: 2,
+      title: 'Mathematics for CS',
+      type: 'section',
       children: [
         {
-          id: '2-1',
-          name: 'Data Structures',
-          description: 'Understanding fundamental data structures',
-          type: 'blueprint' as const,
-          itemCount: 1,
+          id: '2.1',
+          title: 'Discrete Mathematics',
+          type: 'blueprint',
           children: [
             {
-              id: '2-1-1',
-              name: 'Arrays and Lists',
-              description: 'Linear data structures and their operations',
-              type: 'pathway' as const,
-              itemCount: 3,
+              id: '2.1.1',
+              title: 'Logic and Proofs',
+              type: 'pathway',
+              description: 'Master mathematical logic, proofs, and reasoning',
+              difficulty: 'Advanced',
+              estimatedHours: 80,
               masteryCriteria: [
                 {
-                  id: 'mc-6',
-                  title: 'Array fundamentals',
-                  description: 'Understand basic array operations and memory layout',
-                  weight: 1.0,
-                  uueStage: 'UNDERSTAND' as const,
-                  complexityScore: 2.0,
-                  assessmentType: 'QUESTION_BASED',
-                  masteryThreshold: 0.8,
-                  timeLimit: 300,
-                  attemptsAllowed: 3,
-                  questionInstances: [
-                    {
-                      id: 'qi-6',
-                      questionText: 'What is the time complexity of accessing an array element?',
-                      answer: 'O(1)',
-                      explanation: 'Array access is constant time because we can directly calculate the memory address.',
-                      context: 'Array time complexity',
-                      difficulty: 'EASY' as const,
-                      masteryCriterionId: 'mc-6'
-                    }
+                  id: 'mc-2.1.1.1',
+                  title: 'Propositional Logic',
+                  description: 'Understand logical operators, truth tables, and logical equivalences',
+                  type: 'knowledge',
+                  difficulty: 'Advanced',
+                  prerequisites: [],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can construct truth tables',
+                    'Understands logical operators',
+                    'Can prove logical equivalences',
+                    'Can use De Morgan\'s laws'
                   ],
-                  prerequisiteFor: ['mc-7'],
-                  requiresPrerequisites: []
+                  resources: ['Logic Textbook', 'Truth Table Generator'],
+                  estimatedTime: '10 hours'
+                },
+                {
+                  id: 'mc-2.1.1.2',
+                  title: 'Mathematical Induction',
+                  description: 'Master proof by induction and strong induction',
+                  type: 'skill',
+                  difficulty: 'Advanced',
+                  prerequisites: ['mc-2.1.1.1'],
+                  dependencies: [],
+                  assessmentCriteria: [
+                    'Can identify when to use induction',
+                    'Can write base case and inductive step',
+                    'Understands strong induction',
+                    'Can prove recursive formulas'
+                  ],
+                  resources: ['Induction Guide', 'Proof Examples'],
+                  estimatedTime: '12 hours'
                 }
               ]
             }
@@ -299,8 +288,31 @@ const PathwaysPage: React.FC = () => {
 
   // Set initial data
   useEffect(() => {
-    setCurrentBlueprint(sidebarData[0]);
-    setSelectedItem(sidebarData[0]);
+    // Use enhanced data instead of basic sidebarData
+    const data = enhancedSidebarData as PathwaysItem[];
+    
+    // Find first pathway with mastery criteria for initial display
+    const findFirstPathway = (items: PathwaysItem[]): PathwaysItem | null => {
+      for (const item of items) {
+        if (item.children) {
+          const pathway = findFirstPathway(item.children);
+          if (pathway) return pathway;
+        }
+        if (item.type === 'pathway' && item.masteryCriteria && item.masteryCriteria.length > 0) {
+          return item;
+        }
+      }
+      return null;
+    };
+    
+    const firstPathway = findFirstPathway(data);
+    if (firstPathway) {
+      setCurrentBlueprint(firstPathway);
+      setSelectedItem(firstPathway);
+    } else {
+      setCurrentBlueprint(data[0]);
+      setSelectedItem(data[0]);
+    }
   }, []);
 
   const toggleSidebar = () => {
@@ -308,9 +320,61 @@ const PathwaysPage: React.FC = () => {
   };
 
   const handleItemSelect = (item: PathwaysItem) => {
+    console.log('🔍 [PathwaysPage] Item selected:', {
+      title: item.title,
+      type: item.type,
+      hasMasteryCriteria: (item as any).masteryCriteria?.length > 0,
+      hasChildren: (item as any).children?.length > 0
+    });
+
     setSelectedItem(item);
-    if (item.type === 'blueprint') {
+    
+    // If this is a pathway with mastery criteria, use it directly
+    if (item.type === 'pathway' && (item as any).masteryCriteria && (item as any).masteryCriteria.length > 0) {
       setCurrentBlueprint(item);
+      console.log('🔍 [PathwaysPage] Selected pathway with mastery criteria:', item.title);
+    }
+    // If this is a blueprint, find its first pathway
+    else if (item.type === 'blueprint' && (item as any).children && (item as any).children.length > 0) {
+      const pathway = (item as any).children.find((child: any) => 
+        child.type === 'pathway' && (child as any).masteryCriteria && (child as any).masteryCriteria.length > 0
+      );
+      if (pathway) {
+        setCurrentBlueprint(pathway);
+        console.log('🔍 [PathwaysPage] Found pathway in blueprint:', pathway.title);
+      } else {
+        setCurrentBlueprint(item);
+        console.log('🔍 [PathwaysPage] No pathway found in blueprint, using blueprint itself');
+      }
+    }
+    // If this is a section, find its first pathway
+    else if (item.type === 'section' && (item as any).children && (item as any).children.length > 0) {
+      const findFirstPathway = (items: any[]): any => {
+        for (const child of items) {
+          if (child.type === 'pathway' && (child as any).masteryCriteria && (child as any).masteryCriteria.length > 0) {
+            return child;
+          }
+          if ((child as any).children) {
+            const pathway = findFirstPathway((child as any).children);
+            if (pathway) return pathway;
+          }
+        }
+        return null;
+      };
+      
+      const pathway = findFirstPathway((item as any).children);
+      if (pathway) {
+        setCurrentBlueprint(pathway);
+        console.log('🔍 [PathwaysPage] Found pathway in section:', pathway.title);
+      } else {
+        setCurrentBlueprint(item);
+        console.log('🔍 [PathwaysPage] No pathway found in section, using section itself');
+      }
+    }
+    // Otherwise, use the item as is
+    else {
+      setCurrentBlueprint(item);
+      console.log('🔍 [PathwaysPage] Using selected item as blueprint:', item.title);
     }
   };
 
@@ -394,8 +458,8 @@ const PathwaysPage: React.FC = () => {
     // Add debugging
     console.log('🔍 [PathwaysPage] Debug Info:', {
       viewMode,
-      currentBlueprint: currentBlueprint?.name,
-      selectedItem: selectedItem?.name,
+      currentBlueprint: currentBlueprint?.title,
+      selectedItem: selectedItem?.title,
       selectedItemType: selectedItem?.type,
       hasMasteryCriteria: (selectedItem?.masteryCriteria?.length || 0) > 0,
       hasPrimitives: false, // PathwaysPage should never have primitives
@@ -424,13 +488,13 @@ const PathwaysPage: React.FC = () => {
     return (
       <div className={styles.textContent}>
         <div className={styles.contentHeader}>
-          <h1>{selectedItem.name}</h1>
+          <h1>{selectedItem.title}</h1>
           {selectedItem.description && (
             <p className={styles.itemDescription}>{selectedItem.description}</p>
           )}
           <div className={styles.itemMeta}>
             <span className={styles.itemType}>{selectedItem.type}</span>
-            <span className={styles.itemCount}>{selectedItem.itemCount} items</span>
+            <span className={styles.itemCount}>{(selectedItem as any).masteryCriteria?.length || 0} criteria</span>
             {selectedItem.difficulty && (
               <span className={styles.itemDifficulty}>{selectedItem.difficulty}</span>
             )}
@@ -438,18 +502,18 @@ const PathwaysPage: React.FC = () => {
         </div>
 
         <div className={styles.contentSections}>
-          {selectedItem.children && selectedItem.children.length > 0 && (
+          {(selectedItem as any).children && (selectedItem as any).children.length > 0 && (
             <section className={styles.contentSection}>
               <h2>Learning Pathways</h2>
               <p>Explore the structured learning paths through mastery criteria.</p>
               <div className={styles.itemsGrid}>
-                {selectedItem.children.map((child) => (
+                {(selectedItem as any).children.map((child: any) => (
                   <div key={child.id} className={styles.itemCard}>
-                    <h3>{child.name}</h3>
+                    <h3>{child.title}</h3>
                     {child.description && <p>{child.description}</p>}
                     <div className={styles.itemCardMeta}>
                       <span className={styles.itemType}>{child.type}</span>
-                      <span className={styles.itemCount}>{child.itemCount} criteria</span>
+                      <span className={styles.itemCount}>{(child as any).masteryCriteria?.length || 0} criteria</span>
                     </div>
                   </div>
                 ))}
@@ -457,7 +521,7 @@ const PathwaysPage: React.FC = () => {
             </section>
           )}
 
-          {selectedItem.masteryCriteria && selectedItem.masteryCriteria.length > 0 ? (
+          {(selectedItem as any).masteryCriteria && (selectedItem as any).masteryCriteria.length > 0 ? (
             <section className={styles.contentSection}>
               <div className={styles.sectionHeader}>
                 <h2>Mastery Criteria</h2>
@@ -472,7 +536,7 @@ const PathwaysPage: React.FC = () => {
               </div>
               <p>Specific learning objectives and assessments that form the learning pathway.</p>
               <div className={styles.criteriaGrid}>
-                {selectedItem.masteryCriteria.map((criterion) => (
+                {(selectedItem as any).masteryCriteria.map((criterion: MasteryCriterion) => (
                   <div key={criterion.id} className={styles.criterionCard}>
                     <div className={styles.criterionHeader}>
                       <div className={styles.criterionTitleRow}>
@@ -502,10 +566,9 @@ const PathwaysPage: React.FC = () => {
                         </div>
                       </div>
                       <div className={styles.criterionMeta}>
-                        <span className={styles.criterionWeight}>Weight: {criterion.weight}</span>
-                        <span className={styles.criterionStage}>{criterion.uueStage}</span>
-                        <span className={styles.criterionType}>{criterion.assessmentType}</span>
-                        <span className={styles.criterionThreshold}>Threshold: {criterion.masteryThreshold * 100}%</span>
+                        <span className={styles.criterionType}>{criterion.type}</span>
+                        <span className={styles.criterionDifficulty}>{criterion.difficulty}</span>
+                        <span className={styles.criterionTime}>{criterion.estimatedTime}</span>
                       </div>
                     </div>
                     
@@ -515,24 +578,25 @@ const PathwaysPage: React.FC = () => {
                     
                     <div className={styles.criterionDetails}>
                       <div className={styles.criterionStats}>
-                        <span className={styles.criterionComplexity}>Complexity: {criterion.complexityScore}</span>
-                        {criterion.timeLimit && (
-                          <span className={styles.criterionTimeLimit}>Time Limit: {criterion.timeLimit}s</span>
-                        )}
-                        <span className={styles.criterionAttempts}>Attempts: {criterion.attemptsAllowed}</span>
+                        <span className={styles.criterionPrerequisites}>
+                          Prerequisites: {criterion.prerequisites.length > 0 ? criterion.prerequisites.join(', ') : 'None'}
+                        </span>
+                        <span className={styles.criterionDependencies}>
+                          Dependencies: {criterion.dependencies.length > 0 ? criterion.dependencies.join(', ') : 'None'}
+                        </span>
                       </div>
                     </div>
 
                     {/* Prerequisites */}
-                    {criterion.requiresPrerequisites && criterion.requiresPrerequisites.length > 0 && (
+                    {criterion.prerequisites && criterion.prerequisites.length > 0 && (
                       <div className={styles.prerequisites}>
                         <h5>Prerequisites</h5>
                         <div className={styles.prerequisiteTags}>
-                          {criterion.requiresPrerequisites.map((prereqId) => {
-                            const prereq = selectedItem.masteryCriteria?.find(c => c.id === prereqId);
+                          {criterion.prerequisites.map((prereqId: string) => {
+                            const prereq = (selectedItem as any).masteryCriteria?.find((c: any) => c.id === prereqId);
                             return (
                               <span key={prereqId} className={styles.prerequisiteTag}>
-                                {prereq ? prereq.title : `Criterion ${prereqId}`}
+                                {prereq?.title || prereqId}
                               </span>
                             );
                           })}
@@ -540,16 +604,16 @@ const PathwaysPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Prerequisites for */}
-                    {criterion.prerequisiteFor && criterion.prerequisiteFor.length > 0 && (
-                      <div className={styles.prerequisitesFor}>
-                        <h5>Required For</h5>
-                        <div className={styles.prerequisiteTags}>
-                          {criterion.prerequisiteFor.map((nextId) => {
-                            const next = selectedItem.masteryCriteria?.find(c => c.id === nextId);
+                    {/* Dependencies */}
+                    {criterion.dependencies && criterion.dependencies.length > 0 && (
+                      <div className={styles.dependencies}>
+                        <h5>Dependencies</h5>
+                        <div className={styles.dependencyTags}>
+                          {criterion.dependencies.map((depId: string) => {
+                            const dep = (selectedItem as any).masteryCriteria?.find((c: any) => c.id === depId);
                             return (
-                              <span key={nextId} className={styles.prerequisiteTag}>
-                                {next ? next.title : `Criterion ${nextId}`}
+                              <span key={depId} className={styles.dependencyTag}>
+                                {dep?.title || depId}
                               </span>
                             );
                           })}
@@ -557,50 +621,29 @@ const PathwaysPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Expandable Question Instances */}
-                    {expandedCriteria.has(criterion.id) && (
-                      <div className={styles.questionInstances}>
-                        <div className={styles.questionInstancesHeader}>
-                          <h5>Practice Questions ({criterion.questionInstances.length})</h5>
-                          <button
-                            className={styles.addQuestionButton}
-                            onClick={() => handleAddQuestion(criterion.id)}
-                            title="Add Question"
-                          >
-                            <FiPlus />
-                            Add Question
-                          </button>
-                        </div>
-                        <div className={styles.questionList}>
-                          {criterion.questionInstances.map((question) => (
-                            <div key={question.id} className={styles.questionItem}>
-                              <div className={styles.questionHeader}>
-                                <strong>{question.questionText}</strong>
-                                <div className={styles.questionActions}>
-                                  <span className={`${styles.questionDifficulty} ${styles[question.difficulty.toLowerCase()]}`}>
-                                    {question.difficulty}
-                                  </span>
-                                  <button
-                                    className={styles.actionButton}
-                                    onClick={() => handleEditQuestion(question, criterion.id)}
-                                    title="Edit Question"
-                                  >
-                                    <FiEdit3 />
-                                  </button>
-                                </div>
-                              </div>
-                              {question.context && (
-                                <p className={styles.questionContext}>{question.context}</p>
-                              )}
-                              <div className={styles.questionAnswer}>
-                                <strong>Answer:</strong> {question.answer}
-                              </div>
-                              {question.explanation && (
-                                <div className={styles.questionExplanation}>
-                                  <strong>Explanation:</strong> {question.explanation}
-                                </div>
-                              )}
-                            </div>
+                    {/* Assessment Criteria */}
+                    {criterion.assessmentCriteria && criterion.assessmentCriteria.length > 0 && (
+                      <div className={styles.assessmentCriteria}>
+                        <h5>Assessment Criteria</h5>
+                        <ul className={styles.criteriaList}>
+                          {criterion.assessmentCriteria.map((criteria, index) => (
+                            <li key={index} className={styles.criteriaItem}>
+                              {criteria}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Resources */}
+                    {criterion.resources && criterion.resources.length > 0 && (
+                      <div className={styles.resources}>
+                        <h5>Learning Resources</h5>
+                        <div className={styles.resourceTags}>
+                          {criterion.resources.map((resource, index) => (
+                            <span key={index} className={styles.resourceTag}>
+                              {resource}
+                            </span>
                           ))}
                         </div>
                       </div>
@@ -673,16 +716,16 @@ const PathwaysPage: React.FC = () => {
             className={styles.blueprintSelector}
             value={currentBlueprint?.id || '1'}
             onChange={(e) => {
-              const blueprint = sidebarData.find(bp => bp.id === e.target.value);
+              const blueprint = enhancedSidebarData.find(bp => bp.id === e.target.value) as PathwaysItem;
               if (blueprint) {
                 setCurrentBlueprint(blueprint);
                 setSelectedItem(blueprint);
               }
             }}
           >
-            {sidebarData.map(blueprint => (
+            {enhancedSidebarData.map(blueprint => (
               <option key={blueprint.id} value={blueprint.id}>
-                {blueprint.name}
+                {blueprint.title}
               </option>
             ))}
           </select>
@@ -752,13 +795,13 @@ const MasteryCriterionModal: React.FC<MasteryCriterionModalProps> = ({
   const [formData, setFormData] = useState({
     title: editData?.title || '',
     description: editData?.description || '',
-    weight: editData?.weight || 1.0,
-    uueStage: editData?.uueStage || 'UNDERSTAND',
-    complexityScore: editData?.complexityScore || 1,
-    assessmentType: editData?.assessmentType || 'QUESTION_BASED',
-    masteryThreshold: editData?.masteryThreshold || 0.8,
-    timeLimit: editData?.timeLimit || 300,
-    attemptsAllowed: editData?.attemptsAllowed || 3
+    type: editData?.type || 'knowledge',
+    difficulty: editData?.difficulty || 'Beginner',
+    prerequisites: editData?.prerequisites || [],
+    dependencies: editData?.dependencies || [],
+    assessmentCriteria: editData?.assessmentCriteria || [],
+    resources: editData?.resources || [],
+    estimatedTime: editData?.estimatedTime || '1 hour'
   });
 
   useEffect(() => {
@@ -766,13 +809,13 @@ const MasteryCriterionModal: React.FC<MasteryCriterionModalProps> = ({
       setFormData({
         title: editData.title || '',
         description: editData.description || '',
-        weight: editData.weight || 1.0,
-        uueStage: editData.uueStage || 'UNDERSTAND',
-        complexityScore: editData.complexityScore || 1,
-        assessmentType: editData.assessmentType || 'QUESTION_BASED',
-        masteryThreshold: editData.masteryThreshold || 0.8,
-        timeLimit: editData.timeLimit || 300,
-        attemptsAllowed: editData.attemptsAllowed || 3
+        type: editData.type || 'knowledge',
+        difficulty: editData.difficulty || 'Beginner',
+        prerequisites: editData.prerequisites || [],
+        dependencies: editData.dependencies || [],
+        assessmentCriteria: editData.assessmentCriteria || [],
+        resources: editData.resources || [],
+        estimatedTime: editData.estimatedTime || '1 hour'
       });
     }
   }, [editData]);
@@ -817,97 +860,62 @@ const MasteryCriterionModal: React.FC<MasteryCriterionModalProps> = ({
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label htmlFor="weight">Weight</label>
-              <input
-                type="number"
-                id="weight"
-                value={formData.weight}
-                onChange={(e) => setFormData({ ...formData, weight: parseFloat(e.target.value) })}
-                min="0.1"
-                max="10"
-                step="0.1"
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="complexityScore">Complexity Score</label>
-              <input
-                type="number"
-                id="complexityScore"
-                value={formData.complexityScore}
-                onChange={(e) => setFormData({ ...formData, complexityScore: parseInt(e.target.value) })}
-                min="1"
-                max="10"
-              />
-            </div>
-          </div>
-
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label htmlFor="uueStage">UUE Stage</label>
+              <label htmlFor="type">Type</label>
               <select
-                id="uueStage"
-                value={formData.uueStage}
-                onChange={(e) => setFormData({ ...formData, uueStage: e.target.value as 'UNDERSTAND' | 'USE' | 'EXPLORE' })}
+                id="type"
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'knowledge' | 'skill' | 'application' })}
               >
-                <option value="UNDERSTAND">Understand</option>
-                <option value="USE">Use</option>
-                <option value="EXPLORE">Explore</option>
-              </select>
-          </div>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="assessmentType">Assessment Type</label>
-              <select
-                id="assessmentType"
-                value={formData.assessmentType}
-                onChange={(e) => setFormData({ ...formData, assessmentType: e.target.value })}
-              >
-                <option value="QUESTION_BASED">Question Based</option>
-                <option value="EXPLANATION_BASED">Explanation Based</option>
-                <option value="APPLICATION_BASED">Application Based</option>
-                <option value="COMPARISON_BASED">Comparison Based</option>
-                <option value="CREATION_BASED">Creation Based</option>
+                <option value="knowledge">Knowledge</option>
+                <option value="skill">Skill</option>
+                <option value="application">Application</option>
               </select>
             </div>
-          </div>
-
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label htmlFor="masteryThreshold">Mastery Threshold</label>
-              <input
-                type="number"
-                id="masteryThreshold"
-                value={formData.masteryThreshold}
-                onChange={(e) => setFormData({ ...formData, masteryThreshold: parseFloat(e.target.value) })}
-                min="0.1"
-                max="1"
-                step="0.1"
-              />
-            </div>
             
             <div className={styles.formGroup}>
-              <label htmlFor="timeLimit">Time Limit (seconds)</label>
-              <input
-                type="number"
-                id="timeLimit"
-                value={formData.timeLimit}
-                onChange={(e) => setFormData({ ...formData, timeLimit: parseInt(e.target.value) })}
-                min="30"
-                step="30"
-              />
+              <label htmlFor="difficulty">Difficulty</label>
+              <select
+                id="difficulty"
+                value={formData.difficulty}
+                onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as 'Beginner' | 'Intermediate' | 'Advanced' })}
+              >
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
             </div>
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="attemptsAllowed">Attempts Allowed</label>
+            <label htmlFor="estimatedTime">Estimated Time</label>
             <input
-              type="number"
-              id="attemptsAllowed"
-              value={formData.attemptsAllowed}
-              onChange={(e) => setFormData({ ...formData, attemptsAllowed: parseInt(e.target.value) })}
-              min="1"
-              max="10"
+              type="text"
+              id="estimatedTime"
+              value={formData.estimatedTime}
+              onChange={(e) => setFormData({ ...formData, estimatedTime: e.target.value })}
+              placeholder="e.g., 2 hours, 30 minutes"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="prerequisites">Prerequisites (comma-separated IDs)</label>
+            <input
+              type="text"
+              id="prerequisites"
+              value={formData.prerequisites.join(', ')}
+              onChange={(e) => setFormData({ ...formData, prerequisites: e.target.value.split(',').map(s => s.trim()).filter(s => s) })}
+              placeholder="e.g., mc-1.1.1.1, mc-1.1.1.2"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="dependencies">Dependencies (comma-separated IDs)</label>
+            <input
+              type="text"
+              id="dependencies"
+              value={formData.dependencies.join(', ')}
+              onChange={(e) => setFormData({ ...formData, dependencies: e.target.value.split(',').map(s => s.trim()).filter(s => s) })}
+              placeholder="e.g., mc-1.1.1.1, mc-1.1.1.2"
             />
           </div>
 

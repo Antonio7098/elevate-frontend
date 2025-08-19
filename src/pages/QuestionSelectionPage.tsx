@@ -1,87 +1,171 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { apiClient } from '../services/apiClient';
 import type { Question } from '../types/question';
-import type { QuestionSet } from '../types/questionSet';
 import styles from './QuestionSelectionPage.module.css';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
 import LoadingText from '../components/LoadingText';
 
+// Blueprint-centric mock types and data
+interface QuestionInstance {
+  id: string;
+  questionText: string;
+  currentMasteryScore?: number;
+}
+
+interface MasteryCriterion {
+  id: string;
+  title: string;
+  questionInstances: QuestionInstance[];
+}
+
+interface BlueprintSection {
+  id: string;
+  name: string;
+  description: string;
+  masteryCriteria: MasteryCriterion[];
+}
+
+const mockSections: BlueprintSection[] = [
+  {
+    id: 'section-1',
+    name: 'Introduction to Photosynthesis',
+    description: 'Understanding the basic process of photosynthesis.',
+    masteryCriteria: [
+      {
+        id: 'crit-1-1',
+        title: 'Define Photosynthesis',
+        questionInstances: [
+          { id: 'q-1-1-1', questionText: 'What is the chemical equation for photosynthesis?' },
+          { id: 'q-1-1-2', questionText: 'Where does photosynthesis occur in a plant cell?', currentMasteryScore: 0.75 },
+        ],
+      },
+      {
+        id: 'crit-1-2',
+        title: 'Identify Reactants and Products',
+        questionInstances: [
+          { id: 'q-1-2-1', questionText: 'What are the reactants of photosynthesis?' },
+          { id: 'q-1-2-2', questionText: 'What are the products of photosynthesis?' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'section-2',
+    name: 'Cellular Respiration',
+    description: 'The process of converting glucose to ATP.',
+    masteryCriteria: [
+      {
+        id: 'crit-2-1',
+        title: 'Glycolysis',
+        questionInstances: [
+          { id: 'q-2-1-1', questionText: 'Where does glycolysis take place?' },
+        ],
+      },
+    ],
+  },
+];
+
 const QuestionSelectionPage: React.FC = () => {
-  const { setId } = useParams<{ setId: string }>();
+  // Treat route param as sectionId now
+  const { setId: sectionId } = useParams<{ setId: string }>();
   const navigate = useNavigate();
-  const [questionSet, setQuestionSet] = useState<QuestionSet | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [section, setSection] = useState<BlueprintSection | null>(null);
   const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!setId) return;
-    
+    if (!sectionId) return;
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        // Fetch question set details
-        const questionSetRes = await apiClient.get<QuestionSet>(`/questionsets/${setId}`);
-        setQuestionSet(questionSetRes.data);
-        
-        // Fetch all questions in the set
-        const questionsRes = await apiClient.get<Question[]>(`/questionsets/${setId}/questions`);
-        setQuestions(questionsRes.data);
-        
-        // Select all questions by default
-        setSelectedQuestions(new Set(questionsRes.data.map(q => q.id)));
-        
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const found = mockSections.find(s => s.id === sectionId) || null;
+        setSection(found);
+        if (found) {
+          const allInstanceIds = found.masteryCriteria.flatMap(c => c.questionInstances.map(q => q.id));
+          setSelectedQuestions(new Set(allInstanceIds));
+        }
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching question set data:', err);
-        setError('Failed to load question set data.');
+        console.error('Error loading section data:', err);
+        setError('Failed to load section data.');
         setLoading(false);
       }
     };
-    
     fetchData();
-  }, [setId]);
+  }, [sectionId]);
 
   const handleQuestionToggle = (questionId: string) => {
     setSelectedQuestions(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(questionId)) {
-        newSet.delete(questionId);
-      } else {
-        newSet.add(questionId);
-      }
-      return newSet;
+      const next = new Set(prev);
+      if (next.has(questionId)) next.delete(questionId); else next.add(questionId);
+      return next;
     });
   };
 
   const handleSelectAll = () => {
-    setSelectedQuestions(new Set(questions.map(q => q.id)));
+    if (!section) return;
+    const allIds = section.masteryCriteria.flatMap(c => c.questionInstances.map(q => q.id));
+    setSelectedQuestions(new Set(allIds));
   };
 
   const handleSelectNone = () => {
     setSelectedQuestions(new Set());
   };
 
+  const buildQuestionPayload = (): Question[] => {
+    if (!section) return [];
+    const nowIso = new Date().toISOString();
+    const allInstances: QuestionInstance[] = section.masteryCriteria.flatMap(c => c.questionInstances);
+    return allInstances
+      .filter(q => selectedQuestions.has(q.id))
+      .map(q => ({
+        id: q.id,
+        text: q.questionText,
+        questionSetId: section.id, // reuse field to carry section id
+        questionSetName: section.name,
+        answer: null,
+        createdAt: nowIso,
+        updatedAt: nowIso,
+        questionType: 'SHORT_ANSWER',
+        options: [],
+        totalMarksAvailable: 1,
+        markingCriteria: null,
+        conceptTags: [],
+        uueFocus: 'Understand',
+        timesAnsweredCorrectly: 0,
+        timesAnsweredIncorrectly: 0,
+        selfMark: false,
+        autoMark: false,
+        aiGenerated: false,
+        inCat: null,
+        imageUrls: [],
+        currentMasteryScore: q.currentMasteryScore ?? null,
+      } as Question));
+  };
+
   const handleStartReview = () => {
-    if (selectedQuestions.size === 0) {
+    const payload = buildQuestionPayload();
+    if (payload.length === 0) {
       alert('Please select at least one question to start the review session.');
       return;
     }
-
-    const selectedQuestionsList = questions.filter(q => selectedQuestions.has(q.id));
-    
-    navigate('/review/set', {
+    navigate('/blueprints/review/set', {
       state: {
-        questions: selectedQuestionsList,
-        sessionTitle: `Review: ${questionSet?.name || 'Question Set'}`,
-        questionSetId: setId
-      }
+        questions: payload,
+        sessionTitle: `Review: ${section?.name || 'Section'}`,
+        // reusing questionSetId to maintain compatibility with review route
+        questionSetId: section?.id,
+        isBlueprintReview: true,
+        sectionId: section?.id,
+      },
     });
   };
+
+  const totalQuestions = section?.masteryCriteria.reduce((sum, c) => sum + c.questionInstances.length, 0) || 0;
 
   if (loading) {
     return (
@@ -107,12 +191,12 @@ const QuestionSelectionPage: React.FC = () => {
     );
   }
 
-  if (!questionSet || questions.length === 0) {
+  if (!section || totalQuestions === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.errorContainer}>
           <h2>No Questions Found</h2>
-          <p>This question set doesn't contain any questions.</p>
+          <p>This section doesn't contain any question instances.</p>
           <button onClick={() => navigate(-1)} className={styles.backButton}>
             Go Back
           </button>
@@ -124,29 +208,29 @@ const QuestionSelectionPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <Breadcrumbs />
-      
+
       <div className={styles.header}>
         <h1 className={styles.title}>Select Questions for Review</h1>
         <p className={styles.subtitle}>
-          Choose which questions from "{questionSet.name}" you want to include in your review session.
+          Choose which questions from "{section.name}" you want to include in your review session.
         </p>
       </div>
 
       <div className={styles.selectionControls}>
         <div className={styles.selectionInfo}>
           <span className={styles.selectionCount}>
-            {selectedQuestions.size} of {questions.length} questions selected
+            {selectedQuestions.size} of {totalQuestions} questions selected
           </span>
         </div>
         <div className={styles.selectionButtons}>
-          <button 
+          <button
             onClick={handleSelectAll}
             className={styles.selectButton}
-            disabled={selectedQuestions.size === questions.length}
+            disabled={selectedQuestions.size === totalQuestions}
           >
             Select All
           </button>
-          <button 
+          <button
             onClick={handleSelectNone}
             className={styles.selectButton}
             disabled={selectedQuestions.size === 0}
@@ -156,45 +240,50 @@ const QuestionSelectionPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Render criteria and their question instances */}
       <div className={styles.questionsList}>
-        {questions.map((question, index) => (
-          <div 
-            key={question.id} 
-            className={`card ${selectedQuestions.has(question.id) ? styles.selected : ''}`}
-            onClick={() => handleQuestionToggle(question.id)}
-          >
-            <div className={styles.questionCheckbox}>
-              <input
-                type="checkbox"
-                checked={selectedQuestions.has(question.id)}
-                onChange={() => handleQuestionToggle(question.id)}
-                className={styles.checkbox}
-              />
+        {section.masteryCriteria.map((criterion) => (
+          <div key={criterion.id} className="card">
+            <div className={styles.questionHeader}>
+              <span className={styles.questionNumber}>{criterion.title}</span>
             </div>
-            <div className={styles.questionContent}>
-              <div className={styles.questionHeader}>
-                <span className={styles.questionNumber}>Question {index + 1}</span>
-                {question.uueFocus && (
-                  <span className={styles.uueTag}>{question.uueFocus}</span>
-                )}
-                {question.totalMarksAvailable && (
-                  <span className={styles.marksTag}>{question.totalMarksAvailable} marks</span>
-                )}
+            {criterion.questionInstances.map((question, index) => (
+              <div
+                key={question.id}
+                className={`card ${selectedQuestions.has(question.id) ? styles.selected : ''}`}
+                onClick={() => handleQuestionToggle(question.id)}
+              >
+                <div className={styles.questionCheckbox}>
+                  <input
+                    type="checkbox"
+                    checked={selectedQuestions.has(question.id)}
+                    onChange={() => handleQuestionToggle(question.id)}
+                    className={styles.checkbox}
+                  />
+                </div>
+                <div className={styles.questionContent}>
+                  <div className={styles.questionHeader}>
+                    <span className={styles.questionNumber}>Q{index + 1}</span>
+                    {question.currentMasteryScore !== undefined && (
+                      <span className={styles.uueTag}>{Math.round((question.currentMasteryScore || 0) * 100)}%</span>
+                    )}
+                  </div>
+                  <p className={styles.questionText}>{question.questionText}</p>
+                </div>
               </div>
-              <p className={styles.questionText}>{question.text}</p>
-            </div>
+            ))}
           </div>
         ))}
       </div>
 
       <div className={styles.actions}>
-        <button 
-          onClick={() => navigate(-1)} 
+        <button
+          onClick={() => navigate(-1)}
           className={styles.cancelButton}
         >
           Cancel
         </button>
-        <button 
+        <button
           onClick={handleStartReview}
           className={styles.startButton}
           disabled={selectedQuestions.size === 0}
@@ -206,4 +295,4 @@ const QuestionSelectionPage: React.FC = () => {
   );
 };
 
-export default QuestionSelectionPage; 
+export default QuestionSelectionPage;

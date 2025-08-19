@@ -10,7 +10,8 @@ import {
   FiBookOpen,
   FiLogOut,
   FiMap,
-  FiUser
+  FiUser,
+  FiCheckSquare
 } from 'react-icons/fi';
 import { useAuth } from '../../context/useAuth';
 import styles from './Sidebar.module.css';
@@ -67,6 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
     { name: 'Ideaspace', href: '/blueprints/ideaspace', icon: <FiMap className={iconClassName} /> },
     { name: 'Pathways', href: '/blueprints/pathways', icon: <FiMap className={iconClassName} /> },
     { name: 'Chat', href: '/blueprints/chat', icon: <FiMessageSquare className={iconClassName} /> },
+    { name: 'Review', href: '/blueprints/review', icon: <FiCheckSquare className={iconClassName} /> },
   ];
 
   const utilityItems: NavigationItem[] = [

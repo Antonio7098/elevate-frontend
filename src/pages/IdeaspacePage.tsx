@@ -782,6 +782,7 @@ const IdeaspacePage: React.FC = () => {
 
       return (
         <MindMapView
+          key={`ideaspace-${selectedItem?.id || 'default'}`}
           blueprintId={currentBlueprint.id}
           sectionId={sectionId}
           className={styles.mindMapContainer}
